@@ -44,12 +44,12 @@ const containerVars = {
 }
 
 const furnitureCategories = [
-  { name: "Office Chairs", slug: "office-chairs" },
+  { name: "Chairs", slug: "chairs" },
   { name: "Desks & Tables", slug: "desks-tables" },
-  { name: "Storage Solutions", slug: "storage" },
-  { name: "Acoustic Solutions", slug: "acoustic" },
-  { name: "Lighting", slug: "lighting" },
-  { name: "Soft Seating", slug: "soft-seating" },
+  { name: "Storage Solutions", slug: "storage-solutions" },
+  { name: "Acoustic Solutions", slug: "acoustic-solutions" },
+  { name: "Accessories & Lighting", slug: "accessories-lighting" },
+  { name: "Lounge", slug: "lounge" },
 ]
 
 const navLinks = [
