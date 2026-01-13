@@ -201,7 +201,6 @@ export default function BlogPageContent() {
                 image={blog.image}
                 name={blog.name}
                 shortDescription={blog.shortDescription}
-                id={blog.id}
                 slug={blog.slug}
               />
             </motion.div>

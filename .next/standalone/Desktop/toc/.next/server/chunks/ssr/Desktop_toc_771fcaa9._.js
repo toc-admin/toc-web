@@ -2,6 +2,7 @@ module.exports=[5413,a=>{a.n(a.i(17150))},69794,a=>{a.n(a.i(10344))},7865,a=>{a.
       id,
       name,
       slug,
+      short_description,
       subcategory,
       is_new,
       is_featured,

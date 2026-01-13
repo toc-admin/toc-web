@@ -18,7 +18,10 @@
       "Bash(grep:*)",
       "Bash(node test-category.js:*)",
       "Bash(node test-category.mjs:*)",
-      "Bash(ps:*)"
+      "Bash(ps:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

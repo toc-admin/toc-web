@@ -315,9 +315,9 @@ export default function CategoryListingClient({
             {subcategories.map((sub) => (
               <button
                 key={sub.slug}
-                onClick={() => toggleSubcategory(sub.slug)}
+                onClick={() => toggleSubcategoryFilter(sub.slug)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
-                  selectedSubcategories.includes(sub.slug)
+                  selectedSubcategoriesFilter.includes(sub.slug)
                     ? "bg-gradient-to-r from-red-900 to-red-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
