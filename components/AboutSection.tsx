@@ -1,0 +1,242 @@
+'use client'
+
+import { useRef } from "react"
+import { motion, useInView } from "framer-motion"
+import Link from "next/link"
+
+const stats = [
+  { value: "8+", label: "Years Experience" },
+  { value: "20.000+", label: "Square Meters Created" },
+  { value: "200+", label: "Happy Clients" },
+  { value: "50+", label: "Team Members" },
+]
+
+const highlights = [
+  {
+    title: "Expert Consultation",
+    description: "Strategic workspace planning tailored to your business needs and growth objectives.",
+    icon: (
+      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Premium Quality",
+    description: "World-class furniture and materials from leading global brands.",
+    icon: (
+      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Full-Service Support",
+    description: "From concept to completion, we manage every aspect of your workspace transformation.",
+    icon: (
+      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+      </svg>
+    ),
+  },
+  {
+    title: "Proven Results",
+    description: "Delivering measurable improvements in productivity and employee satisfaction.",
+    icon: (
+      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    ),
+  },
+]
+
+interface AboutSectionProps {
+  id?: string
+}
+
+const AboutSection = ({ id }: AboutSectionProps) => {
+  const headerRef = useRef(null)
+  const statsRef = useRef(null)
+  const contentRef = useRef(null)
+  const highlightsRef = useRef(null)
+
+  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
+  const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 })
+  const isContentInView = useInView(contentRef, { once: true, amount: 0.3 })
+  const isHighlightsInView = useInView(highlightsRef, { once: true, amount: 0.2 })
+
+  return (
+    <div
+      className="py-24 md:py-32 flex flex-col items-center justify-center w-full px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 bg-white relative overflow-hidden"
+      id={id}
+    >
+      {/* Background Accent */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-red-50/30 to-transparent pointer-events-none" />
+
+      {/* Header Section */}
+      <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-center text-center mb-16 max-w-3xl">
+        <motion.span
+          initial={{ opacity: 0, y: 20 }}
+          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-sm font-bold uppercase tracking-widest text-red-800"
+        >
+          About Us
+        </motion.span>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+          className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight"
+        >
+          Who We Are
+        </motion.h2>
+
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={isHeaderInView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32"
+        />
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={isHeaderInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-base md:text-lg leading-relaxed text-gray-700 mt-4"
+        >
+          With over 10 years of experience, we are Croatia&apos;s leading provider
+          of comprehensive office solutions, combining expert consulting,
+          coworking management services, interior design and office furniture.
+        </motion.p>
+      </div>
+
+      {/* Stats Grid */}
+      {/* <div
+        ref={statsRef}
+        className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full mb-20"
+      >
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
+            className="bg-gradient-to-br from-red-900 to-red-700 p-8 text-center group hover:scale-105 transition-transform duration-300"
+          >
+            <div className="text-4xl md:text-5xl font-black text-white mb-2">
+              {stat.value}
+            </div>
+            <div className="text-sm md:text-base font-semibold uppercase tracking-wider text-red-100">
+              {stat.label}
+            </div>
+          </motion.div>
+        ))}
+      </div> */}
+
+      {/* Two-Column Content */}
+      <div
+        ref={contentRef}
+        className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 w-full mb-20"
+      >
+        {/* Left Column - Image */}
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={isContentInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative h-[400px] md:h-[500px] overflow-hidden"
+        >
+          <div
+            style={{
+              backgroundImage: `url(/images/tocAbout.webp)`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+            className="absolute inset-0 transition-transform duration-500 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-transparent" />
+        </motion.div>
+
+        {/* Right Column - Content */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={isContentInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          className="flex flex-col gap-6 justify-center"
+        >
+          <h3 className="text-3xl md:text-4xl font-bold tracking-tight">
+            Transforming Places Into Productive Environments
+          </h3>
+
+          <p className="text-base md:text-lg leading-relaxed text-gray-700">
+            Founded with a vision to revolutionize how businesses approach their
+            workspace, The Office Company has grown to become Croatia&apos;s most
+            trusted partner in office solutions.
+          </p>
+
+          <p className="text-base md:text-lg leading-relaxed text-gray-700">
+            We combine deep industry expertise with a passion for design,
+            delivering spaces that not only look exceptional but drive real
+            business results. Our team of specialists works closely with each
+            client to understand their unique needs and craft solutions that
+            exceed expectations.
+          </p>
+
+          <p className="text-base md:text-lg leading-relaxed text-gray-700">
+            We create workspaces that inspire, motivate,
+            and perform, regardless of the size of your organization.
+          </p>
+
+          <Link
+            href="/about"
+            className="group mt-4 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2 self-start"
+          >
+            Learn More About Us
+            <svg
+              className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </Link>
+        </motion.div>
+      </div>
+
+      {/* Highlights Grid */}
+      <div
+        ref={highlightsRef}
+        className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full"
+      >
+        {highlights.map((highlight, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            animate={isHighlightsInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.15 }}
+            className="group bg-white border-2 border-red-100 p-8 hover:border-red-700 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="text-red-700 mb-4 group-hover:scale-110 transition-transform duration-300">
+              {highlight.icon}
+            </div>
+            <h4 className="text-xl md:text-2xl font-bold mb-3 group-hover:text-red-900 transition-colors duration-300">
+              {highlight.title}
+            </h4>
+            <p className="text-base md:text-lg leading-relaxed text-gray-700">
+              {highlight.description}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default AboutSection
