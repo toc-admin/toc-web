@@ -176,7 +176,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
 
             {/* CTA Button */}
             <button className="w-full px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3">
-              Request Quote
+              View More
               <svg
                 className="w-4 h-4"
                 fill="none"

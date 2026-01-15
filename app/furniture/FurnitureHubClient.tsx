@@ -501,34 +501,6 @@ export default function FurnitureHubClient({
                 transition={{ duration: 0.3, ease: "easeOut" }}
               />
             </motion.div>
-
-            {/* View All Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-              className="text-center mt-12"
-            >
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
-              >
-                View All Products
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </Link>
-            </motion.div>
           </div>
         </section>
       )}
@@ -593,18 +565,12 @@ export default function FurnitureHubClient({
             Our expert team can help you select the right furniture for your space,
             provide custom quotes, and guide you through the entire process.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link
               href="/contact"
               className="px-8 py-4 bg-white text-black font-semibold uppercase tracking-wider hover:bg-gray-100 transition-all duration-300"
             >
               Contact Our Experts
-            </Link>
-            <Link
-              href="/products"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300"
-            >
-              Browse All Products
             </Link>
           </div>
         </motion.div>

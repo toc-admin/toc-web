@@ -315,7 +315,7 @@ function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: bo
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Link
-            href="/quote"
+            href="/contact"
             className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
           >
             Get a Quote
@@ -568,6 +568,9 @@ function DeepDiveSection({ service, index }: { service: typeof services[0]; inde
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
 
+  // Third service (index 2) gets "Browse Our Products" button, others get "Request a Quote"
+  const isDesignService = index === 2
+
   return (
     <div
       id={service.id}
@@ -618,10 +621,10 @@ function DeepDiveSection({ service, index }: { service: typeof services[0]; inde
           </div>
 
           <Link
-            href="/quote"
+            href={isDesignService ? "/furniture" : "/contact"}
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
           >
-            Request Quote
+            {isDesignService ? "Browse Our Products" : "Request a Quote"}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

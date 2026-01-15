@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { motion, useInView } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
+import gsap from "gsap"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, Thumbs, FreeMode } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
@@ -596,6 +598,9 @@ interface QuoteFormModalProps {
 }
 
 function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
+  const [mounted, setMounted] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -604,6 +609,40 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
     quantity: "1",
     message: "",
   })
+
+  useEffect(() => {
+    setMounted(true)
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+
+    // Stop Lenis smooth scroll when modal is open
+    const lenis = (window as any).lenis
+    if (lenis) {
+      lenis.stop()
+    }
+
+    // GSAP animation on mount
+    if (backdropRef.current && modalRef.current) {
+      gsap.fromTo(backdropRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3, ease: "power2.out" }
+      )
+      gsap.fromTo(modalRef.current,
+        { opacity: 0, scale: 0.9, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "power3.out" }
+      )
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      // Resume Lenis
+      if (lenis) {
+        lenis.start()
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -616,13 +655,19 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+  const modalContent = (
+    <div
+      ref={backdropRef}
+      className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen z-[99999] flex items-center justify-center p-4 bg-black/70"
+      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 99999 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        ref={modalRef}
         className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-red-900 to-red-700 text-white p-6 flex items-center justify-between z-10">
@@ -765,7 +810,12 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
             </button>
           </div>
         </form>
-      </motion.div>
+      </div>
     </div>
   )
+
+  // Use portal to render modal outside Lenis scroll container
+  if (!mounted) return null
+  const portalRoot = document.getElementById('modal-root') || document.body
+  return createPortal(modalContent, portalRoot)
 }

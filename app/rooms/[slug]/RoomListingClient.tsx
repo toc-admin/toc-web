@@ -20,7 +20,6 @@ interface RoomListingClientProps {
     categories?: string
     subcategory?: string
     brands?: string
-    page?: string
   }
 }
 
@@ -54,9 +53,9 @@ export default function RoomListingClient({
   )
   const [sortBy, setSortBy] = useState(initialSearchParams.sort || "popular")
   const [viewMode, setViewMode] = useState<'grid' | 'list'>("grid")
-  const [currentPage, setCurrentPage] = useState(parseInt(initialSearchParams.page || '1'))
+  const [displayCount, setDisplayCount] = useState(12)
 
-  const productsPerPage = 12
+  const productsPerLoad = 12
 
   // Sync state from URL when searchParams change
   useEffect(() => {
@@ -64,20 +63,17 @@ export default function RoomListingClient({
     const urlSubcategory = searchParams.get('subcategory')?.split(',').filter(Boolean) || []
     const urlBrands = searchParams.get('brands')?.split(',').filter(Boolean) || []
     const urlSort = searchParams.get('sort') || 'popular'
-    const urlPage = parseInt(searchParams.get('page') || '1')
 
     // Only update if different to prevent unnecessary re-renders
     const categoriesChanged = JSON.stringify(urlCategories.sort()) !== JSON.stringify([...selectedCategories].sort())
     const subcategoryChanged = JSON.stringify(urlSubcategory.sort()) !== JSON.stringify([...selectedSubcategoriesFilter].sort())
     const brandsChanged = JSON.stringify(urlBrands.sort()) !== JSON.stringify([...selectedBrands].sort())
     const sortChanged = urlSort !== sortBy
-    const pageChanged = urlPage !== currentPage
 
     if (categoriesChanged) setSelectedCategories(urlCategories)
     if (subcategoryChanged) setSelectedSubcategoriesFilter(urlSubcategory)
     if (brandsChanged) setSelectedBrands(urlBrands)
     if (sortChanged) setSortBy(urlSort)
-    if (pageChanged) setCurrentPage(urlPage)
   }, [searchParams])
 
   // Helper function to update URL
@@ -86,7 +82,6 @@ export default function RoomListingClient({
     subcategory?: string[]
     brands?: string[]
     sort?: string
-    page?: number
   }) => {
     const params = new URLSearchParams()
 
@@ -94,7 +89,6 @@ export default function RoomListingClient({
     const subs = updates.subcategory ?? selectedSubcategoriesFilter
     const brds = updates.brands ?? selectedBrands
     const srt = updates.sort ?? sortBy
-    const pg = updates.page ?? currentPage
 
     if (cats.length > 0) {
       params.set('categories', cats.join(','))
@@ -107,9 +101,6 @@ export default function RoomListingClient({
     }
     if (srt !== 'popular') {
       params.set('sort', srt)
-    }
-    if (pg > 1) {
-      params.set('page', pg.toString())
     }
 
     const queryString = params.toString()
@@ -168,12 +159,14 @@ export default function RoomListingClient({
     return filtered
   }, [initialProducts, selectedCategories, selectedSubcategoriesFilter, selectedBrands, sortBy])
 
-  // Pagination logic
+  // Load more logic
   const totalFilteredProducts = filteredAndSortedProducts.length
-  const totalPages = Math.ceil(totalFilteredProducts / productsPerPage)
-  const startIndex = (currentPage - 1) * productsPerPage
-  const endIndex = startIndex + productsPerPage
-  const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex)
+  const currentProducts = filteredAndSortedProducts.slice(0, displayCount)
+  const hasMoreProducts = displayCount < totalFilteredProducts
+
+  const loadMore = () => {
+    setDisplayCount(prev => Math.min(prev + productsPerLoad, totalFilteredProducts))
+  }
 
   // Handle filter changes
   const toggleCategory = (slug: string) => {
@@ -182,9 +175,9 @@ export default function RoomListingClient({
       : [...selectedCategories, slug]
     flushSync(() => {
       setSelectedCategories(newCategories)
-      setCurrentPage(1)
+      setDisplayCount(productsPerLoad)
     })
-    updateURL({ categories: newCategories, page: 1 })
+    updateURL({ categories: newCategories })
   }
 
   const toggleSubcategoryFilter = (subcategory: string) => {
@@ -193,9 +186,9 @@ export default function RoomListingClient({
       : [...selectedSubcategoriesFilter, subcategory]
     flushSync(() => {
       setSelectedSubcategoriesFilter(newSubcategories)
-      setCurrentPage(1)
+      setDisplayCount(productsPerLoad)
     })
-    updateURL({ subcategory: newSubcategories, page: 1 })
+    updateURL({ subcategory: newSubcategories })
   }
 
   const toggleBrand = (slug: string) => {
@@ -204,9 +197,9 @@ export default function RoomListingClient({
       : [...selectedBrands, slug]
     flushSync(() => {
       setSelectedBrands(newBrands)
-      setCurrentPage(1)
+      setDisplayCount(productsPerLoad)
     })
-    updateURL({ brands: newBrands, page: 1 })
+    updateURL({ brands: newBrands })
   }
 
   const clearAllFilters = () => {
@@ -214,9 +207,9 @@ export default function RoomListingClient({
       setSelectedCategories([])
       setSelectedSubcategoriesFilter([])
       setSelectedBrands([])
-      setCurrentPage(1)
+      setDisplayCount(productsPerLoad)
     })
-    updateURL({ categories: [], subcategory: [], brands: [], page: 1 })
+    updateURL({ categories: [], subcategory: [], brands: [] })
   }
 
   const hasActiveFilters =
@@ -445,11 +438,7 @@ export default function RoomListingClient({
                 <p className="text-sm text-gray-600">
                   Showing{" "}
                   <span className="font-semibold text-gray-900">
-                    {totalFilteredProducts > 0 ? startIndex + 1 : 0}
-                  </span>
-                  {" "}-{" "}
-                  <span className="font-semibold text-gray-900">
-                    {Math.min(endIndex, totalFilteredProducts)}
+                    {currentProducts.length}
                   </span>{" "}
                   of <span className="font-semibold text-gray-900">{totalFilteredProducts}</span>{" "}
                   products
@@ -554,81 +543,14 @@ export default function RoomListingClient({
               </div>
             )}
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-12">
-                {/* Previous Button */}
+            {/* Load More Button */}
+            {hasMoreProducts && (
+              <div className="flex justify-center mt-12">
                 <button
-                  onClick={() => {
-                    const newPage = currentPage - 1
-                    flushSync(() => {
-                      setCurrentPage(newPage)
-                    })
-                    updateURL({ page: newPage })
-                  }}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold uppercase tracking-wider hover:border-red-700 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-700 transition-all duration-300"
+                  onClick={loadMore}
+                  className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
                 >
-                  Previous
-                </button>
-
-                {/* Page Numbers */}
-                <div className="flex gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    // Show first page, last page, current page, and pages around current
-                    const showPage =
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-
-                    // Show ellipsis
-                    const showEllipsisBefore = page === currentPage - 2 && currentPage > 3
-                    const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2
-
-                    if (showEllipsisBefore || showEllipsisAfter) {
-                      return (
-                        <span key={page} className="px-4 py-2 text-gray-500">
-                          ...
-                        </span>
-                      )
-                    }
-
-                    if (!showPage) return null
-
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => {
-                          flushSync(() => {
-                            setCurrentPage(page)
-                          })
-                          updateURL({ page })
-                        }}
-                        className={`px-4 py-2 font-semibold transition-all duration-300 ${
-                          currentPage === page
-                            ? "bg-gradient-to-r from-red-900 to-red-700 text-white"
-                            : "border-2 border-gray-300 text-gray-700 hover:border-red-700 hover:text-red-700"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  onClick={() => {
-                    const newPage = currentPage + 1
-                    flushSync(() => {
-                      setCurrentPage(newPage)
-                    })
-                    updateURL({ page: newPage })
-                  }}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold uppercase tracking-wider hover:border-red-700 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-700 transition-all duration-300"
-                >
-                  Next
+                  Load More Products
                 </button>
               </div>
             )}

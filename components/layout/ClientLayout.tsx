@@ -19,20 +19,24 @@ export default function ClientLayout({
   }
 
   return (
-    <SmoothScroll>
-      <NavBar isOpen={isOpen} setOpen={setOpen} />
+    <>
+      <SmoothScroll>
+        <NavBar isOpen={isOpen} setOpen={setOpen} />
 
-      <div className="bg-bright-grey">
-        {children}
+        <div className="bg-bright-grey">
+          {children}
 
-        {isOpen && (
-          <AnimatePresence>
-            <MobileMenu closeMenu={closeMobileMenu} />
-          </AnimatePresence>
-        )}
+          {isOpen && (
+            <AnimatePresence>
+              <MobileMenu closeMenu={closeMobileMenu} />
+            </AnimatePresence>
+          )}
 
-        <Footer />
-      </div>
-    </SmoothScroll>
+          <Footer />
+        </div>
+      </SmoothScroll>
+      {/* Portal container for modals - outside SmoothScroll to avoid transform issues */}
+      <div id="modal-root" />
+    </>
   )
 }

@@ -12,7 +12,6 @@ interface RoomPageProps {
     categories?: string
     subcategory?: string
     brands?: string
-    page?: string
   }>
 }
 
