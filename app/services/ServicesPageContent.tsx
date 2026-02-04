@@ -286,7 +286,7 @@ export default function ServicesPageContent() {
 }
 
 // Hero Section Component
-function HeroSection({ heroRef }: { heroRef: React.RefObject<HTMLDivElement | null> }) {
+function HeroSection({ heroRef }: { heroRef: React.RefObject<HTMLDivElement> }) {
   return (
     <div
       ref={heroRef}
