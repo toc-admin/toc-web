@@ -1,10 +1,16 @@
 'use client'
 
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Blog } from '@/config/blogData'
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface BlogDetailsClientProps {
   blog: Blog
@@ -12,10 +18,157 @@ interface BlogDetailsClientProps {
 }
 
 export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetailsClientProps) {
-  const heroRef = useRef(null)
-  const contentRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 })
-  const isContentInView = useInView(contentRef, { once: true, amount: 0.1 })
+  const heroRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const relatedRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const image = imageRef.current
+    const content = contentRef.current
+    const related = relatedRef.current
+
+    // Hero animations
+    if (hero) {
+      const heroElements = hero.querySelectorAll('.animate-hero')
+      gsap.set(heroElements, { opacity: 0, y: 20 })
+
+      const dividerLine = hero.querySelector('.divider-line')
+      if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+      ScrollTrigger.create({
+        trigger: hero,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(heroElements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+          if (dividerLine) {
+            gsap.to(dividerLine, {
+              scaleX: 1,
+              duration: 1,
+              delay: 0.3,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Featured image animation
+    if (image) {
+      gsap.set(image, { opacity: 0, y: 50 })
+
+      ScrollTrigger.create({
+        trigger: image,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(image, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    // Content animation
+    if (content) {
+      const article = content.querySelector('.article-content')
+      if (article) {
+        gsap.set(article, { opacity: 0, y: 30 })
+
+        ScrollTrigger.create({
+          trigger: article,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(article, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+    }
+
+    // Related articles animations
+    if (related) {
+      const relatedHeader = related.querySelector('.related-header')
+      if (relatedHeader) {
+        gsap.set(relatedHeader, { opacity: 0, y: 20 })
+
+        ScrollTrigger.create({
+          trigger: relatedHeader,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(relatedHeader, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+
+      const relatedCards = related.querySelectorAll('.related-card')
+      relatedCards.forEach((card, index) => {
+        gsap.set(card, { opacity: 0, y: 30 })
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            gsap.to(card, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              delay: index * 0.1,
+              ease: 'power3.out'
+            })
+          }
+        })
+      })
+
+      const viewAllBtn = related.querySelector('.view-all-btn')
+      if (viewAllBtn) {
+        gsap.set(viewAllBtn, { opacity: 0, y: 20 })
+
+        ScrollTrigger.create({
+          trigger: viewAllBtn,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            gsap.to(viewAllBtn, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              delay: 0.4,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div className="pt-32 md:pt-44">
@@ -51,54 +204,32 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
       >
         <div className="max-w-4xl mx-auto">
           {/* Meta Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-4 mb-8"
-          >
+          <div className="animate-hero flex items-center gap-4 mb-8">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
               Article
             </span>
             <span className="text-gray-300">•</span>
             <span className="text-sm text-gray-600 font-medium">{blog.date}</span>
-          </motion.div>
+          </div>
 
           {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8"
-          >
+          <h1 className="animate-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-8">
             {blog.name}
-          </motion.h1>
+          </h1>
 
           {/* Divider */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={isHeroInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-8 origin-left"
-          />
+          <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-8 origin-left" />
 
           {/* Short Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-            className="text-xl md:text-2xl leading-relaxed text-gray-700 font-medium"
-          >
+          <p className="animate-hero text-xl md:text-2xl leading-relaxed text-gray-700 font-medium">
             {blog.shortDescription}
-          </motion.p>
+          </p>
         </div>
       </div>
 
       {/* Featured Image */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+      <div
+        ref={imageRef}
         className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 mb-16 md:mb-24"
       >
         <div className="relative overflow-hidden max-w-6xl mx-auto h-[400px] md:h-[600px] lg:h-[700px]">
@@ -112,19 +243,14 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
-      </motion.div>
+      </div>
 
       {/* Article Content */}
       <div
         ref={contentRef}
         className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 pb-24 md:pb-32"
       >
-        <motion.article
-          initial={{ opacity: 0, y: 30 }}
-          animate={isContentInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-3xl mx-auto"
-        >
+        <article className="article-content max-w-3xl mx-auto">
           <div
             className="prose prose-lg md:prose-xl max-w-none
               prose-headings:font-bold prose-headings:tracking-tight
@@ -141,39 +267,26 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
               prose-img:rounded-none prose-img:my-8"
             dangerouslySetInnerHTML={{ __html: blog.longDescription }}
           />
-        </motion.article>
+        </article>
       </div>
 
       {/* Related Articles */}
       {relatedArticles.length > 0 && (
-        <div className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gray-50">
+        <div
+          ref={relatedRef}
+          className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gray-50"
+        >
           <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-12"
-            >
+            <div className="related-header mb-12">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
                 Related Articles
               </h2>
               <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedArticles.map((article, index) => (
-                <motion.div
-                  key={article.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{
-                    duration: 0.7,
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: index * 0.1,
-                  }}
-                >
+              {relatedArticles.map((article) => (
+                <div key={article.id} className="related-card">
                   <Link
                     href={`/blog/${article.slug}`}
                     className="group block bg-white border border-gray-200 overflow-hidden hover:shadow-xl hover:border-red-200 transition-all duration-300"
@@ -212,18 +325,12 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
                       </span>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* View All Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-              className="text-center mt-12"
-            >
+            <div className="view-all-btn text-center mt-12">
               <Link
                 href="/blog"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
@@ -243,7 +350,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
                   />
                 </svg>
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       )}

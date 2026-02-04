@@ -49,6 +49,17 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
     const card = cardRef.current
     if (!card) return
 
+    // If parent says we're already in view, skip the animation setup
+    // This prevents conflicts when parent components handle their own animations
+    if (isInView) {
+      gsap.set(card, {
+        opacity: 1,
+        y: 0,
+        scale: 1
+      })
+      return
+    }
+
     // Set initial state
     gsap.set(card, {
       opacity: 0,
@@ -86,7 +97,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
     return () => {
       observer.disconnect()
     }
-  }, [index])
+  }, [index, isInView])
 
   return (
     <div

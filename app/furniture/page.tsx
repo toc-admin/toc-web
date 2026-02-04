@@ -22,10 +22,27 @@ async function getFurnitureData() {
   const supabase = await createServerClient()
 
   // Fetch categories with product counts
-  const { data: categories, error: categoriesError } = await supabase
+  const { data: categoriesRaw, error: categoriesError } = await supabase
     .from('categories')
     .select('id, name, slug, description, icon_name, image_url, product_count')
-    .order('name')
+
+  // Custom sort order for categories
+  const categoryOrder = [
+    'chairs',
+    'desks-tables',
+    'storage-solutions',
+    'acoustic-solutions',
+    'accessories-lighting',
+    'lounge'
+  ]
+
+  const categories = (categoriesRaw || []).sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a.slug)
+    const indexB = categoryOrder.indexOf(b.slug)
+    const orderA = indexA === -1 ? categoryOrder.length : indexA
+    const orderB = indexB === -1 ? categoryOrder.length : indexB
+    return orderA - orderB
+  })
 
   // Fetch rooms
   const { data: rooms, error: roomsError } = await supabase

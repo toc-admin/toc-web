@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 
 interface BlogPostProps {
   image: string
@@ -13,18 +12,14 @@ interface BlogPostProps {
 const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
   return (
     <Link href={`/blog/${slug}`}>
-      <motion.div
-        whileHover={{ y: -8 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className='group flex flex-col gap-4 max-w-[400px] h-full cursor-pointer'
+      <div
+        className='group flex flex-col gap-4 max-w-[400px] h-full cursor-pointer hover:-translate-y-2 transition-transform duration-300 ease-out'
       >
         {/* Image Container */}
         <div className='relative w-full h-[450px] overflow-hidden bg-gray-200'>
-          <motion.img
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          <img
             alt={name}
-            className='w-full h-full object-cover'
+            className='w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105'
             src={image}
           />
 
@@ -32,10 +27,8 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
           <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500' />
 
           {/* Read More Badge - appears on hover */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileHover={{ opacity: 1, y: 0 }}
-            className='absolute bottom-6 right-6 bg-white px-4 py-2 opacity-0 group-hover:opacity-100 transition-all duration-300'
+          <div
+            className='absolute bottom-6 right-6 bg-white px-4 py-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300'
           >
             <span className='text-sm font-bold uppercase tracking-wider flex items-center gap-2'>
               Read More
@@ -53,7 +46,7 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
                 />
               </svg>
             </span>
-          </motion.div>
+          </div>
         </div>
 
         {/* Content */}
@@ -88,7 +81,7 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
             </svg>
           </div>
         </div>
-      </motion.div>
+      </div>
     </Link>
   )
 }

@@ -1,9 +1,15 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface Category {
   id: string
@@ -15,9 +21,19 @@ interface Category {
   product_count: number
 }
 
+interface Room {
+  id: string
+  name: string
+  slug: string
+  emoji: string | null
+  description: string | null
+  hero_image_url: string | null
+}
+
 interface FurnitureCatalogSectionProps {
   id?: string
   categories: Category[]
+  rooms: Room[]
 }
 
 // Icon mapping for categories
@@ -58,17 +74,111 @@ const getCategoryIcon = (iconName: string | null) => {
   return iconMap[iconName || ''] || iconMap['chairs']
 }
 
-const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProps) => {
-  const headerRef = useRef(null)
-  const cardsRef = useRef(null)
-  const ctaRef = useRef(null)
+const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSectionProps) => {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement>(null)
+  const roomsRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
 
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
-  const isCardsInView = useInView(cardsRef, { once: true, amount: 0.2 })
-  const isCtaInView = useInView(ctaRef, { once: true, amount: 0.5 })
+  useEffect(() => {
+    const header = headerRef.current
+    const cards = cardsRef.current
+    const rooms = roomsRef.current
+    const cta = ctaRef.current
+
+    if (!header) return
+
+    // Header animations
+    gsap.set(header, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(header, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    // Cards animations
+    if (cards) {
+      const categoryCards = cards.querySelectorAll('.category-card')
+      gsap.set(categoryCards, { opacity: 0, y: 50 })
+
+      ScrollTrigger.create({
+        trigger: cards,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(categoryCards, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    // Rooms section
+    if (rooms) {
+      gsap.set(rooms, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: rooms,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(rooms, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+
+          const roomCards = rooms.querySelectorAll('.room-card')
+          gsap.fromTo(roomCards,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.3, ease: 'power3.out' }
+          )
+        }
+      })
+    }
+
+    // CTA section
+    if (cta) {
+      gsap.set(cta, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: cta,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(cta, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
+      ref={sectionRef}
       id={id}
       className="flex flex-col gap-16 items-start justify-start px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white relative overflow-hidden"
     >
@@ -87,21 +197,13 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
       </div>
 
       {/* Header Section */}
-      <motion.div
+      <div
         ref={headerRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 flex flex-col gap-4 max-w-4xl"
       >
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800"
-        >
+        <span className="text-sm font-bold uppercase tracking-widest text-red-800">
           Premium Products
-        </motion.span>
+        </span>
 
         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
           Explore Our
@@ -111,32 +213,17 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
           </span>
         </h2>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isHeaderInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left"
-        />
+        <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-          className="text-base md:text-lg text-gray-700 leading-relaxed mt-2"
-        >
+        <p className="text-base md:text-lg text-gray-700 leading-relaxed mt-2">
           Browse over 500 premium office furniture products from world-renowned
           brands. Filter by category, room type, or brand to find exactly what
           your workspace needs.
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
 
       {/* Quick Stats Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-        className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-6 w-full"
-      >
+      <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
         {[
           { number: "500+", label: "Products" },
           { number: "15+", label: "Brands" },
@@ -155,7 +242,7 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
             </span>
           </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Category Cards Grid */}
       <div ref={cardsRef} className="relative z-10 w-full">
@@ -165,17 +252,14 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
               key={category.id}
               category={category}
               index={index}
-              isInView={isCardsInView}
             />
           ))}
         </div>
       </div>
 
       {/* Browse by Room Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isCardsInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
+      <div
+        ref={roomsRef}
         className="relative z-10 w-full mt-8"
       >
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
@@ -209,23 +293,12 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { name: "Private Office", slug: "private-office" },
-            { name: "Meeting Room", slug: "meeting-room" },
-            { name: "Open Office", slug: "open-office" },
-            { name: "Reception", slug: "reception" },
-          ].map((room, index) => (
-            <Link key={index} href={`/rooms/${room.slug}`}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={isCardsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: 0.7 + (index * 0.1)
-                }}
-                className="group p-6 bg-gradient-to-br from-gray-50 to-white border-2 border-red-100 hover:border-red-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
+          {rooms.map((room) => (
+            <Link key={room.id} href={`/rooms/${room.slug}`}>
+              <div className="room-card group p-6 bg-gradient-to-br from-gray-50 to-white border-2 border-red-100 hover:border-red-700 hover:shadow-xl transition-all duration-300 cursor-pointer">
+                {room.emoji && (
+                  <span className="text-2xl mb-2 block">{room.emoji}</span>
+                )}
                 <h4 className="font-bold text-base md:text-lg mb-2 group-hover:text-red-700 transition-colors duration-300">
                   {room.name}
                 </h4>
@@ -245,18 +318,15 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
                     />
                   </svg>
                 </div>
-              </motion.div>
+              </div>
             </Link>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* CTA Section */}
-      <motion.div
+      <div
         ref={ctaRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={isCtaInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 w-full flex flex-col md:flex-row items-center justify-between gap-8 pt-12 border-t-2 border-red-100 mt-8"
       >
         <div className="flex flex-col gap-3 max-w-2xl">
@@ -296,23 +366,15 @@ const FurnitureCatalogSection = ({ id, categories }: FurnitureCatalogSectionProp
             Get Expert Help
           </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
 // Category Card Component
-const CategoryCard = ({ category, index, isInView }: { category: Category; index: number; isInView: boolean }) => {
+const CategoryCard = ({ category, index }: { category: Category; index: number }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        ease: [0.22, 1, 0.36, 1],
-        delay: index * 0.1
-      }}
-    >
+    <div className="category-card">
       <Link href={`/categories/${category.slug}`}>
         <div className="group relative overflow-hidden rounded-xl border-2 border-red-100/50 hover:border-red-500 transition-all duration-300 h-[500px] cursor-pointer bg-black shadow-lg hover:shadow-2xl hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]">
           {/* Background Image */}
@@ -368,7 +430,7 @@ const CategoryCard = ({ category, index, isInView }: { category: Category; index
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 }
 

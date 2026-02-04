@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { motion, useInView } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, Thumbs, FreeMode } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
@@ -15,6 +15,11 @@ import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/thumbs"
 import "swiper/css/free-mode"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 // Custom styles for Swiper to ensure proper height
 const swiperStyles = `
@@ -54,13 +59,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const [selectedColor, setSelectedColor] = useState(product.product_colors?.[0] || null)
   const [showQuoteForm, setShowQuoteForm] = useState(false)
 
-  const galleryRef = useRef(null)
-  const detailsRef = useRef(null)
-  const relatedRef = useRef(null)
-
-  const isGalleryInView = useInView(galleryRef, { once: true, amount: 0.3 })
-  const isDetailsInView = useInView(detailsRef, { once: true, amount: 0.2 })
-  const isRelatedInView = useInView(relatedRef, { once: true, amount: 0.2 })
+  const galleryRef = useRef<HTMLDivElement>(null)
+  const detailsRef = useRef<HTMLDivElement>(null)
+  const relatedRef = useRef<HTMLDivElement>(null)
 
   // Sort images by display_order
   const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || []
@@ -89,6 +90,71 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
   // Get rooms this product works in
   const productRooms = product.product_rooms?.map((pr: any) => pr.room) || []
+
+  // GSAP animations
+  useEffect(() => {
+    const gallery = galleryRef.current
+    const details = detailsRef.current
+    const related = relatedRef.current
+
+    if (gallery) {
+      gsap.set(gallery, { opacity: 0, x: -50 })
+      ScrollTrigger.create({
+        trigger: gallery,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(gallery, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    if (details) {
+      gsap.set(details, { opacity: 0, x: 50 })
+      ScrollTrigger.create({
+        trigger: details,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(details, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    if (related) {
+      const header = related.querySelector('.related-header')
+      if (header) {
+        gsap.set(header, { opacity: 0, y: 30 })
+        ScrollTrigger.create({
+          trigger: header,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(header, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <>
@@ -124,11 +190,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
       <section className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left: Image Gallery */}
-          <motion.div
+          <div
             ref={galleryRef}
-            initial={{ opacity: 0, x: -50 }}
-            animate={isGalleryInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-4"
           >
             {/* Badges */}
@@ -209,14 +272,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <span className="text-gray-400">No images available</span>
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Right: Product Info */}
-          <motion.div
+          <div
             ref={detailsRef}
-            initial={{ opacity: 0, x: 50 }}
-            animate={isDetailsInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-6"
           >
             {/* Brand */}
@@ -444,7 +504,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 </div>
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -472,26 +532,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Tab Content */}
         <div className="max-w-4xl">
           {activeTab === "overview" && product.long_description && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="prose prose-lg max-w-none"
-            >
+            <div className="prose prose-lg max-w-none">
               <h2 className="text-2xl font-bold mb-4">Product Overview</h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line">
                 {product.long_description}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {activeTab === "specifications" && Object.keys(groupedSpecs).length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-8"
-            >
+            <div className="space-y-8">
               {Object.entries(groupedSpecs).map(([category, specs]: [string, any]) => (
                 <div key={category}>
                   <h3 className="text-xl font-bold mb-4 capitalize">{category}</h3>
@@ -510,15 +560,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {activeTab === "certifications" && product.product_certifications && product.product_certifications.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <div>
               <h3 className="text-2xl font-bold mb-6">Certifications & Standards</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {product.product_certifications.map((cert: any) => (
@@ -543,7 +589,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </section>
@@ -554,17 +600,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           ref={relatedRef}
           className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-16 bg-white"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isRelatedInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-12"
-          >
+          <div className="related-header mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-2">
               You Might Also Like
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32" />
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {relatedProducts.map((relatedProduct, index) => (
@@ -572,7 +613,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 key={relatedProduct.id}
                 product={relatedProduct}
                 index={index}
-                isInView={isRelatedInView}
+                isInView={true}
               />
             ))}
           </div>

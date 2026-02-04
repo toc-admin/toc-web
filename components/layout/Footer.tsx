@@ -1,9 +1,15 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
 import Logo from "./Logo"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const footerLinks = {
   company: [
@@ -26,8 +32,50 @@ const footerLinks = {
 }
 
 const Footer = () => {
-  const footerRef = useRef(null)
-  const isFooterInView = useInView(footerRef, { once: true, amount: 0.2 })
+  const footerRef = useRef<HTMLDivElement>(null)
+  const bottomBarRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const footer = footerRef.current
+    const bottomBar = bottomBarRef.current
+
+    if (!footer) return
+
+    const sections = footer.querySelectorAll('.footer-section')
+    gsap.set(sections, { opacity: 0, y: 30 })
+
+    if (bottomBar) {
+      gsap.set(bottomBar, { opacity: 0 })
+    }
+
+    ScrollTrigger.create({
+      trigger: footer,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(sections, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+
+        if (bottomBar) {
+          gsap.to(bottomBar, {
+            opacity: 1,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-red-950 to-black text-white relative overflow-hidden">
@@ -52,12 +100,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
 
           {/* Brand Section - Takes more space */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isFooterInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-5 flex flex-col gap-6"
-          >
+          <div className="footer-section lg:col-span-5 flex flex-col gap-6">
             <Logo color="white" />
 
             <p className="text-base text-white/70 leading-relaxed max-w-md">
@@ -101,15 +144,10 @@ const Footer = () => {
                 </svg>
               </a>
             </div>
-          </motion.div>
+          </div>
 
           {/* Company Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isFooterInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="lg:col-span-2"
-          >
+          <div className="footer-section lg:col-span-2">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
               Company
             </h3>
@@ -125,15 +163,10 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Services Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isFooterInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            className="lg:col-span-2"
-          >
+          <div className="footer-section lg:col-span-2">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
               Services
             </h3>
@@ -149,15 +182,10 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isFooterInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="lg:col-span-3"
-          >
+          <div className="footer-section lg:col-span-3">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
               Contact
             </h3>
@@ -197,15 +225,13 @@ const Footer = () => {
                 </a>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={isFooterInView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+      <div
+        ref={bottomBarRef}
         className="relative z-10 border-t border-red-800/30 px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-8"
       >
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -227,7 +253,7 @@ const Footer = () => {
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
     </footer>
   )
 }

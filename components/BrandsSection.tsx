@@ -1,8 +1,14 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface Brand {
   logo: string
@@ -33,8 +39,68 @@ interface BrandsSectionProps {
 }
 
 const BrandsSection = ({ id }: BrandsSectionProps) => {
-  const headerRef = useRef(null)
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
+  const headerRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const header = headerRef.current
+    const cta = ctaRef.current
+
+    if (!header) return
+
+    // Header animations
+    const headerElements = header.querySelectorAll('.animate-header')
+    gsap.set(headerElements, { opacity: 0, y: 30 })
+
+    const dividerLine = header.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(headerElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 1,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    // CTA animation
+    if (cta) {
+      gsap.set(cta, { opacity: 0, y: 20 })
+
+      ScrollTrigger.create({
+        trigger: cta,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(cta, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -56,23 +122,15 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
       </div>
 
       {/* Header */}
-      <motion.div
+      <div
         ref={headerRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 flex flex-col gap-4 max-w-4xl"
       >
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800"
-        >
+        <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
           Our Partners
-        </motion.span>
+        </span>
 
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight">
+        <h2 className="animate-header text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight">
           Partnering with
           <br />
           <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
@@ -80,23 +138,13 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
           </span>
         </h2>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isHeaderInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left"
-        />
+        <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-          className="text-base md:text-lg text-gray-700 leading-relaxed mt-2"
-        >
+        <p className="animate-header text-base md:text-lg text-gray-700 leading-relaxed mt-2">
           We collaborate with world-renowned furniture and design brands to deliver
           exceptional quality and innovation in every project.
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
 
       {/* Featured Brand - Full Width */}
       <div className="relative z-10 w-full">
@@ -119,11 +167,8 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
       </div>
 
       {/* Bottom CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      <div
+        ref={ctaRef}
         className="relative z-10 w-full flex flex-col md:flex-row items-center justify-between gap-6 pt-12 border-t-2 border-red-100 mt-8"
       >
         <div className="flex flex-col gap-2">
@@ -153,40 +198,80 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
             />
           </svg>
         </Link>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
 const BrandCard = ({ brand, featured = false, index }: { brand: Brand; featured?: boolean; index: number }) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 50 })
+
+    const logo = card.querySelector('.brand-logo')
+    if (logo) gsap.set(logo, { opacity: 0, scale: 0.9 })
+
+    const badge = card.querySelector('.featured-badge')
+    if (badge) gsap.set(badge, { opacity: 0, x: 50 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+        if (logo) {
+          gsap.to(logo, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.6,
+            delay: index * 0.1 + 0.2,
+            ease: 'power3.out'
+          })
+        }
+        if (badge) {
+          gsap.to(badge, {
+            opacity: 1,
+            x: 0,
+            duration: 0.6,
+            delay: 0.5,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
     <Link href={brand.link} target="_blank" rel="noopener noreferrer">
-      <motion.div
+      <div
         ref={ref}
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{
-          duration: 0.8,
-          ease: [0.22, 1, 0.36, 1],
-          delay: index * 0.1
-        }}
         className={`group relative overflow-hidden cursor-pointer border-2 border-red-100 hover:border-red-700 transition-colors duration-300 ${
           featured ? 'h-[500px] md:h-[600px]' : 'h-[400px] md:h-[450px]'
         }`}
       >
         {/* Background Image */}
-        <motion.div
+        <div
           style={{
             backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(124,45,58,0.3) 50%, rgba(0,0,0,0.2) 100%), url(${brand.bg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0"
+          className="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
         />
 
         {/* Overlay gradient that intensifies on hover */}
@@ -195,32 +280,20 @@ const BrandCard = ({ brand, featured = false, index }: { brand: Brand; featured?
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center p-8">
           {/* Logo */}
-          <motion.img
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{
-              duration: 0.6,
-              ease: [0.22, 1, 0.36, 1],
-              delay: index * 0.1 + 0.2
-            }}
-            whileHover={{ scale: 1.05 }}
+          <img
             alt={brand.alt}
             src={brand.logo}
-            className={`object-contain z-10 transition-all duration-300 ${
+            className={`brand-logo object-contain z-10 transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 ${
               brand.isLarge
                 ? 'h-32 md:h-40'
                 : featured
                   ? 'w-72 md:w-96 h-24 md:h-32'
                   : 'w-56 md:w-72 h-20 md:h-24'
-            } group-hover:brightness-110`}
+            }`}
           />
 
           {/* Hover Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileHover={{ opacity: 1, y: 0 }}
-            className="absolute bottom-8 left-8 right-8 opacity-0 group-hover:opacity-100 transition-all duration-500"
-          >
+          <div className="absolute bottom-8 left-8 right-8 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold text-lg">
                 {brand.alt}
@@ -239,21 +312,16 @@ const BrandCard = ({ brand, featured = false, index }: { brand: Brand; featured?
                 />
               </svg>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Corner Badge for Featured */}
         {featured && (
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-            className="absolute top-6 right-6 bg-gradient-to-r from-red-900 to-red-700 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider z-20"
-          >
+          <div className="featured-badge absolute top-6 right-6 bg-gradient-to-r from-red-900 to-red-700 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider z-20">
             Featured Partner
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     </Link>
   )
 }

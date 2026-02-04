@@ -1,7 +1,13 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const steps = [
   {
@@ -47,8 +53,45 @@ interface HowWeDoItProps {
 }
 
 const HowWeDoIt = ({ id }: HowWeDoItProps) => {
-  const headerRef = useRef(null)
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
+  const headerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header) return
+
+    const headerElements = header.querySelectorAll('.animate-header')
+    gsap.set(headerElements, { opacity: 0, y: 20 })
+
+    const dividerLine = header.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(headerElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 0.6,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -71,40 +114,20 @@ const HowWeDoIt = ({ id }: HowWeDoItProps) => {
 
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-center text-center mb-20 max-w-3xl">
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800"
-        >
+        <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
           Our Process
-        </motion.span>
+        </span>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight"
-        >
+        <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
           How We Do It
-        </motion.h2>
+        </h2>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isHeaderInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32"
-        />
+        <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={isHeaderInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-base md:text-lg leading-relaxed text-gray-700 mt-4"
-        >
+        <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
           Our proven three-step approach ensures seamless delivery from concept
           to completion, with exceptional results every time.
-        </motion.p>
+        </p>
       </div>
 
       {/* Steps */}
@@ -118,32 +141,92 @@ const HowWeDoIt = ({ id }: HowWeDoItProps) => {
 }
 
 const StepItem = ({ step, index }: { step: typeof steps[0]; index: number }) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2, margin: "0px 0px -100px 0px" })
-
+  const ref = useRef<HTMLDivElement>(null)
   const isEven = index % 2 === 0
 
+  useEffect(() => {
+    const item = ref.current
+    if (!item) return
+
+    gsap.set(item, { opacity: 0, y: 50 })
+
+    const imageSection = item.querySelector('.image-section')
+    const contentSection = item.querySelector('.content-section')
+    const highlightItems = item.querySelectorAll('.highlight-item')
+    const separatorLine = item.querySelector('.separator-line')
+
+    if (imageSection) gsap.set(imageSection, { opacity: 0, x: isEven ? -50 : 50 })
+    if (contentSection) gsap.set(contentSection, { opacity: 0, x: isEven ? 50 : -50 })
+    gsap.set(highlightItems, { opacity: 0, y: 20 })
+    if (separatorLine) gsap.set(separatorLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(item, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 0.2
+        })
+
+        if (imageSection) {
+          gsap.to(imageSection, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.3
+          })
+        }
+
+        if (contentSection) {
+          gsap.to(contentSection, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.4
+          })
+        }
+
+        gsap.to(highlightItems, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out',
+          delay: 0.5
+        })
+
+        if (separatorLine) {
+          gsap.to(separatorLine, {
+            scaleX: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.6
+          })
+        }
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index, isEven])
+
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        ease: "easeOut",
-        delay: 0.2
-      }}
       className="w-full py-12 md:py-20"
     >
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center ${isEven ? "" : "lg:grid-flow-dense"}`}>
         {/* Image Side */}
-        <div className={`relative ${isEven ? "" : "lg:col-start-2"}`}>
-          <motion.div
-            initial={{ opacity: 0, x: isEven ? -50 : 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-            className="relative h-[400px] md:h-[500px] overflow-hidden group"
-          >
+        <div className={`image-section relative ${isEven ? "" : "lg:col-start-2"}`}>
+          <div className="relative h-[400px] md:h-[500px] overflow-hidden group">
             {/* Number Badge */}
             <div className="absolute top-8 left-8 z-20 bg-gradient-to-br from-red-900 to-red-700 text-white w-20 h-20 md:w-24 md:h-24 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <span className="text-3xl md:text-4xl font-black">{step.number}</span>
@@ -161,15 +244,12 @@ const StepItem = ({ step, index }: { step: typeof steps[0]; index: number }) => 
 
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 to-transparent group-hover:from-red-900/20 transition-all duration-500" />
-          </motion.div>
+          </div>
         </div>
 
         {/* Content Side */}
-        <motion.div
-          initial={{ opacity: 0, x: isEven ? 50 : -50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-          className={`flex flex-col gap-6 ${isEven ? "" : "lg:col-start-1 lg:row-start-1"}`}
+        <div
+          className={`content-section flex flex-col gap-6 ${isEven ? "" : "lg:col-start-1 lg:row-start-1"}`}
         >
           <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
             {step.title}
@@ -182,33 +262,27 @@ const StepItem = ({ step, index }: { step: typeof steps[0]; index: number }) => 
           {/* Highlights */}
           <div className="grid grid-cols-2 gap-3">
             {step.highlights.map((highlight, idx) => (
-              <motion.div
+              <div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 + idx * 0.1 }}
-                className="flex items-center gap-2"
+                className="highlight-item flex items-center gap-2"
               >
                 <div className="w-2 h-2 bg-red-700 rounded-full" />
                 <span className="text-sm md:text-base font-medium text-gray-800">
                   {highlight}
                 </span>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Separator Line (not on last item) */}
       {index < steps.length - 1 && (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
-          className="w-full h-px bg-gradient-to-r from-transparent via-red-200 to-transparent mt-12 md:mt-20 origin-center"
+        <div
+          className="separator-line w-full h-px bg-gradient-to-r from-transparent via-red-200 to-transparent mt-12 md:mt-20 origin-center"
         />
       )}
-    </motion.div>
+    </div>
   )
 }
 

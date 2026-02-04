@@ -1,20 +1,143 @@
 'use client'
 
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import BlogPost from '@/components/BlogPost'
 import blogs from '@/config/blogData'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 export default function BlogPageContent() {
-  const heroRef = useRef(null)
-  const gridRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.5 })
-  const isGridInView = useInView(gridRef, { once: true, amount: 0.1 })
+  const heroRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const newsletterRef = useRef<HTMLDivElement>(null)
 
   // Featured post (first blog)
   const featuredPost = blogs[0]
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const grid = gridRef.current
+    const newsletter = newsletterRef.current
+
+    // Hero animations
+    if (hero) {
+      const heroElements = hero.querySelectorAll('.animate-hero')
+      gsap.set(heroElements, { opacity: 0, y: 30 })
+
+      const dividerLine = hero.querySelector('.divider-line')
+      if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+      const featuredSection = hero.querySelector('.featured-section')
+      if (featuredSection) gsap.set(featuredSection, { opacity: 0, y: 50 })
+
+      ScrollTrigger.create({
+        trigger: hero,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(heroElements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+          if (dividerLine) {
+            gsap.to(dividerLine, {
+              scaleX: 1,
+              duration: 1,
+              delay: 0.3,
+              ease: 'power3.out'
+            })
+          }
+          if (featuredSection) {
+            gsap.to(featuredSection, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: 0.5,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Grid animations
+    if (grid) {
+      const gridHeader = grid.querySelector('.grid-header')
+      if (gridHeader) {
+        gsap.set(gridHeader, { opacity: 0, y: 20 })
+
+        ScrollTrigger.create({
+          trigger: gridHeader,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(gridHeader, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+
+      const blogItems = grid.querySelectorAll('.blog-item')
+      blogItems.forEach((item, index) => {
+        gsap.set(item, { opacity: 0, y: 50 })
+
+        ScrollTrigger.create({
+          trigger: item,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            gsap.to(item, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              delay: index * 0.1,
+              ease: 'power3.out'
+            })
+          }
+        })
+      })
+    }
+
+    // Newsletter animations
+    if (newsletter) {
+      const newsletterContent = newsletter.querySelector('.newsletter-content')
+      if (newsletterContent) {
+        gsap.set(newsletterContent, { opacity: 0, y: 30 })
+
+        ScrollTrigger.create({
+          trigger: newsletterContent,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(newsletterContent, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div className="pt-32 md:pt-44">
@@ -40,22 +163,12 @@ export default function BlogPageContent() {
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 mb-16">
             {/* Left - Title */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="flex-1"
-            >
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="text-sm font-bold uppercase tracking-widest text-red-800"
-              >
+            <div className="flex-1">
+              <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800">
                 Our Blog
-              </motion.span>
+              </span>
 
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
+              <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
                 Insights &
                 <br />
                 <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
@@ -63,39 +176,20 @@ export default function BlogPageContent() {
                 </span>
               </h1>
 
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={isHeroInView ? { scaleX: 1 } : {}}
-                transition={{
-                  duration: 1,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: 0.3,
-                }}
-                className="h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left"
-              />
-            </motion.div>
+              <div className="divider-line h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
+            </div>
 
             {/* Right - Description */}
-            <motion.p
-              initial={{ opacity: 0, x: 30 }}
-              animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-              className="text-base md:text-lg leading-relaxed text-gray-700 max-w-xl"
-            >
+            <p className="animate-hero text-base md:text-lg leading-relaxed text-gray-700 max-w-xl">
               Stay informed with expert insights on office trends, productivity
               tips, and the future of workspaces. Discover how we&apos;re shaping the
               industry.
-            </motion.p>
+            </p>
           </div>
 
           {/* Featured Post */}
           {featuredPost && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-              className="relative group"
-            >
+            <div className="featured-section relative group">
               <div className="absolute -top-4 -left-4 bg-gradient-to-br from-red-900 to-red-700 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider z-20">
                 Featured
               </div>
@@ -103,11 +197,7 @@ export default function BlogPageContent() {
                 <div className="grid grid-cols-1 lg:grid-cols-2">
                   {/* Image */}
                   <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                      className="w-full h-full relative"
-                    >
+                    <div className="w-full h-full relative group-hover:scale-105 transition-transform duration-600">
                       <Image
                         src={featuredPost.image}
                         alt={featuredPost.name}
@@ -116,7 +206,7 @@ export default function BlogPageContent() {
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         priority
                       />
-                    </motion.div>
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
 
@@ -153,7 +243,7 @@ export default function BlogPageContent() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
@@ -164,12 +254,7 @@ export default function BlogPageContent() {
         className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white"
       >
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isGridInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center justify-between mb-12"
-        >
+        <div className="grid-header flex items-center justify-between mb-12">
           <div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               All Articles
@@ -182,39 +267,25 @@ export default function BlogPageContent() {
             </p>
             <p className="text-sm text-gray-600">Updated regularly</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {blogs.map((blog, index) => (
-            <motion.div
-              key={blog.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isGridInView ? { opacity: 1, y: 0 } : {}}
-              transition={{
-                duration: 0.7,
-                ease: [0.22, 1, 0.36, 1],
-                delay: 0.1 * index,
-              }}
-            >
+          {blogs.map((blog) => (
+            <div key={blog.id} className="blog-item">
               <BlogPost
                 image={blog.image}
                 name={blog.name}
                 shortDescription={blog.shortDescription}
                 slug={blog.slug}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Empty State (if no blogs) */}
         {blogs.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={isGridInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="text-center py-24"
-          >
+          <div className="text-center py-24">
             <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-gradient-to-br from-red-900 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg
@@ -236,19 +307,16 @@ export default function BlogPageContent() {
                 Check back soon for insights and updates from The Office Company.
               </p>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Newsletter CTA */}
-      <div className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gradient-to-br from-gray-900 via-red-950 to-black">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-4xl mx-auto text-center text-white"
-        >
+      <div
+        ref={newsletterRef}
+        className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gradient-to-br from-gray-900 via-red-950 to-black"
+      >
+        <div className="newsletter-content max-w-4xl mx-auto text-center text-white">
           <span className="text-sm font-bold uppercase tracking-widest text-red-300 mb-4 block">
             Stay Updated
           </span>
@@ -270,7 +338,7 @@ export default function BlogPageContent() {
               Subscribe
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

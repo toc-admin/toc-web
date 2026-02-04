@@ -1,9 +1,15 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useState, useRef, useEffect } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import 'react-toastify/dist/ReactToastify.css'
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const contactInfo = [
   {
@@ -39,10 +45,115 @@ const contactInfo = [
 export default function ContactPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const heroRef = useRef(null)
-  const formRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 })
-  const isFormInView = useInView(formRef, { once: true, amount: 0.2 })
+  const heroRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const cards = cardsRef.current
+    const form = formRef.current
+
+    // Hero animations
+    if (hero) {
+      const heroElements = hero.querySelectorAll('.animate-hero')
+      gsap.set(heroElements, { opacity: 0, y: 20 })
+
+      const dividerLine = hero.querySelector('.divider-line')
+      if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+      ScrollTrigger.create({
+        trigger: hero,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(heroElements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+          if (dividerLine) {
+            gsap.to(dividerLine, {
+              scaleX: 1,
+              duration: 1,
+              delay: 0.3,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Cards animations
+    if (cards) {
+      const infoCards = cards.querySelectorAll('.info-card')
+      infoCards.forEach((card, index) => {
+        gsap.set(card, { opacity: 0, y: 30 })
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            gsap.to(card, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              delay: 0.5 + index * 0.1,
+              ease: 'power3.out'
+            })
+          }
+        })
+      })
+    }
+
+    // Form animations
+    if (form) {
+      const formSection = form.querySelector('.form-section')
+      const mapSection = form.querySelector('.map-section')
+
+      if (formSection) {
+        gsap.set(formSection, { opacity: 0, x: -50 })
+        ScrollTrigger.create({
+          trigger: formSection,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(formSection, {
+              opacity: 1,
+              x: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+
+      if (mapSection) {
+        gsap.set(mapSection, { opacity: 0, x: 50 })
+        ScrollTrigger.create({
+          trigger: mapSection,
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(mapSection, {
+              opacity: 1,
+              x: 0,
+              duration: 0.8,
+              delay: 0.2,
+              ease: 'power3.out'
+            })
+          }
+        })
+      }
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -107,21 +218,11 @@ export default function ContactPageContent() {
           </div>
 
           <div className="relative z-10 max-w-4xl">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-sm font-bold uppercase tracking-widest text-red-800"
-            >
+            <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800">
               Get In Touch
-            </motion.span>
+            </span>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8"
-            >
+            <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
               Let&apos;s Create
               <br />
               <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
@@ -129,42 +230,28 @@ export default function ContactPageContent() {
               </span>
               <br />
               Workspace
-            </motion.h1>
+            </h1>
 
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={isHeroInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-              className="h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left mb-8"
-            />
+            <div className="divider-line h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left mb-8" />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-              className="text-lg md:text-xl leading-relaxed text-gray-700 max-w-2xl"
-            >
+            <p className="animate-hero text-lg md:text-xl leading-relaxed text-gray-700 max-w-2xl">
               Have questions? Our team is ready to assist you with office space
               solutions that fit your needs. Reach out and let&apos;s start the
               conversation.
-            </motion.p>
+            </p>
           </div>
         </div>
 
         {/* Contact Info Cards */}
-        <div className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-16 md:py-24 bg-white">
+        <div
+          ref={cardsRef}
+          className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-16 md:py-24 bg-white"
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {contactInfo.map((info, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.7,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: 0.5 + index * 0.1,
-                }}
-                className="group bg-gradient-to-br from-red-50/50 to-white border border-red-100 p-8 hover:shadow-xl hover:border-red-200 transition-all duration-300"
+                className="info-card group bg-gradient-to-br from-red-50/50 to-white border border-red-100 p-8 hover:shadow-xl hover:border-red-200 transition-all duration-300"
               >
                 <div className="flex flex-col gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-red-900 to-red-700 text-white flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -186,7 +273,7 @@ export default function ContactPageContent() {
                     </p>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -198,12 +285,7 @@ export default function ContactPageContent() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={isFormInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-white p-8 md:p-12 border border-gray-200"
-            >
+            <div className="form-section bg-white p-8 md:p-12 border border-gray-200">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Send Us a Message
               </h2>
@@ -294,15 +376,10 @@ export default function ContactPageContent() {
                   )}
                 </button>
               </form>
-            </motion.div>
+            </div>
 
             {/* Google Map Embed */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={isFormInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-              className="relative h-[500px] lg:h-full min-h-[500px] bg-gray-200 overflow-hidden"
-            >
+            <div className="map-section relative h-[500px] lg:h-full min-h-[500px] bg-gray-200 overflow-hidden">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2781.057870306277!2d15.912123492218598!3d45.81009939651834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d1309bbba9e3%3A0xd45dda7df121b3!2sPolja%C4%8Dka%20ul.%2056%2C%2010000%2C%20Zagreb!5e0!3m2!1sen!2shr!4v1761831955860!5m2!1sen!2shr"
                 width="100%"
@@ -325,7 +402,7 @@ export default function ContactPageContent() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

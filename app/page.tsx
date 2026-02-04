@@ -38,15 +38,46 @@ async function getHomePageData() {
   const { data: categories, error: categoriesError } = await supabase
     .from('categories')
     .select('id, name, slug, description, icon_name, image_url, product_count')
-    .order('name')
-    .limit(6)
 
   if (categoriesError) {
     console.error('Error fetching categories:', categoriesError)
   }
 
+  // Fetch rooms from Supabase (limit to 4 for homepage)
+  const { data: rooms, error: roomsError } = await supabase
+    .from('rooms')
+    .select('id, name, slug, emoji, description, hero_image_url')
+    .order('name')
+    .limit(4)
+
+  if (roomsError) {
+    console.error('Error fetching rooms:', roomsError)
+  }
+
+  // Custom sort order for homepage display
+  const categoryOrder = [
+    'chairs',
+    'desks-tables',
+    'storage-solutions',
+    'acoustic-solutions',
+    'accessories-lighting',
+    'lounge'
+  ]
+
+  const sortedCategories = (categories || [])
+    .sort((a, b) => {
+      const indexA = categoryOrder.indexOf(a.slug)
+      const indexB = categoryOrder.indexOf(b.slug)
+      // If not in the order list, put at the end
+      const orderA = indexA === -1 ? categoryOrder.length : indexA
+      const orderB = indexB === -1 ? categoryOrder.length : indexB
+      return orderA - orderB
+    })
+    .slice(0, 6)
+
   return {
-    categories: categories || []
+    categories: sortedCategories,
+    rooms: rooms || []
   }
 }
 
@@ -62,7 +93,7 @@ export default async function HomePage() {
       <Services id="services" />
 
       {/* Furniture Catalog Section */}
-      <FurnitureCatalogSection id="furniture" categories={data.categories} />
+      <FurnitureCatalogSection id="furniture" categories={data.categories} rooms={data.rooms} />
 
       {/* How We Do It Section */}
       <HowWeDoIt id="process" />

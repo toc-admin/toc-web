@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientLayout from '@/components/layout/ClientLayout'
+import { createServerClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: {
@@ -54,11 +55,43 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+async function getNavCategories() {
+  const supabase = await createServerClient()
+
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, name, slug, description, image_url')
+
+  // Custom sort order for navbar display (same as homepage)
+  const categoryOrder = [
+    'chairs',
+    'desks-tables',
+    'storage-solutions',
+    'acoustic-solutions',
+    'accessories-lighting',
+    'lounge'
+  ]
+
+  const sortedCategories = (categories || [])
+    .sort((a, b) => {
+      const indexA = categoryOrder.indexOf(a.slug)
+      const indexB = categoryOrder.indexOf(b.slug)
+      const orderA = indexA === -1 ? categoryOrder.length : indexA
+      const orderB = indexB === -1 ? categoryOrder.length : indexB
+      return orderA - orderB
+    })
+    .slice(0, 6)
+
+  return sortedCategories
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const categories = await getNavCategories()
+
   return (
     <html lang="en">
       <head>
@@ -79,7 +112,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-main-bg antialiased">
-        <ClientLayout>{children}</ClientLayout>
+        <ClientLayout categories={categories}>{children}</ClientLayout>
       </body>
     </html>
   )

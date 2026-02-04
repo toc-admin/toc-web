@@ -1,9 +1,15 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const services = [
   {
@@ -31,11 +37,74 @@ interface ServicesProps {
 }
 
 const Services = ({ id }: ServicesProps) => {
-  const headerRef = useRef(null)
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const header = headerRef.current
+    const cta = ctaRef.current
+
+    if (!section || !header) return
+
+    // Header animations
+    const headerElements = header.querySelectorAll('.animate-header')
+    gsap.set(headerElements, { opacity: 0, y: 20 })
+
+    const dividerLine = header.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(headerElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 0.6,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    // CTA animation
+    if (cta) {
+      gsap.set(cta, { opacity: 0, y: 20 })
+
+      ScrollTrigger.create({
+        trigger: cta,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(cta, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
+      ref={sectionRef}
       className="py-24 md:py-32 flex flex-col items-start justify-center w-full px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 bg-gradient-to-br from-white via-red-50/20 to-white relative overflow-hidden"
       id={id}
     >
@@ -55,41 +124,21 @@ const Services = ({ id }: ServicesProps) => {
 
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-start justify-start mb-20 max-w-3xl">
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800"
-        >
+        <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
           Our Services
-        </motion.span>
+        </span>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight"
-        >
+        <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
           What We Do
-        </motion.h2>
+        </h2>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isHeaderInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left"
-        />
+        <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={isHeaderInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-base md:text-lg leading-relaxed text-gray-700 mt-4"
-        >
+        <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
           Our sole focus is on unlocking better growth for our clients,
           increasing their long-term sales, value, and profit. We achieve this
           by optimizing every lever of their commercial strategy.
-        </motion.p>
+        </p>
       </div>
 
       {/* Services List */}
@@ -100,11 +149,8 @@ const Services = ({ id }: ServicesProps) => {
       </div>
 
       {/* CTA Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+      <div
+        ref={ctaRef}
         className="relative z-10 w-full flex justify-center mt-16"
       >
         <Link
@@ -126,25 +172,43 @@ const Services = ({ id }: ServicesProps) => {
             />
           </svg>
         </Link>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
 const ServiceItem = ({ service, index }: { service: typeof services[0]; index: number }) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2, margin: "0px 0px -100px 0px" })
+  const itemRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const item = itemRef.current
+    if (!item) return
+
+    gsap.set(item, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(item, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.15,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.6,
-        ease: "easeOut",
-        delay: index * 0.15
-      }}
+    <div
+      ref={itemRef}
       className="group border-b border-red-100 last:border-b-0 hover:bg-white/50 transition-colors duration-300"
     >
       <div className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12 py-12 md:py-16">
@@ -207,7 +271,7 @@ const ServiceItem = ({ service, index }: { service: typeof services[0]; index: n
           </svg>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

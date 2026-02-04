@@ -2,11 +2,17 @@
 
 import { useState, useRef, useMemo, useEffect } from "react"
 import { flushSync } from "react-dom"
-import { motion, useInView } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import ProductCard from "@/components/ProductCard"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface CategoryListingClientProps {
   category: any
@@ -38,10 +44,8 @@ export default function CategoryListingClient({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const heroRef = useRef(null)
+  const heroRef = useRef<HTMLDivElement>(null)
   const productsRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 })
-  const isProductsInView = useInView(productsRef, { once: true, amount: 0.1 })
 
   // Filter states
   const [selectedSubcategoriesFilter, setSelectedSubcategoriesFilter] = useState<string[]>(
@@ -54,10 +58,48 @@ export default function CategoryListingClient({
     initialSearchParams.brands?.split(',').filter(Boolean) || []
   )
   const [sortBy, setSortBy] = useState(initialSearchParams.sort || "popular")
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>("grid")
   const [productsToShow, setProductsToShow] = useState(12)
 
   const productsPerPage = 12
+
+  // Hero animations
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    const heroElements = hero.querySelectorAll('.animate-hero')
+    gsap.set(heroElements, { opacity: 0, y: 30 })
+
+    const dividerLine = hero.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(heroElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 1,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   // Sync state from URL when searchParams change
   useEffect(() => {
@@ -259,39 +301,19 @@ export default function CategoryListingClient({
 
         {/* Content */}
         <div className="relative z-10 text-center max-w-4xl">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-4"
-          >
+          <span className="animate-hero inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-4">
             Browse Category
-          </motion.span>
+          </span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4"
-          >
+          <h1 className="animate-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4">
             {category.name}
-          </motion.h1>
+          </h1>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={isHeroInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            className="h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-6"
-          />
+          <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-6 origin-left" />
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="text-lg md:text-xl text-white/90 leading-relaxed"
-          >
+          <p className="animate-hero text-lg md:text-xl text-white/90 leading-relaxed">
             {category.description}
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -349,37 +371,6 @@ export default function CategoryListingClient({
                 )}
               </div>
 
-              {/* Room Type Filter */}
-              {availableRooms.length > 0 && (
-                <>
-                  <div className="mb-8">
-                    <h4 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                      Room Type
-                    </h4>
-                    <div className="space-y-2">
-                      {availableRooms.map((room) => (
-                        <label
-                          key={room.slug}
-                          className="flex items-center gap-3 cursor-pointer group"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedRooms.includes(room.slug)}
-                            onChange={() => toggleRoom(room.slug)}
-                            className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
-                          />
-                          <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
-                            {room.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="h-px bg-gray-200 mb-8" />
-                </>
-              )}
-
               {/* Subcategory Filter */}
               {availableSubcategories.length > 0 && (
                 <>
@@ -401,6 +392,37 @@ export default function CategoryListingClient({
                           />
                           <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
                             {subcategory}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-gray-200 mb-8" />
+                </>
+              )}
+
+              {/* Room Type Filter */}
+              {availableRooms.length > 0 && (
+                <>
+                  <div className="mb-8">
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
+                      Room Type
+                    </h4>
+                    <div className="space-y-2">
+                      {availableRooms.map((room) => (
+                        <label
+                          key={room.slug}
+                          className="flex items-center gap-3 cursor-pointer group"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedRooms.includes(room.slug)}
+                            onChange={() => toggleRoom(room.slug)}
+                            className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
+                          />
+                          <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
+                            {room.name}
                           </span>
                         </label>
                       ))}
@@ -483,48 +505,12 @@ export default function CategoryListingClient({
                   <option value="name-asc">Name: A-Z</option>
                   <option value="name-desc">Name: Z-A</option>
                 </select>
-
-                {/* View Toggle */}
-                <div className="hidden md:flex items-center gap-2 bg-white border-2 border-gray-200 rounded p-1">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === "grid"
-                        ? "bg-red-700 text-white"
-                        : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    aria-label="Grid view"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 rounded transition-colors ${
-                      viewMode === "list"
-                        ? "bg-red-700 text-white"
-                        : "text-gray-400 hover:text-gray-700"
-                    }`}
-                    aria-label="List view"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" />
-                    </svg>
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* Products Grid */}
             {currentProducts.length > 0 ? (
-              <div
-                className={
-                  viewMode === "grid"
-                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                    : "flex flex-col gap-6"
-                }
-              >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {currentProducts.map((product, index) => (
                   <ProductCard
                     key={product.id}

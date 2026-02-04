@@ -1,9 +1,15 @@
 'use client'
 
-import { useRef, useState } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 // Services data
 const services = [
@@ -218,13 +224,39 @@ const stats = [
 ]
 
 export default function ServicesPageContent() {
-  const heroRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 })
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    const heroElements = hero.querySelectorAll('.animate-hero')
+    gsap.set(heroElements, { opacity: 0, y: 20 })
+
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(heroElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div className="pt-32 md:pt-44">
       {/* Hero Section */}
-      <HeroSection heroRef={heroRef} isHeroInView={isHeroInView} />
+      <HeroSection heroRef={heroRef} />
 
       {/* Services Overview */}
       <ServicesOverview />
@@ -254,7 +286,7 @@ export default function ServicesPageContent() {
 }
 
 // Hero Section Component
-function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: boolean }) {
+function HeroSection({ heroRef }: { heroRef: React.RefObject<HTMLDivElement | null> }) {
   return (
     <div
       ref={heroRef}
@@ -275,21 +307,11 @@ function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: bo
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800 mb-6 block"
-        >
+        <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800 mb-6 block">
           Our Services
-        </motion.span>
+        </span>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8"
-        >
+        <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8">
           Transform Your
           <br />
           <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
@@ -297,23 +319,13 @@ function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: bo
           </span>
           <br />
           With Experts
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-10"
-        >
+        <p className="animate-hero text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-10">
           From strategic consulting to complete office management, we deliver end-to-end solutions that elevate your workspace and empower your team.
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-        >
+        <div className="animate-hero flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/contact"
             className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
@@ -326,7 +338,7 @@ function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: bo
           >
             Explore Services
           </a>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
@@ -334,8 +346,35 @@ function HeroSection({ heroRef, isHeroInView }: { heroRef: any; isHeroInView: bo
 
 // Services Overview Component
 function ServicesOverview() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const header = section.querySelector('.section-header')
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: header,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -343,12 +382,7 @@ function ServicesOverview() {
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
-      >
+      <div className="section-header text-center mb-16">
         <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4 block">
           What We Do
         </span>
@@ -358,7 +392,7 @@ function ServicesOverview() {
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
           Everything you need to create, manage, and optimize your office space
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {services.map((service, index) => (
@@ -370,15 +404,37 @@ function ServicesOverview() {
 }
 
 function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 50 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.15,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.15 }}
       className="group relative bg-white border border-red-100 overflow-hidden hover:shadow-2xl transition-shadow duration-300"
     >
       {/* Image */}
@@ -427,26 +483,48 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
           </svg>
         </a>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 // Why Choose Us Component
 function WhyChooseUs() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const header = section.querySelector('.section-header')
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: header,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gradient-to-br from-red-50/30 to-white"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
-      >
+      <div className="section-header text-center mb-16">
         <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4 block">
           Why Choose Us
         </span>
@@ -456,7 +534,7 @@ function WhyChooseUs() {
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
           We bring more than just office solutions—we bring experience, innovation, and commitment to your success
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {benefits.map((benefit, index) => (
@@ -468,40 +546,84 @@ function WhyChooseUs() {
 }
 
 function BenefitCard({ benefit, index }: { benefit: typeof benefits[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
       className="bg-white border border-red-100 p-6 hover:shadow-lg transition-shadow duration-300"
     >
       <div className="text-red-700 mb-4">{benefit.icon}</div>
       <h3 className="text-xl font-bold mb-2">{benefit.title}</h3>
       <p className="text-gray-700">{benefit.description}</p>
-    </motion.div>
+    </div>
   )
 }
 
 // Our Process Component
 function OurProcess() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const header = section.querySelector('.section-header')
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: header,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
-      >
+      <div className="section-header text-center mb-16">
         <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4 block">
           How We Work
         </span>
@@ -511,7 +633,7 @@ function OurProcess() {
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
           A systematic approach refined over hundreds of successful projects
         </p>
-      </motion.div>
+      </div>
 
       <div className="max-w-4xl mx-auto">
         {processSteps.map((step, index) => (
@@ -523,15 +645,37 @@ function OurProcess() {
 }
 
 function ProcessStep({ step, index, isLast }: { step: typeof processSteps[0]; index: number; isLast: boolean }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.5 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    gsap.set(element, { opacity: 0, x: -30 })
+
+    ScrollTrigger.create({
+      trigger: element,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(element, {
+          opacity: 1,
+          x: 0,
+          duration: 0.6,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, x: -30 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
       className="relative flex gap-8 pb-12"
     >
       {/* Timeline */}
@@ -549,7 +693,7 @@ function ProcessStep({ step, index, isLast }: { step: typeof processSteps[0]; in
         <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
         <p className="text-gray-700">{step.description}</p>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -565,8 +709,35 @@ function ServiceDeepDive() {
 }
 
 function DeepDiveSection({ service, index }: { service: typeof services[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const content = section.querySelector('.deep-dive-content')
+    if (content) {
+      gsap.set(content, { opacity: 0, y: 50 })
+
+      ScrollTrigger.create({
+        trigger: content,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(content, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   // Third service (index 2) gets "Browse Our Products" button, others get "Request a Quote"
   const isDesignService = index === 2
@@ -577,12 +748,7 @@ function DeepDiveSection({ service, index }: { service: typeof services[0]; inde
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.7 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-      >
+      <div className="deep-dive-content grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Image - alternating sides */}
         <div className={`relative h-[400px] md:h-[500px] ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
           <Image
@@ -630,15 +796,41 @@ function DeepDiveSection({ service, index }: { service: typeof services[0]; inde
             </svg>
           </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
 // Stats Section Component
 function StatsSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.5 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const statItems = section.querySelectorAll('.stat-item')
+    gsap.set(statItems, { opacity: 0, scale: 0.8 })
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(statItems, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -647,16 +839,10 @@ function StatsSection() {
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
         {stats.map((stat, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="text-center"
-          >
+          <div key={index} className="stat-item text-center">
             <div className="text-5xl md:text-6xl font-black mb-2">{stat.number}</div>
             <div className="text-sm md:text-base font-medium opacity-90">{stat.label}</div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
@@ -665,20 +851,42 @@ function StatsSection() {
 
 // Case Studies Component
 function CaseStudies() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const header = section.querySelector('.section-header')
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: header,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
-      >
+      <div className="section-header text-center mb-16">
         <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4 block">
           Success Stories
         </span>
@@ -688,7 +896,7 @@ function CaseStudies() {
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
           See how we've helped businesses transform their workspaces and achieve their goals
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {caseStudies.map((study, index) => (
@@ -700,15 +908,37 @@ function CaseStudies() {
 }
 
 function CaseStudyCard({ study, index }: { study: typeof caseStudies[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 50 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.2,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.2 }}
       className="bg-gradient-to-br from-white to-red-50/30 border border-red-100 overflow-hidden"
     >
       <div className="relative h-64">
@@ -752,33 +982,55 @@ function CaseStudyCard({ study, index }: { study: typeof caseStudies[0]; index: 
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 // Testimonials Component
 function Testimonials() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const header = section.querySelector('.section-header')
+    if (header) {
+      gsap.set(header, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: header,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
       ref={ref}
       className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gradient-to-br from-red-50/30 to-white"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
-      >
+      <div className="section-header text-center mb-16">
         <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4 block">
           Client Testimonials
         </span>
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">
           What Our Clients Say
         </h2>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {testimonials.map((testimonial, index) => (
@@ -790,15 +1042,37 @@ function Testimonials() {
 }
 
 function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
       className="bg-white border border-red-100 p-8 hover:shadow-lg transition-shadow duration-300"
     >
       <svg className="w-10 h-10 text-red-200 mb-4" fill="currentColor" viewBox="0 0 24 24">
@@ -810,14 +1084,41 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
         <p className="text-sm text-gray-600">{testimonial.position}</p>
         <p className="text-sm text-red-800 font-semibold">{testimonial.company}</p>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 // Final CTA Component
 function FinalCTA() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.5 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = ref.current
+    if (!section) return
+
+    const content = section.querySelector('.cta-content')
+    if (content) {
+      gsap.set(content, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: content,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(content, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -838,12 +1139,7 @@ function FinalCTA() {
         />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 text-center max-w-4xl mx-auto"
-      >
+      <div className="cta-content relative z-10 text-center max-w-4xl mx-auto">
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6">
           Ready to Transform Your Workspace?
         </h2>
@@ -864,7 +1160,7 @@ function FinalCTA() {
             Call Us Today
           </a>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

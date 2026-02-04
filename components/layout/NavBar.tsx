@@ -1,53 +1,27 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ArrowRight, ChevronDown } from "lucide-react"
 import Logo from "./Logo"
 import Image from "next/image"
 import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-// Furniture categories for mega menu
-const furnitureCategories = [
-  {
-    name: "Chairs",
-    slug: "chairs",
-    image: "/furniture/office-chairs.jpeg",
-    description: "Executive, task, and conference seating",
-  },
-  {
-    name: "Desks & Tables",
-    slug: "desks-tables",
-    image: "/furniture/desk-tables.jpeg",
-    description: "From executive to collaborative workstations",
-  },
-  {
-    name: "Storage Solutions",
-    slug: "storage-solutions",
-    image: "/furniture/storage.jpeg",
-    description: "Cabinets, shelving, and organization",
-  },
-  {
-    name: "Acoustic Solutions",
-    slug: "acoustic-solutions",
-    image: "/furniture/acoustic.jpeg",
-    description: "Phone booths and sound management",
-  },
-  {
-    name: "Accessories & Lighting",
-    slug: "accessories-lighting",
-    image: "/furniture/lighting.jpeg",
-    description: "Task, ambient, and architectural lighting",
-  },
-  {
-    name: "Lounge",
-    slug: "lounge",
-    image: "/furniture/lounge.jpeg",
-    description: "Lounge chairs and collaborative seating",
-  },
-]
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
+
+// Category type from Supabase
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  image_url: string | null
+}
 
 const roomTypes = [
   { name: "Private Office", slug: "private-office" },
@@ -56,13 +30,6 @@ const roomTypes = [
   { name: "Lounge Area", slug: "lounge-area" },
   { name: "Reception Area", slug: "reception-area" },
   { name: "Outdoor", slug: "outdoor" },
-]
-
-const topBrands = [
-  { name: "Haworth", slug: "haworth" },
-  { name: "BoConcept", slug: "boconcept" },
-  { name: "Boss Design", slug: "boss-design" },
-  { name: "Brunner", slug: "brunner" },
 ]
 
 // Hook for detecting media queries (e.g., prefers-reduced-motion)
@@ -83,18 +50,24 @@ function useMediaQuery(query: string) {
 interface NavBarProps {
   isOpen: boolean
   setOpen: (open: boolean) => void
+  categories: Category[]
 }
 
-const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
+const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
   const pathname = usePathname()
   const isHomePage = pathname === "/"
   const [scrollY, setScrollY] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
+  const [isInitialAnimationDone, setIsInitialAnimationDone] = useState(false)
 
   const navbarRef = useRef<HTMLDivElement>(null)
+  const navContainerRef = useRef<HTMLDivElement>(null)
+  const logoRef = useRef<HTMLDivElement>(null)
   const megaMenuRef = useRef<HTMLDivElement>(null)
   const furnitureButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileLogoRef = useRef<HTMLDivElement>(null)
+  const mobileButtonRef = useRef<HTMLButtonElement>(null)
 
   // Detect reduced motion preference
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -113,14 +86,60 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
     setIsScrolled(scrollY > 50)
   }, [scrollY])
 
-  // Scroll-based transforms
-  const { scrollYProgress } = useScroll({
-    offset: ["start start", "100px start"]
-  })
+  // Initial entrance animation
+  useEffect(() => {
+    const header = navbarRef.current
+    const mobileLogoEl = mobileLogoRef.current
+    const mobileButtonEl = mobileButtonRef.current
 
-  const navbarHeight = useTransform(scrollYProgress, [0, 1], [80, 60])
-  const logoScale = useTransform(scrollYProgress, [0, 1], [1, 0.85])
-  const borderRadius = useTransform(scrollYProgress, [0, 1], [9999, 24])
+    if (header) {
+      gsap.fromTo(header,
+        { y: -100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 0.2, onComplete: () => setIsInitialAnimationDone(true) }
+      )
+    }
+
+    if (mobileLogoEl) {
+      gsap.fromTo(mobileLogoEl,
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }
+      )
+    }
+
+    if (mobileButtonEl) {
+      gsap.fromTo(mobileButtonEl,
+        { opacity: 0, x: 20 },
+        { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }
+      )
+    }
+  }, [])
+
+  // Scroll-based transforms for navbar
+  useEffect(() => {
+    const navContainer = navContainerRef.current
+    const logo = logoRef.current
+
+    if (!navContainer || !logo) return
+
+    const handleScrollUpdate = () => {
+      const progress = Math.min(scrollY / 100, 1)
+
+      // Height: 80px -> 60px
+      const height = 80 - (20 * progress)
+      // Logo scale: 1 -> 0.85
+      const scale = 1 - (0.15 * progress)
+      // Border radius: 9999px -> 24px
+      const radius = 9999 - ((9999 - 24) * progress)
+
+      gsap.set(navContainer, { height, borderRadius: radius })
+      gsap.set(logo, { scale })
+    }
+
+    handleScrollUpdate()
+
+    window.addEventListener('scroll', handleScrollUpdate, { passive: true })
+    return () => window.removeEventListener('scroll', handleScrollUpdate)
+  }, [scrollY])
 
   const shouldBeLight = isScrolled || !isHomePage
 
@@ -371,63 +390,90 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
     }
   }, [megaMenuOpen, prefersReducedMotion])
 
+  // Furniture button scale animation
+  useEffect(() => {
+    const btn = furnitureButtonRef.current
+    if (!btn) return
+
+    gsap.to(btn, {
+      scale: megaMenuOpen ? 1.1 : 1,
+      duration: 0.3,
+      ease: 'power3.out'
+    })
+  }, [megaMenuOpen])
+
+  // Hamburger animation
+  const hamburgerTopRef = useRef<HTMLSpanElement>(null)
+  const hamburgerMiddleRef = useRef<HTMLSpanElement>(null)
+  const hamburgerBottomRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const top = hamburgerTopRef.current
+    const middle = hamburgerMiddleRef.current
+    const bottom = hamburgerBottomRef.current
+
+    if (!top || !middle || !bottom) return
+
+    if (isOpen) {
+      gsap.to(top, { rotation: 45, y: 8, duration: 0.3, ease: 'power3.out' })
+      gsap.to(middle, { opacity: 0, duration: 0.3 })
+      gsap.to(bottom, { rotation: -45, y: -8, duration: 0.3, ease: 'power3.out' })
+    } else {
+      gsap.to(top, { rotation: 0, y: 0, duration: 0.3, ease: 'power3.out' })
+      gsap.to(middle, { opacity: 1, duration: 0.3 })
+      gsap.to(bottom, { rotation: 0, y: 0, duration: 0.3, ease: 'power3.out' })
+    }
+  }, [isOpen])
+
   return (
     <>
       {/* Desktop: Floating navbar with scroll morphing */}
-      <motion.header
+      <header
         ref={navbarRef}
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
         className="fixed top-6 left-0 right-0 z-50 hidden lg:flex justify-center px-4"
+        style={{ opacity: 0, transform: 'translateY(-100px)' }}
       >
-        <motion.nav
-          style={{
-            height: navbarHeight,
-            borderRadius: borderRadius,
-          }}
+        <nav
+          ref={navContainerRef}
           className={`flex items-center justify-between gap-8 px-8 backdrop-blur-2xl border transition-colors duration-500 ${
             shouldBeLight
               ? "bg-white/95 border-red-100 shadow-lg shadow-red-900/5"
               : "bg-white/10 border-white/20 shadow-xl shadow-black/20"
           }`}
+          style={{ height: 80, borderRadius: 9999 }}
         >
           {/* Left Navigation Group */}
           <div className="flex items-center gap-2">
-            <PillNavLink href="/" isLight={shouldBeLight}>
+            <PillNavLink href="/" isLight={shouldBeLight} pathname={pathname}>
               Home
             </PillNavLink>
-            <PillNavLink href="/about" isLight={shouldBeLight}>
+            <PillNavLink href="/about" isLight={shouldBeLight} pathname={pathname}>
               About
             </PillNavLink>
-            <PillNavLink href="/services" isLight={shouldBeLight}>
+            <PillNavLink href="/services" isLight={shouldBeLight} pathname={pathname}>
               Services
             </PillNavLink>
           </div>
 
           {/* Center Logo */}
-          <motion.div
-            style={{ scale: logoScale }}
+          <div
+            ref={logoRef}
             className="flex-shrink-0"
           >
             <Link href="/">
               <Logo color={shouldBeLight ? "black" : "white"} />
             </Link>
-          </motion.div>
+          </div>
 
           {/* Right Navigation Group */}
           <div className="flex items-center gap-2">
             {/* Furniture Button */}
-            <motion.button
+            <button
               ref={furnitureButtonRef}
               onClick={(e) => {
                 e.stopPropagation()
                 setMegaMenuOpen(!megaMenuOpen)
               }}
-              animate={{
-                scale: megaMenuOpen ? 1.1 : 1,
-              }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold uppercase tracking-wider transition-colors duration-300 flex items-center gap-2 ${
                 shouldBeLight
                   ? megaMenuOpen
@@ -446,35 +492,29 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
               />
 
               {/* Active Background */}
-              {megaMenuOpen && (
-                <motion.div
-                  layoutId="furniture-active"
-                  className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-red-900 to-red-700"
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                />
-              )}
+              <div
+                className={`absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-red-900 to-red-700 transition-opacity duration-300 ${
+                  megaMenuOpen ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
 
               {/* Visual Bridge to Mega Menu */}
-              {megaMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  animate={{ opacity: 1, scaleY: 1 }}
-                  exit={{ opacity: 0, scaleY: 0 }}
-                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-px h-6 bg-gradient-to-b from-red-700 to-transparent"
-                />
-              )}
-            </motion.button>
+              <div
+                className={`absolute top-full left-1/2 -translate-x-1/2 w-px h-6 bg-gradient-to-b from-red-700 to-transparent transition-all duration-200 ${
+                  megaMenuOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'
+                }`}
+              />
+            </button>
 
-            <PillNavLink href="/blog" isLight={shouldBeLight}>
+            <PillNavLink href="/blog" isLight={shouldBeLight} pathname={pathname}>
               Blog
             </PillNavLink>
-            <PillNavLink href="/contact" isLight={shouldBeLight}>
+            <PillNavLink href="/contact" isLight={shouldBeLight} pathname={pathname}>
               Contact
             </PillNavLink>
           </div>
-        </motion.nav>
-      </motion.header>
+        </nav>
+      </header>
 
       {/* Dropdown Furniture Mega Menu */}
       {megaMenuOpen && (
@@ -512,8 +552,8 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
                     Shop by Category
                   </h3>
                   <div className="grid grid-cols-3 gap-4" id="category-grid">
-                    {furnitureCategories.map((category, index) => (
-                      <div key={index} className="category-card">
+                    {categories.map((category, index) => (
+                      <div key={category.id} className="category-card">
                         <CategoryCard
                           category={category}
                           index={index}
@@ -571,23 +611,18 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
 
       {/* Mobile: Logo + Hamburger */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-12 py-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div ref={mobileLogoRef} style={{ opacity: 0 }}>
           <Link href="/">
             <Logo color={shouldBeLight ? "black" : "white"} />
           </Link>
-        </motion.div>
+        </div>
 
-        <motion.button
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        <button
+          ref={mobileButtonRef}
           onClick={() => setOpen(!isOpen)}
           className="w-12 h-12 flex items-center justify-center rounded-full backdrop-blur-2xl border transition-all duration-500"
           style={{
+            opacity: 0,
             backgroundColor:
               shouldBeLight || isOpen
                 ? "rgba(255,255,255,0.9)"
@@ -600,37 +635,26 @@ const NavBar = ({ isOpen, setOpen }: NavBarProps) => {
           aria-label="Toggle menu"
         >
           <div className="w-5 h-4 flex flex-col justify-between">
-            <motion.span
-              animate={{
-                rotate: isOpen ? 45 : 0,
-                y: isOpen ? 8 : 0,
-              }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            <span
+              ref={hamburgerTopRef}
               className={`w-full h-0.5 transform origin-center transition-colors duration-300 ${
                 shouldBeLight || isOpen ? "bg-black" : "bg-white"
               }`}
             />
-            <motion.span
-              animate={{
-                opacity: isOpen ? 0 : 1,
-              }}
-              transition={{ duration: 0.3 }}
+            <span
+              ref={hamburgerMiddleRef}
               className={`w-full h-0.5 transition-colors duration-300 ${
                 shouldBeLight || isOpen ? "bg-black" : "bg-white"
               }`}
             />
-            <motion.span
-              animate={{
-                rotate: isOpen ? -45 : 0,
-                y: isOpen ? -8 : 0,
-              }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            <span
+              ref={hamburgerBottomRef}
               className={`w-full h-0.5 transform origin-center transition-colors duration-300 ${
                 shouldBeLight || isOpen ? "bg-black" : "bg-white"
               }`}
             />
           </div>
-        </motion.button>
+        </button>
       </div>
     </>
   )
@@ -642,7 +666,7 @@ const CategoryCard = ({
   index,
   closeMegaMenu,
 }: {
-  category: typeof furnitureCategories[0]
+  category: Category
   index: number
   closeMegaMenu: () => void
 }) => {
@@ -704,14 +728,16 @@ const CategoryCard = ({
       >
         {/* Image Background */}
         <div className="category-image absolute inset-0">
-          <Image
-            src={category.image}
-            alt={category.name}
-            fill
-            sizes="300px"
-            className="object-cover"
-            quality={75}
-          />
+          {category.image_url && (
+            <Image
+              src={category.image_url}
+              alt={category.name}
+              fill
+              sizes="300px"
+              className="object-cover"
+              quality={75}
+            />
+          )}
         </div>
 
         {/* Gradient Overlay */}
@@ -722,9 +748,11 @@ const CategoryCard = ({
           <h3 className="text-lg font-bold text-white mb-1">
             {category.name}
           </h3>
-          <p className="text-xs text-white/80 line-clamp-2">
-            {category.description}
-          </p>
+          {category.description && (
+            <p className="text-xs text-white/80 line-clamp-2">
+              {category.description}
+            </p>
+          )}
 
           {/* Enhanced Arrow Badge with GSAP control */}
           <div className="category-badge mt-2 px-3 py-2 rounded-lg bg-white/10 backdrop-blur-md backdrop-saturate-150 border border-white/20 flex items-center gap-2 opacity-0">
@@ -745,17 +773,18 @@ const PillNavLink = ({
   href,
   children,
   isLight,
+  pathname,
 }: {
   href: string
   children: React.ReactNode
   isLight: boolean
+  pathname: string
 }) => {
-  const pathname = usePathname()
   const isActive = pathname === href
 
   return (
     <Link href={href} className="relative">
-      <motion.div
+      <div
         className={`relative z-10 px-5 py-2 rounded-full text-sm font-semibold uppercase tracking-wider transition-colors duration-300 ${
           isLight
             ? isActive
@@ -769,18 +798,14 @@ const PillNavLink = ({
         {children}
 
         {/* Active Background */}
-        {isActive && (
-          <motion.div
-            layoutId="pill-active"
-            className={`absolute inset-0 -z-10 rounded-full ${
-              isLight
-                ? "bg-gradient-to-r from-red-900 to-red-700"
-                : "bg-white"
-            }`}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          />
-        )}
-      </motion.div>
+        <div
+          className={`absolute inset-0 -z-10 rounded-full transition-opacity duration-300 ${
+            isLight
+              ? "bg-gradient-to-r from-red-900 to-red-700"
+              : "bg-white"
+          } ${isActive ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
     </Link>
   )
 }

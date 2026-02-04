@@ -1,16 +1,23 @@
 'use client'
 
-import { useRef, useState } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, A11y } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
 import ProductCard from "@/components/ProductCard"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface Category {
   id: string
@@ -116,20 +123,215 @@ export default function FurnitureHubClient({
   featuredProducts,
   stats
 }: FurnitureHubClientProps) {
+  const router = useRouter()
   const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const heroRef = useRef(null)
-  const categoriesRef = useRef(null)
-  const featuredRef = useRef(null)
-  const roomsRef = useRef(null)
-  const statsRef = useRef(null)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 })
-  const isCategoriesInView = useInView(categoriesRef, { once: true, amount: 0.2 })
-  const isFeaturedInView = useInView(featuredRef, { once: true, amount: 0.2 })
-  const isRoomsInView = useInView(roomsRef, { once: true, amount: 0.3 })
-  const isStatsInView = useInView(statsRef, { once: true, amount: 0.5 })
+  const handleQuickSearch = (term: string) => {
+    router.push(`/search?q=${encodeURIComponent(term)}`)
+  }
+
+  const heroRef = useRef<HTMLDivElement>(null)
+  const categoriesRef = useRef<HTMLDivElement>(null)
+  const featuredRef = useRef<HTMLDivElement>(null)
+  const roomsRef = useRef<HTMLDivElement>(null)
+  const statsRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
+  const progressBarRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const categoriesSection = categoriesRef.current
+    const featured = featuredRef.current
+    const roomsSection = roomsRef.current
+    const statsSection = statsRef.current
+    const cta = ctaRef.current
+
+    // Hero animations
+    if (hero) {
+      const heroElements = hero.querySelectorAll('.animate-hero')
+      gsap.set(heroElements, { opacity: 0, y: 30 })
+
+      const dividerLine = hero.querySelector('.divider-line')
+      if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+      ScrollTrigger.create({
+        trigger: hero,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(heroElements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+          if (dividerLine) {
+            gsap.to(dividerLine, {
+              scaleX: 1,
+              duration: 1,
+              delay: 0.3,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Stats animations
+    if (statsSection) {
+      const statItems = statsSection.querySelectorAll('.stat-item')
+      gsap.set(statItems, { opacity: 0, y: 20 })
+
+      ScrollTrigger.create({
+        trigger: statsSection,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(statItems, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    // Categories section
+    if (categoriesSection) {
+      const headerDiv = categoriesSection.querySelector('.section-header')
+      if (headerDiv) gsap.set(headerDiv, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: categoriesSection,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          if (headerDiv) {
+            gsap.to(headerDiv, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Featured section
+    if (featured) {
+      const headerDiv = featured.querySelector('.section-header')
+      const navDiv = featured.querySelector('.nav-section')
+      const swiperDiv = featured.querySelector('.swiper-section')
+
+      if (headerDiv) gsap.set(headerDiv, { opacity: 0, y: 30 })
+      if (navDiv) gsap.set(navDiv, { opacity: 0, x: 30 })
+      if (swiperDiv) gsap.set(swiperDiv, { opacity: 0, y: 50 })
+
+      ScrollTrigger.create({
+        trigger: featured,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          if (headerDiv) {
+            gsap.to(headerDiv, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+          if (navDiv) {
+            gsap.to(navDiv, {
+              opacity: 1,
+              x: 0,
+              duration: 0.8,
+              delay: 0.2,
+              ease: 'power3.out'
+            })
+          }
+          if (swiperDiv) {
+            gsap.to(swiperDiv, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              delay: 0.3,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Rooms section
+    if (roomsSection) {
+      const headerDiv = roomsSection.querySelector('.section-header')
+      if (headerDiv) gsap.set(headerDiv, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: roomsSection,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          if (headerDiv) {
+            gsap.to(headerDiv, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // CTA section
+    if (cta) {
+      gsap.set(cta, { opacity: 0, y: 30 })
+
+      ScrollTrigger.create({
+        trigger: cta,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(cta, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
+
+  // Update progress bar
+  useEffect(() => {
+    if (progressBarRef.current && featuredProducts.length > 0) {
+      const width = ((activeIndex + 1) / featuredProducts.length) * 100
+      gsap.to(progressBarRef.current, {
+        width: `${width}%`,
+        duration: 0.3,
+        ease: 'power2.out'
+      })
+    }
+  }, [activeIndex, featuredProducts.length])
 
   return (
     <div className="w-full">
@@ -153,81 +355,58 @@ export default function FurnitureHubClient({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/60" />
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-6"
-          >
+          <span className="animate-hero inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-6">
             Furniture Catalog
-          </motion.span>
+          </span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-6"
-          >
+          <h1 className="animate-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-6">
             Premium Office
             <br />
             <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
               Furniture Solutions
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={isHeroInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-8"
-          />
+          <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-8 origin-left" />
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-            className="text-lg md:text-xl text-white/80 leading-relaxed max-w-3xl mx-auto mb-12"
-          >
+          <p className="animate-hero text-lg md:text-xl text-white/80 leading-relaxed max-w-3xl mx-auto mb-12">
             Discover over {stats.totalProducts}+ carefully curated products from world-renowned brands.
             Browse by category, room type, or let our experts guide you.
-          </motion.p>
+          </p>
 
           {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="relative">
+          <div className="animate-hero max-w-2xl mx-auto">
+            <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for furniture... (e.g., office chairs, standing desks)"
                 className="w-full px-6 py-4 pr-32 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder-white/60 focus:outline-none focus:border-red-500 transition-all duration-300"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold rounded-full hover:from-red-800 hover:to-red-600 transition-all duration-300">
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold rounded-full hover:from-red-800 hover:to-red-600 transition-all duration-300"
+              >
                 Search
               </button>
-            </div>
-          </motion.div>
+            </form>
+          </div>
 
           {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-3 mt-8"
-          >
+          <div className="animate-hero flex flex-wrap items-center justify-center gap-3 mt-8">
             <span className="text-sm text-white/60">Quick links:</span>
             {["Office Chairs", "Standing Desks", "Phone Booths", "Lounge Seating"].map((term, index) => (
               <button
                 key={index}
+                type="button"
+                onClick={() => handleQuickSearch(term)}
                 className="px-4 py-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full transition-all duration-300"
               >
                 {term}
               </button>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -244,16 +423,9 @@ export default function FurnitureHubClient({
               { number: `${stats.totalBrands}+`, label: "Premium Brands" },
               { number: "100%", label: "Quality Guaranteed" },
             ].map((stat, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                  delay: index * 0.1,
-                }}
-                className="text-center"
+                className="stat-item text-center"
               >
                 <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-red-900 to-red-700 bg-clip-text text-transparent mb-2">
                   {stat.number}
@@ -261,7 +433,7 @@ export default function FurnitureHubClient({
                 <div className="text-sm md:text-base text-gray-600 font-semibold uppercase tracking-wider">
                   {stat.label}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -288,12 +460,7 @@ export default function FurnitureHubClient({
 
         <div className="relative z-10">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isCategoriesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-16 max-w-3xl"
-          >
+          <div className="section-header mb-16 max-w-3xl">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
               Browse by Category
             </span>
@@ -309,7 +476,7 @@ export default function FurnitureHubClient({
               Explore our {stats.totalCategories} main furniture categories, each containing specialized
               subcategories to help you find the perfect pieces for your workspace.
             </p>
-          </motion.div>
+          </div>
 
           {/* Category Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -318,7 +485,6 @@ export default function FurnitureHubClient({
                 key={category.id}
                 category={category}
                 index={index}
-                isInView={isCategoriesInView}
               />
             ))}
           </div>
@@ -348,12 +514,7 @@ export default function FurnitureHubClient({
           <div className="relative z-10">
             {/* Header with Navigation */}
             <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 mb-16">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="max-w-3xl"
-              >
+              <div className="section-header max-w-3xl">
                 <span className="text-sm font-bold uppercase tracking-widest text-red-800">
                   Curated Selection
                 </span>
@@ -370,15 +531,10 @@ export default function FurnitureHubClient({
                   from world-renowned brands, chosen for their exceptional quality
                   and design.
                 </p>
-              </motion.div>
+              </div>
 
               {/* Custom Navigation & Counter */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={isFeaturedInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                className="flex items-center gap-4"
-              >
+              <div className="nav-section flex items-center gap-4">
                 {/* Slide Counter */}
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-black bg-gradient-to-r from-red-900 to-red-700 bg-clip-text text-transparent">
@@ -431,15 +587,11 @@ export default function FurnitureHubClient({
                     </svg>
                   </button>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Products Slider */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            >
+            <div className="swiper-section">
               <Swiper
                 onSwiper={setSwiperRef}
                 speed={700}
@@ -478,29 +630,21 @@ export default function FurnitureHubClient({
                     <ProductCard
                       product={product}
                       index={productIndex}
-                      isInView={isFeaturedInView}
+                      isInView={true}
                     />
                   </SwiperSlide>
                 ))}
               </Swiper>
-            </motion.div>
+            </div>
 
             {/* Progress Bar */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={isFeaturedInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-              className="w-full h-1 bg-red-100 rounded-full overflow-hidden mt-12"
-            >
-              <motion.div
+            <div className="w-full h-1 bg-red-100 rounded-full overflow-hidden mt-12">
+              <div
+                ref={progressBarRef}
                 className="h-full bg-gradient-to-r from-red-900 to-red-700"
-                initial={{ width: "0%" }}
-                animate={{
-                  width: `${((activeIndex + 1) / featuredProducts.length) * 100}%`,
-                }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                style={{ width: `${((activeIndex + 1) / featuredProducts.length) * 100}%` }}
               />
-            </motion.div>
+            </div>
           </div>
         </section>
       )}
@@ -512,12 +656,7 @@ export default function FurnitureHubClient({
           className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-gray-50"
         >
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isRoomsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-16 max-w-3xl"
-          >
+          <div className="section-header mb-16 max-w-3xl">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
               Shop by Room Type
             </span>
@@ -533,7 +672,7 @@ export default function FurnitureHubClient({
               Browse furniture curated specifically for different workspace zones.
               From welcoming reception areas to productive private offices.
             </p>
-          </motion.div>
+          </div>
 
           {/* Room Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -542,7 +681,6 @@ export default function FurnitureHubClient({
                 key={room.id}
                 room={room}
                 index={index}
-                isInView={isRoomsInView}
               />
             ))}
           </div>
@@ -551,11 +689,8 @@ export default function FurnitureHubClient({
 
       {/* CTA Section */}
       <section className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 bg-gradient-to-br from-gray-900 via-red-950 to-black text-white">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        <div
+          ref={ctaRef}
           className="max-w-4xl mx-auto text-center"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
@@ -573,7 +708,7 @@ export default function FurnitureHubClient({
               Contact Our Experts
             </Link>
           </div>
-        </motion.div>
+        </div>
       </section>
     </div>
   )
@@ -583,22 +718,40 @@ export default function FurnitureHubClient({
 const CategoryCard = ({
   category,
   index,
-  isInView
 }: {
   category: Category
   index: number
-  isInView: boolean
 }) => {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 50 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        ease: [0.22, 1, 0.36, 1],
-        delay: index * 0.1,
-      }}
-    >
+    <div ref={ref}>
       <Link href={`/categories/${category.slug}`}>
         <div className="group relative overflow-hidden rounded-xl border-2 border-red-100/50 hover:border-red-500 transition-all duration-300 h-[500px] cursor-pointer bg-black shadow-lg hover:shadow-2xl hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]">
           {/* Background Image */}
@@ -654,7 +807,7 @@ const CategoryCard = ({
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 }
 
@@ -662,22 +815,40 @@ const CategoryCard = ({
 const RoomCard = ({
   room,
   index,
-  isInView
 }: {
   room: Room
   index: number
-  isInView: boolean
 }) => {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const card = ref.current
+    if (!card) return
+
+    gsap.set(card, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.1,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [index])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1],
-        delay: index * 0.1,
-      }}
-    >
+    <div ref={ref}>
       <Link href={`/rooms/${room.slug}`}>
         <div className="group relative overflow-hidden border-2 border-red-100 hover:border-red-700 transition-all duration-300 h-[400px] cursor-pointer bg-black hover:shadow-2xl">
           {/* Background Image */}
@@ -730,6 +901,6 @@ const RoomCard = ({
           <div className="absolute inset-0 border-4 border-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 }

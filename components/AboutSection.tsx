@@ -1,15 +1,14 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const stats = [
-  { value: "8+", label: "Years Experience" },
-  { value: "20.000+", label: "Square Meters Created" },
-  { value: "200+", label: "Happy Clients" },
-  { value: "50+", label: "Team Members" },
-]
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const highlights = [
   {
@@ -55,18 +54,97 @@ interface AboutSectionProps {
 }
 
 const AboutSection = ({ id }: AboutSectionProps) => {
-  const headerRef = useRef(null)
-  const statsRef = useRef(null)
-  const contentRef = useRef(null)
-  const highlightsRef = useRef(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const highlightsRef = useRef<HTMLDivElement>(null)
 
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
-  const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 })
-  const isContentInView = useInView(contentRef, { once: true, amount: 0.3 })
-  const isHighlightsInView = useInView(highlightsRef, { once: true, amount: 0.2 })
+  useEffect(() => {
+    const section = sectionRef.current
+    const header = headerRef.current
+    const content = contentRef.current
+    const highlightsContainer = highlightsRef.current
+
+    if (!section || !header || !content || !highlightsContainer) return
+
+    // Header animations
+    const headerElements = header.querySelectorAll('.animate-header')
+    gsap.set(headerElements, { opacity: 0, y: 20 })
+
+    const dividerLine = header.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(headerElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 0.6,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    // Content section (image and text)
+    const imageSection = content.querySelector('.image-section')
+    const textSection = content.querySelector('.text-section')
+
+    if (imageSection) gsap.set(imageSection, { opacity: 0, x: -50 })
+    if (textSection) gsap.set(textSection, { opacity: 0, x: 50 })
+
+    ScrollTrigger.create({
+      trigger: content,
+      start: 'top 70%',
+      once: true,
+      onEnter: () => {
+        if (imageSection) {
+          gsap.to(imageSection, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' })
+        }
+        if (textSection) {
+          gsap.to(textSection, { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' })
+        }
+      }
+    })
+
+    // Highlights grid
+    const highlightCards = highlightsContainer.querySelectorAll('.highlight-card')
+    gsap.set(highlightCards, { opacity: 0, y: 30 })
+
+    ScrollTrigger.create({
+      trigger: highlightsContainer,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(highlightCards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: 'power3.out'
+        })
+      }
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
+      ref={sectionRef}
       className="py-24 md:py-32 flex flex-col items-center justify-center w-full px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 bg-white relative overflow-hidden"
       id={id}
     >
@@ -75,65 +153,22 @@ const AboutSection = ({ id }: AboutSectionProps) => {
 
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-center text-center mb-16 max-w-3xl">
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-sm font-bold uppercase tracking-widest text-red-800"
-        >
+        <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
           About Us
-        </motion.span>
+        </span>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight"
-        >
+        <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
           Who We Are
-        </motion.h2>
+        </h2>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isHeaderInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32"
-        />
+        <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={isHeaderInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-base md:text-lg leading-relaxed text-gray-700 mt-4"
-        >
+        <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
           With over 10 years of experience, we are Croatia&apos;s leading provider
           of comprehensive office solutions, combining expert consulting,
           coworking management services, interior design and office furniture.
-        </motion.p>
+        </p>
       </div>
-
-      {/* Stats Grid */}
-      {/* <div
-        ref={statsRef}
-        className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full mb-20"
-      >
-        {stats.map((stat, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isStatsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
-            className="bg-gradient-to-br from-red-900 to-red-700 p-8 text-center group hover:scale-105 transition-transform duration-300"
-          >
-            <div className="text-4xl md:text-5xl font-black text-white mb-2">
-              {stat.value}
-            </div>
-            <div className="text-sm md:text-base font-semibold uppercase tracking-wider text-red-100">
-              {stat.label}
-            </div>
-          </motion.div>
-        ))}
-      </div> */}
 
       {/* Two-Column Content */}
       <div
@@ -141,12 +176,7 @@ const AboutSection = ({ id }: AboutSectionProps) => {
         className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 w-full mb-20"
       >
         {/* Left Column - Image */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={isContentInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative h-[400px] md:h-[500px] overflow-hidden"
-        >
+        <div className="image-section relative h-[400px] md:h-[500px] overflow-hidden">
           <div
             style={{
               backgroundImage: `url(/images/tocAbout.webp)`,
@@ -156,15 +186,10 @@ const AboutSection = ({ id }: AboutSectionProps) => {
             className="absolute inset-0 transition-transform duration-500 hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-transparent" />
-        </motion.div>
+        </div>
 
         {/* Right Column - Content */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={isContentInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          className="flex flex-col gap-6 justify-center"
-        >
+        <div className="text-section flex flex-col gap-6 justify-center">
           <h3 className="text-3xl md:text-4xl font-bold tracking-tight">
             Transforming Places Into Productive Environments
           </h3>
@@ -207,7 +232,7 @@ const AboutSection = ({ id }: AboutSectionProps) => {
               />
             </svg>
           </Link>
-        </motion.div>
+        </div>
       </div>
 
       {/* Highlights Grid */}
@@ -216,12 +241,9 @@ const AboutSection = ({ id }: AboutSectionProps) => {
         className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 w-full"
       >
         {highlights.map((highlight, index) => (
-          <motion.div
+          <div
             key={index}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isHighlightsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.15 }}
-            className="group bg-white border-2 border-red-100 p-8 hover:border-red-700 hover:shadow-xl transition-all duration-300"
+            className="highlight-card group bg-white border-2 border-red-100 p-8 hover:border-red-700 hover:shadow-xl transition-all duration-300"
           >
             <div className="text-red-700 mb-4 group-hover:scale-110 transition-transform duration-300">
               {highlight.icon}
@@ -232,7 +254,7 @@ const AboutSection = ({ id }: AboutSectionProps) => {
             <p className="text-base md:text-lg leading-relaxed text-gray-700">
               {highlight.description}
             </p>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

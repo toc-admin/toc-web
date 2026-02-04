@@ -1,8 +1,14 @@
 'use client'
 
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect } from "react"
 import Link from "next/link"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 const contactMethods = [
   {
@@ -46,13 +52,123 @@ interface ContactProps {
 }
 
 const Contact = ({ id }: ContactProps) => {
-  const headerRef = useRef(null)
-  const cardsRef = useRef(null)
-  const formRef = useRef(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
 
-  const isHeaderInView = useInView(headerRef, { once: true, amount: 0.5 })
-  const isCardsInView = useInView(cardsRef, { once: true, amount: 0.3 })
-  const isFormInView = useInView(formRef, { once: true, amount: 0.3 })
+  useEffect(() => {
+    const header = headerRef.current
+    const cards = cardsRef.current
+    const form = formRef.current
+
+    if (!header) return
+
+    // Header animations
+    const headerElements = header.querySelectorAll('.animate-header')
+    gsap.set(headerElements, { opacity: 0, y: 30 })
+
+    const dividerLine = header.querySelector('.divider-line')
+    if (dividerLine) gsap.set(dividerLine, { scaleX: 0 })
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(headerElements, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out'
+        })
+        if (dividerLine) {
+          gsap.to(dividerLine, {
+            scaleX: 1,
+            duration: 1,
+            delay: 0.2,
+            ease: 'power3.out'
+          })
+        }
+      }
+    })
+
+    // Cards animation
+    if (cards) {
+      const cardTitle = cards.querySelector('.cards-title')
+      const contactCards = cards.querySelectorAll('.contact-card')
+      const socialSection = cards.querySelector('.social-section')
+
+      if (cardTitle) gsap.set(cardTitle, { opacity: 0, x: -30 })
+      gsap.set(contactCards, { opacity: 0, x: -30 })
+      if (socialSection) gsap.set(socialSection, { opacity: 0, y: 20 })
+
+      ScrollTrigger.create({
+        trigger: cards,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          if (cardTitle) {
+            gsap.to(cardTitle, {
+              opacity: 1,
+              x: 0,
+              duration: 0.7,
+              ease: 'power3.out'
+            })
+          }
+          gsap.to(contactCards, {
+            opacity: 1,
+            x: 0,
+            duration: 0.7,
+            stagger: 0.15,
+            ease: 'power3.out'
+          })
+          if (socialSection) {
+            gsap.to(socialSection, {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              delay: 0.6,
+              ease: 'power3.out'
+            })
+          }
+        }
+      })
+    }
+
+    // Form animation
+    if (form) {
+      gsap.set(form, { opacity: 0, x: 30 })
+      const benefitItems = form.querySelectorAll('.benefit-item')
+      gsap.set(benefitItems, { opacity: 0, x: 20 })
+
+      ScrollTrigger.create({
+        trigger: form,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(form, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          })
+          gsap.to(benefitItems, {
+            opacity: 1,
+            x: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power3.out',
+            delay: 0.2
+          })
+        }
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
     <div
@@ -75,23 +191,15 @@ const Contact = ({ id }: ContactProps) => {
       <div className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32">
 
         {/* Header Section */}
-        <motion.div
+        <div
           ref={headerRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col gap-6 max-w-4xl mb-20"
         >
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="text-sm font-bold uppercase tracking-widest text-red-300"
-          >
+          <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-300">
             Get In Touch
-          </motion.span>
+          </span>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
+          <h2 className="animate-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
             Let&apos;s Create Your
             <br />
             <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
@@ -99,55 +207,32 @@ const Contact = ({ id }: ContactProps) => {
             </span>
           </h2>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={isHeaderInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            className="h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 origin-left"
-          />
+          <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 origin-left" />
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="text-base md:text-lg text-white/80 leading-relaxed max-w-3xl"
-          >
+          <p className="animate-header text-base md:text-lg text-white/80 leading-relaxed max-w-3xl">
             Ready to transform your office space? Get in touch with our team
             and let&apos;s discuss how we can help you create an inspiring workplace.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
           {/* Left Side - Contact Methods */}
           <div ref={cardsRef} className="flex flex-col gap-8">
-            <motion.h3
-              initial={{ opacity: 0, x: -30 }}
-              animate={isCardsInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="text-2xl md:text-3xl font-bold"
-            >
+            <h3 className="cards-title text-2xl md:text-3xl font-bold">
               Contact Information
-            </motion.h3>
+            </h3>
 
             {/* Contact Cards */}
             <div className="flex flex-col gap-6">
               {contactMethods.map((method, index) => (
-                <motion.a
+                <a
                   key={index}
                   href={method.link}
                   target={method.link.startsWith('http') ? '_blank' : '_self'}
                   rel={method.link.startsWith('http') ? 'noopener noreferrer' : ''}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={isCardsInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{
-                    duration: 0.7,
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: index * 0.15
-                  }}
-                  whileHover={{ x: 8 }}
-                  className="group flex items-start gap-6 p-6 border border-red-800/30 hover:border-red-500 hover:bg-red-950/30 transition-all duration-300 cursor-pointer"
+                  className="contact-card group flex items-start gap-6 p-6 border border-red-800/30 hover:border-red-500 hover:bg-red-950/30 hover:translate-x-2 transition-all duration-300 cursor-pointer"
                 >
                   <div className="text-red-400 group-hover:text-red-300 group-hover:scale-110 transition-all duration-300">
                     {method.icon}
@@ -172,17 +257,12 @@ const Contact = ({ id }: ContactProps) => {
                       d="M17 8l4 4m0 0l-4 4m4-4H3"
                     />
                   </svg>
-                </motion.a>
+                </a>
               ))}
             </div>
 
             {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isCardsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-              className="flex items-center gap-4 pt-6 border-t border-red-800/30"
-            >
+            <div className="social-section flex items-center gap-4 pt-6 border-t border-red-800/30">
               <span className="text-sm font-semibold uppercase tracking-wider text-white/60">
                 Follow Us
               </span>
@@ -218,15 +298,12 @@ const Contact = ({ id }: ContactProps) => {
                   </svg>
                 </a>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Right Side - Quick CTA */}
-          <motion.div
+          <div
             ref={formRef}
-            initial={{ opacity: 0, x: 30 }}
-            animate={isFormInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col gap-8 bg-gradient-to-br from-red-950/50 to-black/50 backdrop-blur-sm p-8 md:p-12 border border-red-800/30"
           >
             <div className="flex flex-col gap-4">
@@ -247,22 +324,15 @@ const Contact = ({ id }: ContactProps) => {
                 "Transparent pricing",
                 "Expert project management"
               ].map((benefit, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={isFormInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: 0.2 + (index * 0.1)
-                  }}
-                  className="flex items-center gap-3"
+                  className="benefit-item flex items-center gap-3"
                 >
                   <svg className="w-6 h-6 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="text-base">{benefit}</span>
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -291,7 +361,7 @@ const Contact = ({ id }: ContactProps) => {
                 Download Portfolio
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
