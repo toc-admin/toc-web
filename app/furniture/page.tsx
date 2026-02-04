@@ -32,7 +32,7 @@ async function getFurnitureData() {
   const supabase = await createServerClient()
 
   // Fetch categories with product counts
-  const { data: categoriesRaw } = await supabase
+  const { data: categoriesRaw, error: categoriesError } = await supabase
     .from('categories')
     .select('id, name, slug, description, icon_name, image_url, product_count')
 
