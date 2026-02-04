@@ -31,6 +31,16 @@ export const metadata: Metadata = {
   },
 }
 
+interface HomeCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon_name: string | null
+  image_url: string | null
+  product_count: number
+}
+
 async function getHomePageData() {
   const supabase = await createServerClient()
 
@@ -64,7 +74,7 @@ async function getHomePageData() {
     'lounge'
   ]
 
-  const sortedCategories = (categories || [])
+  const sortedCategories = ((categories || []) as HomeCategory[])
     .sort((a, b) => {
       const indexA = categoryOrder.indexOf(a.slug)
       const indexB = categoryOrder.indexOf(b.slug)
