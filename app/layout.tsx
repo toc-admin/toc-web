@@ -55,6 +55,14 @@ export const metadata: Metadata = {
   },
 }
 
+interface NavCategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  image_url: string | null
+}
+
 async function getNavCategories() {
   const supabase = await createServerClient()
 
@@ -72,7 +80,7 @@ async function getNavCategories() {
     'lounge'
   ]
 
-  const sortedCategories = (categories || [])
+  const sortedCategories = ((categories || []) as NavCategory[])
     .sort((a, b) => {
       const indexA = categoryOrder.indexOf(a.slug)
       const indexB = categoryOrder.indexOf(b.slug)
