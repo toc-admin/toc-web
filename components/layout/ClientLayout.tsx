@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { useLenis } from 'lenis/react'
 import NavBar from './NavBar'
 import Footer from './Footer'
 import MobileMenu from './MobileMenu'
@@ -21,17 +22,25 @@ interface ClientLayoutProps {
   categories: Category[]
 }
 
+// Scroll to top component - must be inside ReactLenis to access useLenis
+function ScrollToTopOnRouteChange() {
+  const pathname = usePathname()
+  const lenis = useLenis()
+
+  useEffect(() => {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true })
+    }
+  }, [pathname, lenis])
+
+  return null
+}
+
 export default function ClientLayout({
   children,
   categories,
 }: ClientLayoutProps) {
   const [isOpen, setOpen] = useState(false)
-  const pathname = usePathname()
-
-  // Scroll to top on route change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [pathname])
 
   const closeMobileMenu = () => {
     setOpen(false)
@@ -40,6 +49,7 @@ export default function ClientLayout({
   return (
     <>
       <SmoothScroll>
+        <ScrollToTopOnRouteChange />
         <NavBar isOpen={isOpen} setOpen={setOpen} categories={categories} />
 
         <div className="bg-bright-grey">
