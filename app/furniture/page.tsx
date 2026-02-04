@@ -18,11 +18,21 @@ export const metadata: Metadata = {
   },
 }
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon_name: string | null
+  image_url: string | null
+  product_count: number
+}
+
 async function getFurnitureData() {
   const supabase = await createServerClient()
 
   // Fetch categories with product counts
-  const { data: categoriesRaw, error: categoriesError } = await supabase
+  const { data: categoriesRaw } = await supabase
     .from('categories')
     .select('id, name, slug, description, icon_name, image_url, product_count')
 
@@ -36,7 +46,7 @@ async function getFurnitureData() {
     'lounge'
   ]
 
-  const categories = (categoriesRaw || []).sort((a, b) => {
+  const categories = ((categoriesRaw || []) as Category[]).sort((a, b) => {
     const indexA = categoryOrder.indexOf(a.slug)
     const indexB = categoryOrder.indexOf(b.slug)
     const orderA = indexA === -1 ? categoryOrder.length : indexA
