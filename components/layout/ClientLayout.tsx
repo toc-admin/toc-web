@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLenis } from 'lenis/react'
 import NavBar from './NavBar'
@@ -26,12 +26,17 @@ interface ClientLayoutProps {
 function ScrollToTopOnRouteChange() {
   const pathname = usePathname()
   const lenis = useLenis()
+  const lenisRef = useRef(lenis)
+  lenisRef.current = lenis
 
   useEffect(() => {
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true })
+    // Native scroll reset as fallback
+    window.scrollTo(0, 0)
+    // Lenis scroll reset for smooth scroll sync
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true })
     }
-  }, [pathname, lenis])
+  }, [pathname])
 
   return null
 }

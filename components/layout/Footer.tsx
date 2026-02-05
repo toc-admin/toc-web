@@ -4,12 +4,6 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import Logo from "./Logo"
 import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 const footerLinks = {
   company: [
@@ -48,33 +42,39 @@ const Footer = () => {
       gsap.set(bottomBar, { opacity: 0 })
     }
 
-    ScrollTrigger.create({
-      trigger: footer,
-      start: 'top 80%',
-      once: true,
-      onEnter: () => {
-        gsap.to(sections, {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out'
+    // Use IntersectionObserver instead of ScrollTrigger to avoid being
+    // killed by other components' ScrollTrigger.getAll().forEach(t => t.kill())
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            gsap.to(sections, {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.1,
+              ease: 'power3.out'
+            })
+
+            if (bottomBar) {
+              gsap.to(bottomBar, {
+                opacity: 1,
+                duration: 0.8,
+                delay: 0.5,
+                ease: 'power3.out'
+              })
+            }
+
+            observer.disconnect()
+          }
         })
+      },
+      { threshold: 0.1 }
+    )
 
-        if (bottomBar) {
-          gsap.to(bottomBar, {
-            opacity: 1,
-            duration: 0.8,
-            delay: 0.5,
-            ease: 'power3.out'
-          })
-        }
-      }
-    })
+    observer.observe(footer)
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
-    }
+    return () => observer.disconnect()
   }, [])
 
   return (

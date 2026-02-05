@@ -1,10 +1,24 @@
 'use client'
 
-import { ReactLenis } from 'lenis/react'
+import { ReactLenis, useLenis } from 'lenis/react'
 import { ReactNode } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 interface SmoothScrollProps {
   children: ReactNode
+}
+
+// Sync Lenis scroll events to GSAP ScrollTrigger so triggers fire correctly
+function LenisScrollTriggerSync() {
+  useLenis(() => {
+    ScrollTrigger.update()
+  })
+  return null
 }
 
 export default function SmoothScroll({ children }: SmoothScrollProps) {
@@ -22,6 +36,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         infinite: false,
       }}
     >
+      <LenisScrollTriggerSync />
       {children}
     </ReactLenis>
   )
