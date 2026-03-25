@@ -6,7 +6,7 @@ import crypto from 'crypto'
 const AUTOSEO_WEBHOOK_TOKEN = 'aseo_wh_abd9a6ce2cc2a5738142eeddd660b018'
 
 // Site URL for constructing blog post URLs
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://theofficecompany.eu'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theofficecompany.eu'
 
 // Types for AutoSEO webhook payload
 interface AutoSEOWebhookPayload {
