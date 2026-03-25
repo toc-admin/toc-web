@@ -193,16 +193,23 @@ export async function POST(request: NextRequest) {
     const deliveryId = request.headers.get('X-AutoSEO-Delivery') || 'unknown'
     const eventType = request.headers.get('X-AutoSEO-Event') || payload.event
     console.log(`AutoSEO webhook received: event=${eventType}, delivery=${deliveryId}`)
+    console.log(`AutoSEO payload keys: ${Object.keys(payload).join(', ')}`)
+    console.log(`AutoSEO payload: ${JSON.stringify(payload).substring(0, 500)}...`)
 
     // Handle test event
-    if (payload.event === 'test') {
+    if (payload.event === 'test' || eventType === 'test') {
       return NextResponse.json({ url: `${SITE_URL}/test` })
     }
 
-    // Validate required fields
-    if (!payload.title || !payload.slug || !payload.content_html) {
+    // Validate required fields - be more lenient with field names
+    const title = payload.title || (payload as Record<string, unknown>).headline as string
+    const slug = payload.slug || (payload as Record<string, unknown>).url_slug as string
+    const contentHtml = payload.content_html || (payload as Record<string, unknown>).html || (payload as Record<string, unknown>).content as string
+
+    if (!title || !slug) {
+      console.error('Missing required fields. Payload:', JSON.stringify(payload))
       return NextResponse.json(
-        { error: 'Bad Request: Missing required fields (title, slug, content_html)' },
+        { error: `Bad Request: Missing required fields. Got keys: ${Object.keys(payload).join(', ')}` },
         { status: 400 }
       )
     }
@@ -232,20 +239,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prepare the blog post data
+    // Prepare the blog post data (use normalized fields)
     const blogPostData = {
       autoseo_id: payload.id,
-      title: payload.title,
-      slug: payload.slug,
-      short_description: createShortDescription(payload.content_html, payload.metaDescription),
-      long_description: payload.content_html, // For compatibility with existing Blog interface
-      content_html: payload.content_html,
-      content_markdown: payload.content_markdown,
-      meta_description: payload.metaDescription,
-      meta_keywords: payload.metaKeywords,
+      title: title,
+      slug: slug,
+      short_description: createShortDescription(contentHtml || '', payload.metaDescription || ''),
+      long_description: contentHtml || '', // For compatibility with existing Blog interface
+      content_html: contentHtml || '',
+      content_markdown: payload.content_markdown || '',
+      meta_description: payload.metaDescription || '',
+      meta_keywords: payload.metaKeywords || '',
       keywords: payload.keywords || [],
       hero_image_url: heroImageUrl,
-      hero_image_alt: payload.heroImageAlt,
+      hero_image_alt: payload.heroImageAlt || '',
       infographic_image_url: infographicImageUrl,
       faq_schema: payload.faqSchema || [],
       language_code: payload.languageCode || 'en',
@@ -253,6 +260,8 @@ export async function POST(request: NextRequest) {
       published_at: payload.publishedAt || new Date().toISOString(),
       updated_at: payload.updatedAt || new Date().toISOString(),
     }
+
+    console.log(`Saving blog post: ${title} (${slug})`)
 
     // Upsert the blog post (update if autoseo_id exists, otherwise insert)
     const { data: existingPost } = await supabase
