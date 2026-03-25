@@ -4,7 +4,7 @@ import { useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import BlogPost from '@/components/BlogPost'
-import blogs from '@/config/blogData'
+import type { Blog } from '@/lib/blog'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -13,7 +13,11 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-export default function BlogPageContent() {
+interface BlogPageContentProps {
+  blogs: Blog[]
+}
+
+export default function BlogPageContent({ blogs }: BlogPageContentProps) {
   const heroRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const newsletterRef = useRef<HTMLDivElement>(null)

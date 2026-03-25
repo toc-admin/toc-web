@@ -340,6 +340,74 @@ export interface Database {
           updated_at?: string
         }
       }
+      blog_posts: {
+        Row: {
+          id: string
+          autoseo_id: number | null
+          title: string
+          slug: string
+          short_description: string | null
+          long_description: string | null
+          content_html: string | null
+          content_markdown: string | null
+          meta_description: string | null
+          meta_keywords: string | null
+          keywords: string[]
+          hero_image_url: string | null
+          hero_image_alt: string | null
+          infographic_image_url: string | null
+          faq_schema: Array<{ question: string; answer: string }> | null
+          language_code: string
+          status: string
+          published_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          autoseo_id?: number | null
+          title: string
+          slug: string
+          short_description?: string | null
+          long_description?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          keywords?: string[]
+          hero_image_url?: string | null
+          hero_image_alt?: string | null
+          infographic_image_url?: string | null
+          faq_schema?: Array<{ question: string; answer: string }> | null
+          language_code?: string
+          status?: string
+          published_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          autoseo_id?: number | null
+          title?: string
+          slug?: string
+          short_description?: string | null
+          long_description?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          keywords?: string[]
+          hero_image_url?: string | null
+          hero_image_alt?: string | null
+          infographic_image_url?: string | null
+          faq_schema?: Array<{ question: string; answer: string }> | null
+          language_code?: string
+          status?: string
+          published_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }
@@ -356,6 +424,7 @@ export type ProductSpecification = Database['public']['Tables']['product_specifi
 export type ProductCertification = Database['public']['Tables']['product_certifications']['Row']
 export type ProductRoom = Database['public']['Tables']['product_rooms']['Row']
 export type QuoteRequest = Database['public']['Tables']['quote_requests']['Row']
+export type BlogPost = Database['public']['Tables']['blog_posts']['Row']
 
 // Extended types with relations
 export type ProductWithRelations = Product & {

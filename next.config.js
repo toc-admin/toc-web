@@ -7,8 +7,9 @@ const nextConfig = {
   images: {
     // Disable Vercel image optimization (to avoid billing limits)
     unoptimized: true,
-    // Configure Supabase Storage as remote image source
+    // Configure remote image sources
     remotePatterns: [
+      // Supabase Storage
       {
         protocol: 'https',
         hostname: 'vlwjarfujykmkcvfvlep.supabase.co',
@@ -18,6 +19,33 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.supabase.co',
         pathname: '/storage/v1/object/public/**',
+      },
+      // AutoSEO CDN (for fallback if image download fails)
+      {
+        protocol: 'https',
+        hostname: '**.getautoseo.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'getautoseo.com',
+        pathname: '/**',
+      },
+      // Common CDNs that AutoSEO might use
+      {
+        protocol: 'https',
+        hostname: '**.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
     ],
     // Image formats to support (modern formats for better performance)

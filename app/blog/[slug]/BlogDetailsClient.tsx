@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import type { Blog } from '@/config/blogData'
+import type { Blog } from '@/lib/blog'
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -235,7 +235,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
         <div className="relative overflow-hidden max-w-6xl mx-auto h-[400px] md:h-[600px] lg:h-[700px]">
           <Image
             src={blog.image}
-            alt={blog.name}
+            alt={blog.heroImageAlt || blog.name}
             fill
             className="object-cover"
             sizes="(max-width: 1536px) 100vw, 1536px"
@@ -267,6 +267,42 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
               prose-img:rounded-none prose-img:my-8"
             dangerouslySetInnerHTML={{ __html: blog.longDescription }}
           />
+
+          {/* Infographic Image */}
+          {blog.infographicImageUrl && (
+            <div className="mt-12">
+              <h3 className="text-2xl font-bold mb-6">Infographic</h3>
+              <div className="relative w-full">
+                <Image
+                  src={blog.infographicImageUrl}
+                  alt={`${blog.name} infographic`}
+                  width={800}
+                  height={1200}
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* FAQ Section */}
+          {blog.faqSchema && blog.faqSchema.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+              <div className="space-y-6">
+                {blog.faqSchema.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="border-b border-gray-200 pb-6 last:border-0"
+                  >
+                    <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                      {faq.question}
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </article>
       </div>
 
