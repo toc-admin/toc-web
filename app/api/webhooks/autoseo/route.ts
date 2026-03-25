@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
-// Webhook secret token
-const AUTOSEO_WEBHOOK_TOKEN = 'aseo_wh_abd9a6ce2cc2a5738142eeddd660b018'
+// Webhook secret token (from AutoSEO dashboard)
+const AUTOSEO_WEBHOOK_TOKEN = process.env.AUTOSEO_WEBHOOK_TOKEN || 'aseo_wh_bfaad233be6765a9442a9901405ef9af'
 
 // Site URL for constructing blog post URLs
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theofficecompany.eu'
