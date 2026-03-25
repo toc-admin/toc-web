@@ -202,9 +202,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required fields - be more lenient with field names
-    const title = payload.title || (payload as Record<string, unknown>).headline as string
-    const slug = payload.slug || (payload as Record<string, unknown>).url_slug as string
-    const contentHtml = payload.content_html || (payload as Record<string, unknown>).html || (payload as Record<string, unknown>).content as string
+    const anyPayload = payload as unknown as Record<string, unknown>
+    const title = payload.title || anyPayload.headline as string
+    const slug = payload.slug || anyPayload.url_slug as string
+    const contentHtml = payload.content_html || anyPayload.html as string || anyPayload.content as string
 
     if (!title || !slug) {
       console.error('Missing required fields. Payload:', JSON.stringify(payload))
