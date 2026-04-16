@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import BlogPageContent from './BlogPageContent'
-import { getAllBlogs } from '@/lib/blog'
+import { getAllBlogs, getAllBlogCategories } from '@/lib/blog'
 
 export const metadata: Metadata = {
   title: 'Insights & Tips | The Office Company Blog',
@@ -28,6 +28,9 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function BlogPage() {
-  const blogs = await getAllBlogs()
-  return <BlogPageContent blogs={blogs} />
+  const [blogs, categories] = await Promise.all([
+    getAllBlogs(),
+    getAllBlogCategories(),
+  ])
+  return <BlogPageContent blogs={blogs} categories={categories} />
 }

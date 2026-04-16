@@ -1,15 +1,19 @@
 'use client'
 
 import Link from 'next/link'
+import type { ArticleCategory, Tag } from '@/types/database.types'
 
 interface BlogPostProps {
   image: string
   name: string
   shortDescription: string
   slug: string
+  category?: ArticleCategory | null
+  tags?: Tag[]
+  date?: string
 }
 
-const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
+const BlogPost = ({ image, name, shortDescription, slug, category, tags, date }: BlogPostProps) => {
   return (
     <Link href={`/blog/${slug}`}>
       <div
@@ -25,6 +29,13 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
 
           {/* Overlay that appears on hover */}
           <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500' />
+
+          {/* Category Badge */}
+          {category && (
+            <div className='absolute top-4 left-4 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-800'>
+              {category.name}
+            </div>
+          )}
 
           {/* Read More Badge - appears on hover */}
           <div
@@ -51,6 +62,11 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
 
         {/* Content */}
         <div className='flex flex-col gap-3'>
+          {/* Date */}
+          {date && (
+            <span className='text-sm text-gray-500'>{date}</span>
+          )}
+
           {/* Title */}
           <h3 className='font-bold text-black text-xl md:text-2xl leading-tight group-hover:translate-x-1 transition-transform duration-300'>
             {name}
@@ -60,6 +76,20 @@ const BlogPost = ({ image, name, shortDescription, slug }: BlogPostProps) => {
           <p className='text-sm md:text-base leading-relaxed text-gray-600 line-clamp-3'>
             {shortDescription}
           </p>
+
+          {/* Tags */}
+          {tags && tags.length > 0 && (
+            <div className='flex flex-wrap gap-2 mt-1'>
+              {tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag.id}
+                  className='px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded'
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Read More Link */}
           <div className='flex items-center gap-2 mt-2'>

@@ -1,10 +1,11 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import BlogPost from '@/components/BlogPost'
 import type { Blog } from '@/lib/blog'
+import type { ArticleCategory } from '@/types/database.types'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -15,15 +16,22 @@ if (typeof window !== 'undefined') {
 
 interface BlogPageContentProps {
   blogs: Blog[]
+  categories?: ArticleCategory[]
 }
 
-export default function BlogPageContent({ blogs }: BlogPageContentProps) {
+export default function BlogPageContent({ blogs, categories = [] }: BlogPageContentProps) {
   const heroRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const newsletterRef = useRef<HTMLDivElement>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   // Featured post (first blog)
   const featuredPost = blogs[0]
+
+  // Filter blogs by category
+  const filteredBlogs = selectedCategory
+    ? blogs.filter((b) => b.category?.slug === selectedCategory)
+    : blogs
 
   useEffect(() => {
     const hero = heroRef.current
@@ -216,15 +224,31 @@ export default function BlogPageContent({ blogs }: BlogPageContentProps) {
 
                   {/* Content */}
                   <div className="p-8 md:p-12 flex flex-col justify-center">
-                    <span className="text-sm font-bold uppercase tracking-widest text-red-800 mb-4">
-                      Latest Article
-                    </span>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-sm font-bold uppercase tracking-widest text-red-800">
+                        {featuredPost.category?.name || 'Latest Article'}
+                      </span>
+                      <span className="text-gray-400">|</span>
+                      <span className="text-sm text-gray-600">{featuredPost.date}</span>
+                    </div>
                     <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-6 group-hover:text-red-900 transition-colors duration-300">
                       {featuredPost.name}
                     </h2>
-                    <p className="text-base md:text-lg leading-relaxed text-gray-700 mb-8">
+                    <p className="text-base md:text-lg leading-relaxed text-gray-700 mb-6 line-clamp-3">
                       {featuredPost.shortDescription}
                     </p>
+                    {featuredPost.tags && featuredPost.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-8">
+                        {featuredPost.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full"
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <Link
                       href={`/blog/${featuredPost.slug}`}
                       className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 group/btn w-fit"
@@ -258,37 +282,70 @@ export default function BlogPageContent({ blogs }: BlogPageContentProps) {
         className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-24 md:py-32 bg-white"
       >
         {/* Section Header */}
-        <div className="grid-header flex items-center justify-between mb-12">
+        <div className="grid-header flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               All Articles
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
           </div>
-          <div className="text-right">
-            <p className="text-lg font-semibold text-gray-900">
-              {blogs.length} {blogs.length === 1 ? "Article" : "Articles"}
-            </p>
-            <p className="text-sm text-gray-600">Updated regularly</p>
-          </div>
+
+          {/* Category Filter */}
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                  selectedCategory === null
+                    ? 'bg-red-900 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.slug)}
+                  className={`px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                    selectedCategory === category.slug
+                      ? 'bg-red-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Articles Count */}
+        <div className="mb-8">
+          <p className="text-lg font-semibold text-gray-900">
+            {filteredBlogs.length} {filteredBlogs.length === 1 ? "Article" : "Articles"}
+          </p>
         </div>
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {blogs.map((blog) => (
+          {filteredBlogs.map((blog) => (
             <div key={blog.id} className="blog-item">
               <BlogPost
-                image={blog.image}
+                image={blog.coverImageThumbnail || blog.image}
                 name={blog.name}
                 shortDescription={blog.shortDescription}
                 slug={blog.slug}
+                category={blog.category}
+                tags={blog.tags}
+                date={blog.date}
               />
             </div>
           ))}
         </div>
 
-        {/* Empty State (if no blogs) */}
-        {blogs.length === 0 && (
+        {/* Empty State */}
+        {filteredBlogs.length === 0 && (
           <div className="text-center py-24">
             <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-gradient-to-br from-red-900 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -306,10 +363,20 @@ export default function BlogPageContent({ blogs }: BlogPageContentProps) {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4">No Articles Yet</h3>
+              <h3 className="text-2xl font-bold mb-4">No Articles Found</h3>
               <p className="text-gray-600">
-                Check back soon for insights and updates from The Office Company.
+                {selectedCategory
+                  ? "No articles in this category yet. Try selecting a different category."
+                  : "Check back soon for insights and updates from The Office Company."}
               </p>
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="mt-6 px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold hover:from-red-800 hover:to-red-600 transition-all duration-300"
+                >
+                  View All Articles
+                </button>
+              )}
             </div>
           </div>
         )}

@@ -204,11 +204,11 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
       >
         <div className="max-w-4xl mx-auto">
           {/* Meta Info */}
-          <div className="animate-hero flex items-center gap-4 mb-8">
+          <div className="animate-hero flex flex-wrap items-center gap-4 mb-8">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Article
+              {blog.category?.name || 'Article'}
             </span>
-            <span className="text-gray-300">•</span>
+            <span className="text-gray-300">|</span>
             <span className="text-sm text-gray-600 font-medium">{blog.date}</span>
           </div>
 
@@ -221,9 +221,23 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-8 origin-left" />
 
           {/* Short Description */}
-          <p className="animate-hero text-xl md:text-2xl leading-relaxed text-gray-700 font-medium">
+          <p className="animate-hero text-xl md:text-2xl leading-relaxed text-gray-700 font-medium mb-6">
             {blog.shortDescription}
           </p>
+
+          {/* Tags */}
+          {blog.tags && blog.tags.length > 0 && (
+            <div className="animate-hero flex flex-wrap gap-2">
+              {blog.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

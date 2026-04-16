@@ -408,6 +408,110 @@ export interface Database {
           updated_at?: string
         }
       }
+      articles: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          excerpt: string | null
+          content: string | null
+          cover_image_url: string | null
+          cover_image_thumbnail_url: string | null
+          category_id: string | null
+          author_id: string | null
+          status: 'draft' | 'published' | 'archived'
+          meta_title: string | null
+          meta_description: string | null
+          published_at: string | null
+          deleted_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          excerpt?: string | null
+          content?: string | null
+          cover_image_url?: string | null
+          cover_image_thumbnail_url?: string | null
+          category_id?: string | null
+          author_id?: string | null
+          status?: 'draft' | 'published' | 'archived'
+          meta_title?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          deleted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          excerpt?: string | null
+          content?: string | null
+          cover_image_url?: string | null
+          cover_image_thumbnail_url?: string | null
+          category_id?: string | null
+          author_id?: string | null
+          status?: 'draft' | 'published' | 'archived'
+          meta_title?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          deleted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      article_categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+        }
+      }
+      tags: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+        }
+      }
+      article_tags: {
+        Row: {
+          article_id: string
+          tag_id: string
+        }
+        Insert: {
+          article_id: string
+          tag_id: string
+        }
+        Update: {
+          article_id?: string
+          tag_id?: string
+        }
+      }
     }
   }
 }
@@ -436,4 +540,16 @@ export type ProductWithRelations = Product & {
   specifications?: ProductSpecification[]
   certifications?: ProductCertification[]
   rooms?: Room[]
+}
+
+// Article types
+export type Article = Database['public']['Tables']['articles']['Row']
+export type ArticleCategory = Database['public']['Tables']['article_categories']['Row']
+export type Tag = Database['public']['Tables']['tags']['Row']
+export type ArticleTag = Database['public']['Tables']['article_tags']['Row']
+
+// Article with relations
+export type ArticleWithRelations = Article & {
+  category?: ArticleCategory | null
+  tags?: Tag[]
 }

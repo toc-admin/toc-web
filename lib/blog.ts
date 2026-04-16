@@ -5,7 +5,18 @@ import hardcodedBlogs, { Blog as HardcodedBlog } from '@/config/blogData'
 // Type for blog_posts table rows
 type BlogPostRow = Database['public']['Tables']['blog_posts']['Row']
 
-// Unified Blog interface that works with both database and hardcoded posts
+// Type for articles table rows
+type ArticleRow = Database['public']['Tables']['articles']['Row']
+type ArticleCategoryRow = Database['public']['Tables']['article_categories']['Row']
+type TagRow = Database['public']['Tables']['tags']['Row']
+
+// Type for article with relations from Supabase query
+type ArticleWithRelations = ArticleRow & {
+  category?: ArticleCategoryRow | null
+  tags?: Array<{ tag: TagRow | null }> | null
+}
+
+// Unified Blog interface that works with database, articles, and hardcoded posts
 export interface Blog {
   id: number | string
   date: string
@@ -22,6 +33,10 @@ export interface Blog {
   infographicImageUrl?: string
   faqSchema?: Array<{ question: string; answer: string }> | null
   contentMarkdown?: string
+  // Fields from articles table
+  category?: ArticleCategoryRow | null
+  tags?: TagRow[]
+  coverImageThumbnail?: string
 }
 
 // Convert database BlogPost to unified Blog interface
@@ -41,6 +56,26 @@ function dbPostToBlog(post: BlogPost): Blog {
     infographicImageUrl: post.infographic_image_url || undefined,
     faqSchema: post.faq_schema || undefined,
     contentMarkdown: post.content_markdown || undefined,
+  }
+}
+
+// Convert article to unified Blog interface
+function articleToBlog(article: ArticleWithRelations): Blog {
+  const tags = article.tags?.map((at) => at.tag).filter(Boolean) as TagRow[] || []
+
+  return {
+    id: article.id,
+    date: formatDate(article.published_at || article.created_at),
+    slug: article.slug,
+    name: article.title,
+    shortDescription: article.excerpt || '',
+    longDescription: article.content || '',
+    image: article.cover_image_url || '/images/future-of-office.webp',
+    coverImageThumbnail: article.cover_image_thumbnail_url || article.cover_image_url || '/images/future-of-office.webp',
+    metaDescription: article.meta_description || article.excerpt || undefined,
+    heroImageAlt: article.title,
+    category: article.category || null,
+    tags,
   }
 }
 
@@ -67,24 +102,46 @@ function formatDate(isoDate: string): string {
   })
 }
 
-// Fetch all blog posts (database + hardcoded, deduplicated by slug)
+// Fetch all blog posts (blog_posts + articles + hardcoded, deduplicated by slug)
 export async function getAllBlogs(): Promise<Blog[]> {
   const blogs: Blog[] = []
   const slugsSeen = new Set<string>()
 
   try {
-    // Fetch from database first (these take priority)
     const supabase = await createServerClient()
-    const { data: dbPosts, error } = await supabase
+
+    // Fetch from blog_posts table first (these take priority)
+    const { data: dbPosts, error: dbError } = await supabase
       .from('blog_posts')
       .select('*')
       .eq('status', 'published')
       .order('published_at', { ascending: false })
 
-    if (!error && dbPosts && Array.isArray(dbPosts)) {
+    if (!dbError && dbPosts && Array.isArray(dbPosts)) {
       for (const post of dbPosts as BlogPostRow[]) {
         blogs.push(dbPostToBlog(post))
         slugsSeen.add(post.slug)
+      }
+    }
+
+    // Fetch from articles table (CRM articles)
+    const { data: articles, error: articlesError } = await supabase
+      .from('articles')
+      .select(`
+        *,
+        category:article_categories(*),
+        tags:article_tags(tag:tags(*))
+      `)
+      .eq('status', 'published')
+      .is('deleted_at', null)
+      .order('published_at', { ascending: false })
+
+    if (!articlesError && articles && Array.isArray(articles)) {
+      for (const article of articles as ArticleWithRelations[]) {
+        if (!slugsSeen.has(article.slug)) {
+          blogs.push(articleToBlog(article))
+          slugsSeen.add(article.slug)
+        }
       }
     }
   } catch (error) {
@@ -112,17 +169,35 @@ export async function getAllBlogs(): Promise<Blog[]> {
 // Fetch a single blog post by slug
 export async function getBlogBySlug(slug: string): Promise<Blog | null> {
   try {
-    // Try database first
     const supabase = await createServerClient()
-    const { data: dbPost, error } = await supabase
+
+    // Try blog_posts table first
+    const { data: dbPost, error: dbError } = await supabase
       .from('blog_posts')
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
       .single()
 
-    if (!error && dbPost) {
+    if (!dbError && dbPost) {
       return dbPostToBlog(dbPost as BlogPostRow)
+    }
+
+    // Try articles table
+    const { data: article, error: articleError } = await supabase
+      .from('articles')
+      .select(`
+        *,
+        category:article_categories(*),
+        tags:article_tags(tag:tags(*))
+      `)
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .is('deleted_at', null)
+      .single()
+
+    if (!articleError && article) {
+      return articleToBlog(article as ArticleWithRelations)
     }
   } catch (error) {
     console.error('Error fetching blog post from database:', error)
@@ -142,8 +217,9 @@ export async function getAllBlogSlugs(): Promise<string[]> {
   const slugs = new Set<string>()
 
   try {
-    // Get slugs from database
     const supabase = await createServerClient()
+
+    // Get slugs from blog_posts table
     const { data: dbPosts } = await supabase
       .from('blog_posts')
       .select('slug')
@@ -152,6 +228,19 @@ export async function getAllBlogSlugs(): Promise<string[]> {
     if (dbPosts && Array.isArray(dbPosts)) {
       for (const post of dbPosts as Pick<BlogPostRow, 'slug'>[]) {
         slugs.add(post.slug)
+      }
+    }
+
+    // Get slugs from articles table
+    const { data: articles } = await supabase
+      .from('articles')
+      .select('slug')
+      .eq('status', 'published')
+      .is('deleted_at', null)
+
+    if (articles && Array.isArray(articles)) {
+      for (const article of articles as { slug: string }[]) {
+        slugs.add(article.slug)
       }
     }
   } catch (error) {
@@ -164,6 +253,26 @@ export async function getAllBlogSlugs(): Promise<string[]> {
   }
 
   return Array.from(slugs)
+}
+
+// Get all unique categories from articles
+export async function getAllBlogCategories(): Promise<ArticleCategoryRow[]> {
+  try {
+    const supabase = await createServerClient()
+    const { data: categories, error } = await supabase
+      .from('article_categories')
+      .select('*')
+      .order('name')
+
+    if (error || !categories) {
+      return []
+    }
+
+    return categories as ArticleCategoryRow[]
+  } catch (error) {
+    console.error('Error fetching blog categories:', error)
+    return []
+  }
 }
 
 // Parse display date back to Date object
