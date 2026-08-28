@@ -240,6 +240,19 @@ const Footer = () => {
             © {new Date().getFullYear()} The Office Company d.o.o. All rights reserved.
           </p>
 
+          {/* Credit */}
+          <p className="text-sm text-white/50">
+            Izrada:{" "}
+            <a
+              href="https://www.ninefold.eu"
+              target="_blank"
+              rel="noopener"
+              className="text-sm text-white/50 hover:text-red-300 transition-colors duration-300"
+            >
+              Ninefold
+            </a>
+          </p>
+
           {/* Legal Links */}
           <div className="flex items-center gap-6">
             {footerLinks.legal.map((link, index) => (
