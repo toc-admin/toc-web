@@ -72,7 +72,7 @@ async function getRoomData(slug: string) {
 
   // Extract unique categories
   const categoriesMap = new Map()
-  productCategories?.forEach((p: any) => {
+  ;((productCategories ?? []) as any[]).forEach((p: any) => {
     if (p.category) {
       categoriesMap.set(p.category.id, p.category)
     }
