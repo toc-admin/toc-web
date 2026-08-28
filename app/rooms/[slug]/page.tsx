@@ -64,7 +64,7 @@ async function getRoomData(slug: string) {
 
   // Get all available categories from products in this room for filtering
   const productIds = products?.map((p: any) => p.id) || []
-  const { data: productCategories } = await supabase
+  const { data: productCategories }: { data: any[] | null } = await supabase
     .from('products')
     .select('category:categories(id, name, slug)')
     .in('id', productIds)
