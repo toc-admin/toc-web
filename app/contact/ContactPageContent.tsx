@@ -5,6 +5,8 @@ import { toast, ToastContainer } from 'react-toastify'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import 'react-toastify/dist/ReactToastify.css'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import contactPageDict from '@/lib/i18n/translations/contactPage'
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -19,8 +21,7 @@ const contactInfo = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    title: "Visit Us",
-    details: ["Poljačka ul. 56", "10000 Zagreb", "Croatia"],
+    key: "visit" as const,
   },
   {
     icon: (
@@ -28,8 +29,7 @@ const contactInfo = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
       </svg>
     ),
-    title: "Call Us",
-    details: ["+385 91 3011 552", "Mon-Fri: 9am - 6pm"],
+    key: "call" as const,
   },
   {
     icon: (
@@ -37,12 +37,13 @@ const contactInfo = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    title: "Email Us",
-    details: ["info@theofficecompany.eu", "We'll reply within 24h"],
+    key: "email" as const,
   },
 ]
 
 export default function ContactPageContent() {
+  const { lang } = useLang()
+  const t = contactPageDict[lang]
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const heroRef = useRef<HTMLDivElement>(null)
@@ -171,7 +172,7 @@ export default function ContactPageContent() {
       const data = await response.json()
 
       if (data.success) {
-        toast.success("Thank you! We'll get back to you soon.", {
+        toast.success(t.toastSuccess, {
           position: "bottom-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -181,13 +182,13 @@ export default function ContactPageContent() {
         })
         e.currentTarget.reset()
       } else {
-        toast.error("Oops! Something went wrong. Please try again.", {
+        toast.error(t.toastError, {
           position: "bottom-right",
         })
       }
     } catch (error) {
       console.error("Form submission failed:", error)
-      toast.error("Network error. Please check your connection.", {
+      toast.error(t.toastNetwork, {
         position: "bottom-right",
       })
     } finally {
@@ -219,25 +220,23 @@ export default function ContactPageContent() {
 
           <div className="relative z-10 max-w-4xl">
             <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800">
-              Get In Touch
+              {t.eyebrow}
             </span>
 
             <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
-              Let&apos;s Create
+              {t.heroTitleLine1}
               <br />
               <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                Your Perfect
+                {t.heroTitleHighlight}
               </span>
               <br />
-              Workspace
+              {t.heroTitleLine3}
             </h1>
 
             <div className="divider-line h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left mb-8" />
 
             <p className="animate-hero text-lg md:text-xl leading-relaxed text-gray-700 max-w-2xl">
-              Have questions? Our team is ready to assist you with office space
-              solutions that fit your needs. Reach out and let&apos;s start the
-              conversation.
+              {t.heroText}
             </p>
           </div>
         </div>
@@ -258,9 +257,9 @@ export default function ContactPageContent() {
                     {info.icon}
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">
-                    {info.title}
+                    {t.cards[info.key].title}
                   </h3>
-                  {info.details.map((detail, idx) => (
+                  {t.cards[info.key].details.map((detail, idx) => (
                     <p
                       key={idx}
                       className={`leading-relaxed ${
@@ -287,19 +286,19 @@ export default function ContactPageContent() {
             {/* Contact Form */}
             <div className="form-section bg-white p-8 md:p-12 border border-gray-200">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Send Us a Message
+                {t.formTitle}
               </h2>
               <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24 mb-8" />
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div>
                   <label className="block text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                    Your Name *
+                    {t.nameLabel}
                   </label>
                   <input
                     type="text"
                     name="name"
-                    placeholder="John Doe"
+                    placeholder={t.namePlaceholder}
                     required
                     className="w-full px-6 py-4 border border-gray-300 focus:border-red-700 focus:ring-2 focus:ring-red-100 outline-none transition-all duration-300"
                   />
@@ -307,12 +306,12 @@ export default function ContactPageContent() {
 
                 <div>
                   <label className="block text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                    Your Email *
+                    {t.emailLabel}
                   </label>
                   <input
                     type="email"
                     name="email"
-                    placeholder="john@company.com"
+                    placeholder={t.emailPlaceholder}
                     required
                     className="w-full px-6 py-4 border border-gray-300 focus:border-red-700 focus:ring-2 focus:ring-red-100 outline-none transition-all duration-300"
                   />
@@ -320,23 +319,23 @@ export default function ContactPageContent() {
 
                 <div>
                   <label className="block text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                    Phone Number
+                    {t.phoneLabel}
                   </label>
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="+385 91 234 5678"
+                    placeholder={t.phonePlaceholder}
                     className="w-full px-6 py-4 border border-gray-300 focus:border-red-700 focus:ring-2 focus:ring-red-100 outline-none transition-all duration-300"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                    Your Message *
+                    {t.messageLabel}
                   </label>
                   <textarea
                     name="message"
-                    placeholder="Tell us about your project..."
+                    placeholder={t.messagePlaceholder}
                     required
                     rows={6}
                     className="w-full px-6 py-4 border border-gray-300 focus:border-red-700 focus:ring-2 focus:ring-red-100 outline-none resize-none transition-all duration-300"
@@ -354,11 +353,11 @@ export default function ContactPageContent() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                       </svg>
-                      Sending...
+                      {t.sendingButton}
                     </>
                   ) : (
                     <>
-                      Send Message
+                      {t.sendButton}
                       <svg
                         className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
                         fill="none"
@@ -388,17 +387,17 @@ export default function ContactPageContent() {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="The Office Company Location"
+                title={t.mapIframeTitle}
               />
 
               {/* Map Overlay Info */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-8 pointer-events-none">
                 <div className="text-white">
-                  <h3 className="text-xl font-bold mb-2">Our Office</h3>
+                  <h3 className="text-xl font-bold mb-2">{t.mapOfficeTitle}</h3>
                   <p className="text-sm text-white/80">
-                    Poljačka ul. 56
+                    {t.mapAddressLine1}
                     <br />
-                    10000 Zagreb, Croatia
+                    {t.mapAddressLine2}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import { tRoomName, tRoomDescription } from '@/lib/i18n/catalog'
+import roomListingDict from '@/lib/i18n/translations/roomListing'
 import RoomListingClient from './RoomListingClient'
 
 interface RoomPageProps {
@@ -111,27 +114,31 @@ async function getRoomData(slug: string) {
 
 export async function generateMetadata({ params }: RoomPageProps): Promise<Metadata> {
   const { slug } = await params
+  const lang = await getServerLang()
+  const t = roomListingDict[lang]
   const data = await getRoomData(slug)
 
   if (!data?.room) {
     return {
-      title: 'Room Not Found | The Office Company',
+      title: t.metaNotFoundTitle,
     }
   }
 
   const { room } = data as any
+  const roomName = tRoomName(lang, room.slug, room.name)
+  const roomDescription = tRoomDescription(lang, room.slug, room.description)
 
   return {
-    title: `${room.name} Furniture | Premium Office Solutions | The Office Company`,
-    description: room.description || `Browse our curated selection of furniture perfect for ${room.name.toLowerCase()}.`,
+    title: t.metaTitle(roomName),
+    description: roomDescription || t.metaDescriptionFallback(roomName),
     openGraph: {
-      title: `${room.name} | The Office Company`,
-      description: room.description || '',
+      title: `${roomName} | The Office Company`,
+      description: roomDescription || '',
       images: room.hero_image_url ? [{
         url: room.hero_image_url,
         width: 1200,
         height: 630,
-        alt: room.name
+        alt: roomName
       }] : [],
       type: 'website',
     },

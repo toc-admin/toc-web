@@ -2,13 +2,15 @@
 
 import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
-import blogs from "@/config/data"
+import blogs from "@/config/blogData"
 import BlogPost from "./BlogPost"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules"
 import type { Swiper as SwiperType } from "swiper"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeInsights"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
@@ -24,6 +26,8 @@ interface MarketInsightsProps {
 }
 
 const MarketInsights = ({ id }: MarketInsightsProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -157,22 +161,21 @@ const MarketInsights = ({ id }: MarketInsightsProps) => {
           className="flex flex-col gap-4 max-w-2xl"
         >
           <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
-            Latest News
+            {t.label}
           </span>
 
           <h2 className="animate-header text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight">
-            Market
+            {t.headingLine1}
             <br />
             <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-              Insights
+              {t.headingLine2}
             </span>
           </h2>
 
           <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
           <p className="animate-header text-base md:text-lg text-gray-700 leading-relaxed mt-2">
-            Stay ahead with our latest analysis, trends, and insights from the
-            serviced office industry.
+            {t.intro}
           </p>
         </div>
 
@@ -225,7 +228,7 @@ const MarketInsights = ({ id }: MarketInsightsProps) => {
             href="/blog"
             className="group px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2 text-sm"
           >
-            View All
+            {t.viewAll}
             <svg
               className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"
@@ -293,8 +296,10 @@ const MarketInsights = ({ id }: MarketInsightsProps) => {
             <SwiperSlide key={blogIndex}>
               <BlogPost
                 image={blog.image}
-                name={blog.name}
-                shortDescription={blog.shortDescription}
+                name={lang === 'hr' ? blog.nameHr : blog.name}
+                shortDescription={
+                  lang === 'hr' ? blog.shortDescriptionHr : blog.shortDescription
+                }
                 slug={blog.slug}
               />
             </SwiperSlide>

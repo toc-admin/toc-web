@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import homeMetaDict from '@/lib/i18n/translations/homeMeta'
 import HeroSection from '@/components/HeroSection'
 import Services from '@/components/Services'
 import AboutSection from '@/components/AboutSection'
@@ -9,26 +11,31 @@ import BrandsSection from '@/components/BrandsSection'
 import MarketInsights from '@/components/MarketInsights'
 import Contact from '@/components/Contact'
 
-export const metadata: Metadata = {
-  title: 'The Office Company | Premium Office Solutions & Furniture in Croatia',
-  description: 'Leading provider of serviced office consulting, management, and premium office furniture in Croatia. Explore 500+ products from world-class brands like Haworth, BoConcept, and Boss Design.',
-  openGraph: {
-    title: 'The Office Company | Premium Office Solutions & Furniture in Croatia',
-    description: 'Leading provider of serviced office consulting, management, and premium office furniture in Croatia. Explore 500+ products from world-class brands.',
-    images: [{
-      url: '/og/toc-hero.jpeg',
-      width: 1200,
-      height: 630,
-      alt: 'The Office Company'
-    }],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'The Office Company | Premium Office Solutions & Furniture in Croatia',
-    description: 'Leading provider of serviced office consulting, management, and premium office furniture in Croatia.',
-    images: ['/og/toc-hero.jpeg'],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang()
+  const t = homeMetaDict[lang]
+
+  return {
+    title: { absolute: t.title },
+    description: t.description,
+    openGraph: {
+      title: t.title,
+      description: t.ogDescription,
+      images: [{
+        url: '/og/toc-hero.jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'The Office Company'
+      }],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t.title,
+      description: t.twitterDescription,
+      images: ['/og/toc-hero.jpeg'],
+    },
+  }
 }
 
 interface HomeCategory {

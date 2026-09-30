@@ -6,6 +6,8 @@ import Image from 'next/image'
 import BlogPost from '@/components/BlogPost'
 import type { Blog } from '@/lib/blog'
 import type { ArticleCategory } from '@/types/database.types'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import blogPageDict from '@/lib/i18n/translations/blogPage'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -24,6 +26,8 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
   const gridRef = useRef<HTMLDivElement>(null)
   const newsletterRef = useRef<HTMLDivElement>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const { lang } = useLang()
+  const t = blogPageDict[lang]
 
   // Featured post (first blog)
   const featuredPost = blogs[0]
@@ -32,6 +36,18 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
   const filteredBlogs = selectedCategory
     ? blogs.filter((b) => b.category?.slug === selectedCategory)
     : blogs
+
+  // Pluralized "article(s)" label (Croatian has three plural forms)
+  const articleCountLabel = (count: number) => {
+    if (lang === 'hr') {
+      const mod10 = count % 10
+      const mod100 = count % 100
+      if (mod10 === 1 && mod100 !== 11) return t.countOne
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return t.countFew
+      return t.countOther
+    }
+    return count === 1 ? t.countOne : t.countOther
+  }
 
   useEffect(() => {
     const hero = heroRef.current
@@ -177,14 +193,14 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
             {/* Left - Title */}
             <div className="flex-1">
               <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800">
-                Our Blog
+                {t.heroTag}
               </span>
 
               <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
-                Insights &
+                {t.heroTitleLine1}
                 <br />
                 <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                  Market News
+                  {t.heroTitleLine2}
                 </span>
               </h1>
 
@@ -193,9 +209,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
 
             {/* Right - Description */}
             <p className="animate-hero text-base md:text-lg leading-relaxed text-gray-700 max-w-xl">
-              Stay informed with expert insights on office trends, productivity
-              tips, and the future of workspaces. Discover how we&apos;re shaping the
-              industry.
+              {t.heroDescription}
             </p>
           </div>
 
@@ -203,7 +217,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
           {featuredPost && (
             <div className="featured-section relative group">
               <div className="absolute -top-4 -left-4 bg-gradient-to-br from-red-900 to-red-700 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider z-20">
-                Featured
+                {t.featuredBadge}
               </div>
               <div className="bg-white border border-red-100 overflow-hidden hover:shadow-2xl transition-shadow duration-500">
                 <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -226,7 +240,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
                   <div className="p-8 md:p-12 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-                        {featuredPost.category?.name || 'Latest Article'}
+                        {featuredPost.category?.name || t.latestArticle}
                       </span>
                       <span className="text-gray-400">|</span>
                       <span className="text-sm text-gray-600">{featuredPost.date}</span>
@@ -253,7 +267,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
                       href={`/blog/${featuredPost.slug}`}
                       className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 group/btn w-fit"
                     >
-                      Read Article
+                      {t.readArticle}
                       <svg
                         className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300"
                         fill="none"
@@ -285,7 +299,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
         <div className="grid-header flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              All Articles
+              {t.allArticles}
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
           </div>
@@ -301,7 +315,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                All
+                {t.filterAll}
               </button>
               {categories.map((category) => (
                 <button
@@ -323,7 +337,7 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
         {/* Articles Count */}
         <div className="mb-8">
           <p className="text-lg font-semibold text-gray-900">
-            {filteredBlogs.length} {filteredBlogs.length === 1 ? "Article" : "Articles"}
+            {filteredBlogs.length} {articleCountLabel(filteredBlogs.length)}
           </p>
         </div>
 
@@ -363,18 +377,16 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4">No Articles Found</h3>
+              <h3 className="text-2xl font-bold mb-4">{t.emptyTitle}</h3>
               <p className="text-gray-600">
-                {selectedCategory
-                  ? "No articles in this category yet. Try selecting a different category."
-                  : "Check back soon for insights and updates from The Office Company."}
+                {selectedCategory ? t.emptyCategory : t.emptyDefault}
               </p>
               {selectedCategory && (
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className="mt-6 px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold hover:from-red-800 hover:to-red-600 transition-all duration-300"
                 >
-                  View All Articles
+                  {t.viewAllArticles}
                 </button>
               )}
             </div>
@@ -389,24 +401,23 @@ export default function BlogPageContent({ blogs, categories = [] }: BlogPageCont
       >
         <div className="newsletter-content max-w-4xl mx-auto text-center text-white">
           <span className="text-sm font-bold uppercase tracking-widest text-red-300 mb-4 block">
-            Stay Updated
+            {t.newsletterTag}
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-            Subscribe to Our Newsletter
+            {t.newsletterTitle}
           </h2>
           <div className="h-1 bg-gradient-to-r from-red-500 to-red-300 w-24 mx-auto mb-8" />
           <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto">
-            Get the latest insights, trends, and news delivered straight to your
-            inbox. Join our community of workspace innovators.
+            {t.newsletterDescription}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder={t.emailPlaceholder}
               className="flex-1 px-6 py-4 bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 outline-none transition-all duration-300"
             />
             <button className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 whitespace-nowrap">
-              Subscribe
+              {t.subscribe}
             </button>
           </div>
         </div>

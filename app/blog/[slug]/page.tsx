@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBlogBySlug, getAllBlogs, getAllBlogSlugs } from '@/lib/blog'
+import { getServerLang } from '@/lib/i18n/server'
+import blogDetailsDict from '@/lib/i18n/translations/blogDetails'
 import BlogDetailsClient from './BlogDetailsClient'
 
 interface BlogDetailsPageProps {
@@ -14,27 +16,29 @@ export const revalidate = 60
 
 export async function generateMetadata({ params }: BlogDetailsPageProps): Promise<Metadata> {
   const { slug } = await params
-  const blog = await getBlogBySlug(slug)
+  const lang = await getServerLang()
+  const t = blogDetailsDict[lang]
+  const blog = await getBlogBySlug(slug, lang)
 
   if (!blog) {
     return {
-      title: 'Article Not Found | The Office Company Blog',
+      title: t.metaNotFoundTitle,
     }
   }
 
   return {
-    title: `${blog.name} | The Office Company Blog`,
+    title: `${blog.name} | ${t.metaTitleSuffix}`,
     description: blog.metaDescription || blog.shortDescription,
     keywords: blog.keywords?.join(', ') || blog.metaKeywords,
     openGraph: {
-      title: `${blog.name} | The Office Company Blog`,
+      title: `${blog.name} | ${t.metaTitleSuffix}`,
       description: blog.metaDescription || blog.shortDescription,
       images: [{ url: blog.image, alt: blog.heroImageAlt || blog.name }],
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${blog.name} | The Office Company Blog`,
+      title: `${blog.name} | ${t.metaTitleSuffix}`,
       description: blog.metaDescription || blog.shortDescription,
       images: [blog.image],
     },
@@ -43,14 +47,15 @@ export async function generateMetadata({ params }: BlogDetailsPageProps): Promis
 
 export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) {
   const { slug } = await params
-  const blog = await getBlogBySlug(slug)
+  const lang = await getServerLang()
+  const blog = await getBlogBySlug(slug, lang)
 
   if (!blog) {
     notFound()
   }
 
   // Get related articles (excluding current)
-  const allBlogs = await getAllBlogs()
+  const allBlogs = await getAllBlogs(lang)
   const relatedArticles = allBlogs.filter((b) => b.slug !== slug).slice(0, 3)
 
   return <BlogDetailsClient blog={blog} relatedArticles={relatedArticles} />

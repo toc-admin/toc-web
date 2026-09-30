@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { BlogPost, Database } from '@/types/database.types'
 import hardcodedBlogs, { Blog as HardcodedBlog } from '@/config/blogData'
+import type { Lang } from '@/lib/i18n'
 
 // Type for blog_posts table rows
 type BlogPostRow = Database['public']['Tables']['blog_posts']['Row']
@@ -40,10 +41,10 @@ export interface Blog {
 }
 
 // Convert database BlogPost to unified Blog interface
-function dbPostToBlog(post: BlogPost): Blog {
+function dbPostToBlog(post: BlogPost, lang: Lang = 'en'): Blog {
   return {
     id: post.autoseo_id || post.id,
-    date: formatDate(post.published_at),
+    date: formatDate(post.published_at, lang),
     slug: post.slug,
     name: post.title,
     shortDescription: post.short_description || post.meta_description || '',
@@ -60,12 +61,12 @@ function dbPostToBlog(post: BlogPost): Blog {
 }
 
 // Convert article to unified Blog interface
-function articleToBlog(article: ArticleWithRelations): Blog {
+function articleToBlog(article: ArticleWithRelations, lang: Lang = 'en'): Blog {
   const tags = article.tags?.map((at) => at.tag).filter(Boolean) as TagRow[] || []
 
   return {
     id: article.id,
-    date: formatDate(article.published_at || article.created_at),
+    date: formatDate(article.published_at || article.created_at, lang),
     slug: article.slug,
     name: article.title,
     shortDescription: article.excerpt || '',
@@ -80,21 +81,31 @@ function articleToBlog(article: ArticleWithRelations): Blog {
 }
 
 // Convert hardcoded blog to unified Blog interface
-function hardcodedToBlog(blog: HardcodedBlog): Blog {
+function hardcodedToBlog(blog: HardcodedBlog, lang: Lang = 'en'): Blog {
   return {
     id: blog.id,
-    date: blog.date,
+    // Hardcoded dates are stored in English display format; re-render for Croatian
+    date: lang === 'hr' ? formatDisplayDate(parseDisplayDate(blog.date), 'hr') : blog.date,
     slug: blog.slug,
-    name: blog.name,
-    shortDescription: blog.shortDescription,
-    longDescription: blog.longDescription,
+    name: lang === 'hr' ? blog.nameHr : blog.name,
+    shortDescription: lang === 'hr' ? blog.shortDescriptionHr : blog.shortDescription,
+    longDescription: lang === 'hr' ? blog.longDescriptionHr : blog.longDescription,
     image: blog.image,
   }
 }
 
-// Format date for display (e.g., "25 February 2025")
-function formatDate(isoDate: string): string {
-  const date = new Date(isoDate)
+// Croatian month names in genitive case, used for date display (e.g., "25. veljače 2025.")
+const CROATIAN_MONTHS = [
+  'siječnja', 'veljače', 'ožujka', 'travnja', 'svibnja', 'lipnja',
+  'srpnja', 'kolovoza', 'rujna', 'listopada', 'studenoga', 'prosinca',
+]
+
+// Format a Date object for display in the given language
+// (en: "25 February 2025", hr: "25. veljače 2025.")
+function formatDisplayDate(date: Date, lang: Lang): string {
+  if (lang === 'hr') {
+    return `${date.getDate()}. ${CROATIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}.`
+  }
   return date.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -102,8 +113,13 @@ function formatDate(isoDate: string): string {
   })
 }
 
+// Format an ISO date for display (e.g., "25 February 2025" / "25. veljače 2025.")
+function formatDate(isoDate: string, lang: Lang = 'en'): string {
+  return formatDisplayDate(new Date(isoDate), lang)
+}
+
 // Fetch all blog posts (blog_posts + articles + hardcoded, deduplicated by slug)
-export async function getAllBlogs(): Promise<Blog[]> {
+export async function getAllBlogs(lang: Lang = 'en'): Promise<Blog[]> {
   const blogs: Blog[] = []
   const slugsSeen = new Set<string>()
 
@@ -119,7 +135,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
 
     if (!dbError && dbPosts && Array.isArray(dbPosts)) {
       for (const post of dbPosts as BlogPostRow[]) {
-        blogs.push(dbPostToBlog(post))
+        blogs.push(dbPostToBlog(post, lang))
         slugsSeen.add(post.slug)
       }
     }
@@ -139,7 +155,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
     if (!articlesError && articles && Array.isArray(articles)) {
       for (const article of articles as ArticleWithRelations[]) {
         if (!slugsSeen.has(article.slug)) {
-          blogs.push(articleToBlog(article))
+          blogs.push(articleToBlog(article, lang))
           slugsSeen.add(article.slug)
         }
       }
@@ -151,7 +167,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
   // Add hardcoded blogs that aren't in the database
   for (const blog of hardcodedBlogs) {
     if (!slugsSeen.has(blog.slug)) {
-      blogs.push(hardcodedToBlog(blog))
+      blogs.push(hardcodedToBlog(blog, lang))
       slugsSeen.add(blog.slug)
     }
   }
@@ -167,7 +183,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
 }
 
 // Fetch a single blog post by slug
-export async function getBlogBySlug(slug: string): Promise<Blog | null> {
+export async function getBlogBySlug(slug: string, lang: Lang = 'en'): Promise<Blog | null> {
   try {
     const supabase = await createServerClient()
 
@@ -180,7 +196,7 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
       .single()
 
     if (!dbError && dbPost) {
-      return dbPostToBlog(dbPost as BlogPostRow)
+      return dbPostToBlog(dbPost as BlogPostRow, lang)
     }
 
     // Try articles table
@@ -197,7 +213,7 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
       .single()
 
     if (!articleError && article) {
-      return articleToBlog(article as ArticleWithRelations)
+      return articleToBlog(article as ArticleWithRelations, lang)
     }
   } catch (error) {
     console.error('Error fetching blog post from database:', error)
@@ -206,7 +222,7 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
   // Fallback to hardcoded blogs
   const hardcodedBlog = hardcodedBlogs.find((b) => b.slug === slug)
   if (hardcodedBlog) {
-    return hardcodedToBlog(hardcodedBlog)
+    return hardcodedToBlog(hardcodedBlog, lang)
   }
 
   return null
@@ -276,15 +292,20 @@ export async function getAllBlogCategories(): Promise<ArticleCategoryRow[]> {
 }
 
 // Parse display date back to Date object
+// Handles both English ("25 February 2025") and Croatian ("25. veljače 2025.") formats
 function parseDisplayDate(displayDate: string): Date {
-  // Handle format like "25 February 2025"
   const months: Record<string, number> = {
+    // English month names
     January: 0, February: 1, March: 2, April: 3,
     May: 4, June: 5, July: 6, August: 7,
     September: 8, October: 9, November: 10, December: 11,
+    // Croatian month names (genitive case)
+    'siječnja': 0, 'veljače': 1, 'ožujka': 2, 'travnja': 3,
+    'svibnja': 4, 'lipnja': 5, 'srpnja': 6, 'kolovoza': 7,
+    'rujna': 8, 'listopada': 9, 'studenoga': 10, 'studenog': 10, 'prosinca': 11,
   }
 
-  const parts = displayDate.split(' ')
+  const parts = displayDate.replace(/\./g, '').trim().split(/\s+/)
   if (parts.length === 3) {
     const day = parseInt(parts[0], 10)
     const month = months[parts[1]] ?? 0

@@ -8,6 +8,9 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, A11y } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
 import ProductCard from "@/components/ProductCard"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName, tCategoryDescription, tRoomName, tRoomDescription } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/furniture"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import "swiper/css"
@@ -124,6 +127,8 @@ export default function FurnitureHubClient({
   stats
 }: FurnitureHubClientProps) {
   const router = useRouter()
+  const { lang } = useLang()
+  const t = dict[lang]
   const [swiperRef, setSwiperRef] = useState<SwiperType | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
@@ -344,7 +349,7 @@ export default function FurnitureHubClient({
         <div className="absolute inset-0">
           <Image
             src="/typeImages/furniture-hub.webp"
-            alt="Furniture Hub"
+            alt={t.heroImageAlt}
             fill
             className="object-cover"
             priority
@@ -356,22 +361,21 @@ export default function FurnitureHubClient({
 
         <div className="relative z-10 max-w-5xl mx-auto text-center">
           <span className="animate-hero inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-6">
-            Furniture Catalog
+            {t.heroBadge}
           </span>
 
           <h1 className="animate-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight mb-6">
-            Premium Office
+            {t.heroTitleLine1}
             <br />
             <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
-              Furniture Solutions
+              {t.heroTitleLine2}
             </span>
           </h1>
 
           <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-8 origin-left" />
 
           <p className="animate-hero text-lg md:text-xl text-white/80 leading-relaxed max-w-3xl mx-auto mb-12">
-            Discover over {stats.totalProducts}+ carefully curated products from world-renowned brands.
-            Browse by category, room type, or let our experts guide you.
+            {t.heroText(stats.totalProducts)}
           </p>
 
           {/* Search Bar */}
@@ -381,29 +385,29 @@ export default function FurnitureHubClient({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for furniture... (e.g., office chairs, standing desks)"
+                placeholder={t.searchPlaceholder}
                 className="w-full px-6 py-4 pr-32 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder-white/60 focus:outline-none focus:border-red-500 transition-all duration-300"
               />
               <button
                 type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold rounded-full hover:from-red-800 hover:to-red-600 transition-all duration-300"
               >
-                Search
+                {t.searchButton}
               </button>
             </form>
           </div>
 
           {/* Quick Links */}
           <div className="animate-hero flex flex-wrap items-center justify-center gap-3 mt-8">
-            <span className="text-sm text-white/60">Quick links:</span>
-            {["Office Chairs", "Standing Desks", "Phone Booths", "Lounge Seating"].map((term, index) => (
+            <span className="text-sm text-white/60">{t.quickLinksLabel}</span>
+            {t.quickTerms.map(({ term, label }, index) => (
               <button
                 key={index}
                 type="button"
                 onClick={() => handleQuickSearch(term)}
                 className="px-4 py-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full transition-all duration-300"
               >
-                {term}
+                {label}
               </button>
             ))}
           </div>
@@ -418,10 +422,10 @@ export default function FurnitureHubClient({
         <div className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { number: `${stats.totalProducts}+`, label: "Products" },
-              { number: `${stats.totalCategories}`, label: "Categories" },
-              { number: `${stats.totalBrands}+`, label: "Premium Brands" },
-              { number: "100%", label: "Quality Guaranteed" },
+              { number: `${stats.totalProducts}+`, label: t.statsProducts },
+              { number: `${stats.totalCategories}`, label: t.statsCategories },
+              { number: `${stats.totalBrands}+`, label: t.statsBrands },
+              { number: "100%", label: t.statsQuality },
             ].map((stat, index) => (
               <div
                 key={index}
@@ -462,19 +466,18 @@ export default function FurnitureHubClient({
           {/* Header */}
           <div className="section-header mb-16 max-w-3xl">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Browse by Category
+              {t.categoriesBadge}
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mt-4 mb-6 leading-tight">
-              Find Exactly What
+              {t.categoriesTitleLine1}
               <br />
               <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                You Need
+                {t.categoriesTitleLine2}
               </span>
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-6" />
             <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-              Explore our {stats.totalCategories} main furniture categories, each containing specialized
-              subcategories to help you find the perfect pieces for your workspace.
+              {t.categoriesText(stats.totalCategories)}
             </p>
           </div>
 
@@ -516,20 +519,18 @@ export default function FurnitureHubClient({
             <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 mb-16">
               <div className="section-header max-w-3xl">
                 <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-                  Curated Selection
+                  {t.featuredBadge}
                 </span>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mt-4 mb-6 leading-tight">
-                  Featured
+                  {t.featuredTitleLine1}
                   <br />
                   <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                    Products
+                    {t.featuredTitleLine2}
                   </span>
                 </h2>
                 <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-6" />
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                  Discover our hand-picked selection of premium furniture pieces
-                  from world-renowned brands, chosen for their exceptional quality
-                  and design.
+                  {t.featuredText}
                 </p>
               </div>
 
@@ -658,19 +659,18 @@ export default function FurnitureHubClient({
           {/* Header */}
           <div className="section-header mb-16 max-w-3xl">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Shop by Room Type
+              {t.roomsBadge}
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mt-4 mb-6 leading-tight">
-              Design Complete
+              {t.roomsTitleLine1}
               <br />
               <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                Room Solutions
+                {t.roomsTitleLine2}
               </span>
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 mb-6" />
             <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-              Browse furniture curated specifically for different workspace zones.
-              From welcoming reception areas to productive private offices.
+              {t.roomsText}
             </p>
           </div>
 
@@ -694,18 +694,17 @@ export default function FurnitureHubClient({
           className="max-w-4xl mx-auto text-center"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-            Need Help Finding the Perfect Furniture?
+            {t.ctaTitle}
           </h2>
           <p className="text-lg md:text-xl text-white/80 mb-8 leading-relaxed">
-            Our expert team can help you select the right furniture for your space,
-            provide custom quotes, and guide you through the entire process.
+            {t.ctaText}
           </p>
           <div className="flex justify-center">
             <Link
               href="/contact"
               className="px-8 py-4 bg-white text-black font-semibold uppercase tracking-wider hover:bg-gray-100 transition-all duration-300"
             >
-              Contact Our Experts
+              {t.ctaButton}
             </Link>
           </div>
         </div>
@@ -722,6 +721,12 @@ const CategoryCard = ({
   category: Category
   index: number
 }) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const categoryName = tCategoryName(lang, category.slug, category.name)
+  const categoryDescription = category.description
+    ? tCategoryDescription(lang, category.slug, category.description)
+    : null
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -760,7 +765,7 @@ const CategoryCard = ({
               <div className="absolute inset-0">
                 <Image
                   src={category.image_url}
-                  alt={category.name}
+                  alt={categoryName}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-110"
                 />
@@ -788,17 +793,17 @@ const CategoryCard = ({
             {/* Bottom - Title, Description */}
             <div className="space-y-4">
               <h3 className="text-3xl font-bold text-white group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">
-                {category.name}
+                {categoryName}
               </h3>
-              {category.description && (
+              {categoryDescription && (
                 <p className="text-base text-gray-200 leading-relaxed line-clamp-2">
-                  {category.description}
+                  {categoryDescription}
                 </p>
               )}
 
               {/* Arrow */}
               <div className="flex items-center gap-2 text-white/80 font-semibold group-hover:text-white group-hover:gap-4 underline-offset-4 group-hover:underline transition-all duration-300 pt-2">
-                <span>Explore Category</span>
+                <span>{t.exploreCategory}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -819,6 +824,12 @@ const RoomCard = ({
   room: Room
   index: number
 }) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const roomName = tRoomName(lang, room.slug, room.name)
+  const roomDescription = room.description
+    ? tRoomDescription(lang, room.slug, room.description)
+    : null
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -857,7 +868,7 @@ const RoomCard = ({
               <div className="absolute inset-0">
                 <Image
                   src={room.hero_image_url}
-                  alt={room.name}
+                  alt={roomName}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -879,17 +890,17 @@ const RoomCard = ({
             {/* Bottom - Title & Description */}
             <div className="space-y-3">
               <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-red-300 transition-colors duration-300">
-                {room.name}
+                {roomName}
               </h3>
-              {room.description && (
+              {roomDescription && (
                 <p className="text-base text-gray-200 leading-relaxed">
-                  {room.description}
+                  {roomDescription}
                 </p>
               )}
 
               {/* Explore Link */}
               <div className="flex items-center gap-2 text-red-400 font-semibold group-hover:text-white group-hover:gap-4 transition-all duration-300 pt-2">
-                <span>Explore Room</span>
+                <span>{t.exploreRoom}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

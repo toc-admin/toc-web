@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/productCard"
 import gsap from "gsap"
 
 interface ProductCardProps {
@@ -16,6 +19,7 @@ interface ProductCardProps {
     } | null
     category?: {
       name: string
+      slug?: string
     } | null
     subcategory?: string | null
     is_new: boolean
@@ -34,8 +38,17 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const cardRef = useRef<HTMLDivElement>(null)
   const hasAnimated = useRef(false)
+
+  // Category names come from the database in English; translate at display
+  // time via the catalog helper (keyed by slug, derived from the name when
+  // the slug isn't provided). Falls back to the original DB value.
+  const categorySlug = product.category
+    ? product.category.slug ?? product.category.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+    : ''
 
   // Get the primary image or first image
   const primaryImage = product.product_images?.find(img => img.is_primary) || product.product_images?.[0]
@@ -125,7 +138,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
                 <svg className="w-20 h-20 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-gray-500 font-medium">No Image Available</span>
+                <span className="text-sm text-gray-500 font-medium">{t.noImage}</span>
               </div>
             )}
 
@@ -136,12 +149,12 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {product.is_new && (
                 <span className="px-3 py-1 bg-red-700 text-white text-xs font-bold uppercase tracking-wider">
-                  New
+                  {t.badgeNew}
                 </span>
               )}
               {product.is_featured && (
                 <span className="px-3 py-1 bg-black text-white text-xs font-bold uppercase tracking-wider">
-                  Featured
+                  {t.badgeFeatured}
                 </span>
               )}
             </div>
@@ -149,7 +162,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
             {/* Quick View Button - appears on hover */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
               <button className="px-6 py-3 bg-white text-black font-semibold uppercase tracking-wider hover:bg-red-700 hover:text-white transition-all duration-300 shadow-lg">
-                Quick View
+                {t.quickView}
               </button>
             </div>
           </div>
@@ -171,7 +184,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
             {/* Category */}
             {product.category && (
               <p className="text-sm text-gray-500">
-                {product.category.name}
+                {tCategoryName(lang, categorySlug, product.category.name)}
               </p>
             )}
 
@@ -187,7 +200,7 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
 
             {/* CTA Button */}
             <button className="w-full px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3">
-              View More
+              {t.viewMore}
               <svg
                 className="w-4 h-4"
                 fill="none"

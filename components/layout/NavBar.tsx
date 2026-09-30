@@ -8,6 +8,9 @@ import Logo from "./Logo"
 import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName, tCategoryDescription, tRoomName } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/layoutNav"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -55,6 +58,8 @@ interface NavBarProps {
 
 const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
   const pathname = usePathname()
+  const { lang, setLang } = useLang()
+  const t = dict[lang]
   const isHomePage = pathname === "/"
   const [scrollY, setScrollY] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -445,13 +450,13 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
           {/* Left Navigation Group */}
           <div className="flex items-center gap-2">
             <PillNavLink href="/" isLight={shouldBeLight} pathname={pathname}>
-              Home
+              {t.home}
             </PillNavLink>
             <PillNavLink href="/about" isLight={shouldBeLight} pathname={pathname}>
-              About
+              {t.about}
             </PillNavLink>
             <PillNavLink href="/services" isLight={shouldBeLight} pathname={pathname}>
-              Services
+              {t.services}
             </PillNavLink>
           </div>
 
@@ -484,7 +489,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                   : "text-white hover:text-red-400"
               }`}
             >
-              Furniture
+              {t.furniture}
               <ChevronDown
                 className={`w-4 h-4 transition-transform duration-300 ${
                   megaMenuOpen ? "rotate-180" : ""
@@ -507,11 +512,57 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
             </button>
 
             <PillNavLink href="/blog" isLight={shouldBeLight} pathname={pathname}>
-              Blog
+              {t.blog}
             </PillNavLink>
             <PillNavLink href="/contact" isLight={shouldBeLight} pathname={pathname}>
-              Contact
+              {t.contact}
             </PillNavLink>
+
+            {/* Language Switcher */}
+            <div
+              className={`flex items-center gap-1.5 pl-4 ml-1 border-l transition-colors duration-500 ${
+                shouldBeLight ? "border-red-100" : "border-white/20"
+              }`}
+            >
+              <button
+                onClick={() => setLang('hr')}
+                aria-label={t.switchToCroatian}
+                aria-pressed={lang === 'hr'}
+                className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                  lang === 'hr'
+                    ? shouldBeLight
+                      ? "text-red-700"
+                      : "text-white"
+                    : shouldBeLight
+                    ? "text-gray-400 hover:text-red-700"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                HR
+              </button>
+              <span
+                aria-hidden="true"
+                className={`text-xs ${shouldBeLight ? "text-gray-300" : "text-white/30"}`}
+              >
+                /
+              </span>
+              <button
+                onClick={() => setLang('en')}
+                aria-label={t.switchToEnglish}
+                aria-pressed={lang === 'en'}
+                className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                  lang === 'en'
+                    ? shouldBeLight
+                      ? "text-red-700"
+                      : "text-white"
+                    : shouldBeLight
+                    ? "text-gray-400 hover:text-red-700"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </nav>
       </header>
@@ -549,7 +600,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                   <h3 className={`text-xs font-bold uppercase tracking-widest mb-4 ${
                     shouldBeLight ? "text-red-800" : "text-red-400"
                   }`}>
-                    Shop by Category
+                    {t.shopByCategory}
                   </h3>
                   <div className="grid grid-cols-3 gap-4" id="category-grid">
                     {categories.map((category, index) => (
@@ -571,7 +622,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                     <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 ${
                       shouldBeLight ? "text-red-800" : "text-red-400"
                     }`}>
-                      Shop by Room
+                      {t.shopByRoom}
                     </h3>
                     <div className="flex flex-col gap-2">
                       {roomTypes.map((room, index) => (
@@ -585,7 +636,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                               : "hover:bg-white/5 text-white/80 hover:text-white"
                           }`}
                         >
-                          <span className="text-sm font-medium">{room.name}</span>
+                          <span className="text-sm font-medium">{tRoomName(lang, room.slug, room.name)}</span>
                           <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                         </Link>
                       ))}
@@ -599,7 +650,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                       onClick={() => setMegaMenuOpen(false)}
                       className="mt-auto px-6 py-3 rounded-lg font-semibold text-sm uppercase tracking-wider bg-gradient-to-r from-red-900 to-red-700 text-white hover:from-red-800 hover:to-red-600 transition-all duration-300 text-center block"
                     >
-                      View All Products →
+                      {t.viewAllProducts}
                     </Link>
                   </div>
                 </div>
@@ -632,7 +683,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
                 ? "rgba(220,38,38,0.1)"
                 : "rgba(255,255,255,0.2)",
           }}
-          aria-label="Toggle menu"
+          aria-label={t.toggleMenu}
         >
           <div className="w-5 h-4 flex flex-col justify-between">
             <span
@@ -671,6 +722,8 @@ const CategoryCard = ({
   closeMegaMenu: () => void
 }) => {
   const cardRef = useRef<HTMLDivElement>(null)
+  const { lang } = useLang()
+  const t = dict[lang]
 
   useEffect(() => {
     const card = cardRef.current
@@ -731,7 +784,7 @@ const CategoryCard = ({
           {category.image_url && (
             <Image
               src={category.image_url}
-              alt={category.name}
+              alt={tCategoryName(lang, category.slug, category.name)}
               fill
               sizes="300px"
               className="object-cover"
@@ -746,17 +799,17 @@ const CategoryCard = ({
         {/* Content */}
         <div className="absolute inset-0 p-4 flex flex-col justify-end">
           <h3 className="text-lg font-bold text-white mb-1">
-            {category.name}
+            {tCategoryName(lang, category.slug, category.name)}
           </h3>
           {category.description && (
             <p className="text-xs text-white/80 line-clamp-2">
-              {category.description}
+              {tCategoryDescription(lang, category.slug, category.description)}
             </p>
           )}
 
           {/* Enhanced Arrow Badge with GSAP control */}
           <div className="category-badge mt-2 px-3 py-2 rounded-lg bg-white/10 backdrop-blur-md backdrop-saturate-150 border border-white/20 flex items-center gap-2 opacity-0">
-            <span className="text-xs font-semibold text-white">View</span>
+            <span className="text-xs font-semibold text-white">{t.view}</span>
             <ArrowRight className="w-3 h-3 text-white" />
           </div>
         </div>

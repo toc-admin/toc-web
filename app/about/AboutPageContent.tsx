@@ -4,101 +4,48 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/aboutPage"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const stats = [
-  { value: "15+", label: "Years Experience" },
-  { value: "500+", label: "Projects Completed" },
-  { value: "200+", label: "Happy Clients" },
-  { value: "50+", label: "Team Members" },
-]
-
-const values = [
-  {
-    title: "Excellence",
-    description: "We set the highest standards in everything we do, from product selection to project execution.",
-    icon: (
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Innovation",
-    description: "We stay ahead of industry trends to bring you cutting-edge solutions and designs.",
-    icon: (
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Integrity",
-    description: "We build lasting relationships through honest communication and transparent practices.",
-    icon: (
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
-      </svg>
-    ),
-  },
-  {
-    title: "Sustainability",
-    description: "We're committed to environmentally responsible practices and sustainable materials.",
-    icon: (
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-]
-
-const timeline = [
-  {
-    year: "2018",
-    title: "Foundation",
-    description: "The Office Company was founded with a mission to transform Croatian workspaces.",
-  },
-  {
-    year: "2024",
-    title: "First Coworking Location",
-    description: "We signed our first coworking location in Zagreb.",
-  },
-  {
-    year: "2025",
-    title: "Premium Partnerships",
-    description: "Established partnerships with world-leading furniture brands like Haworth and BoConcept.",
-  },
-  {
-    year: "2026",
-    title: "Digital Transformation",
-    description: "Launched comprehensive digital platform for seamless client experience.",
-  },
-]
-
-const team = [
-  {
-    name: "Leadership Team",
-    description: "Seasoned professionals with decades of combined experience in workspace design and management.",
-  },
-  {
-    name: "Design Specialists",
-    description: "Award-winning designers who create functional and inspiring office environments.",
-  },
-  {
-    name: "Project Managers",
-    description: "Dedicated experts ensuring every project is delivered on time and exceeds expectations.",
-  },
-  {
-    name: "Support Staff",
-    description: "Committed professionals providing ongoing assistance and maintenance services.",
-  },
+const valueIcons = [
+  (
+    <svg key="excellence" className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
+  ),
+  (
+    <svg key="innovation" className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+  ),
+  (
+    <svg key="integrity" className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+    </svg>
+  ),
+  (
+    <svg key="sustainability" className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
 ]
 
 export default function AboutPageContent() {
+  const { lang } = useLang()
+  const t = dict[lang]
+
+  const values = t.values.map((value, index) => ({
+    ...value,
+    icon: valueIcons[index],
+  }))
+  const timeline = t.timeline
+  const team = t.team
+
   const heroRef = useRef<HTMLDivElement>(null)
   const storyRef = useRef<HTMLDivElement>(null)
   const valuesRef = useRef<HTMLDivElement>(null)
@@ -283,17 +230,17 @@ export default function AboutPageContent() {
         <div className="relative z-10">
           <div className="max-w-6xl">
             <span className="animate-hero text-sm font-bold uppercase tracking-widest text-red-800">
-              About Us
+              {t.hero.badge}
             </span>
 
             <h1 className="animate-hero text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mt-6 mb-8">
-              Building
+              {t.hero.line1}
               <br />
               <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-                The Future
+                {t.hero.line2}
               </span>
               <br />
-              Of Work
+              {t.hero.line3}
             </h1>
 
             <div className="divider-line h-2 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
@@ -311,27 +258,20 @@ export default function AboutPageContent() {
             {/* Left Column - Content */}
             <div className="story-left flex flex-col gap-6 order-2 lg:order-1">
               <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-                Our Story
+                {t.story.badge}
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight">
-                Building Excellence, One Workspace at a Time
+                {t.story.heading}
               </h2>
               <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
               <p className="text-base md:text-lg leading-relaxed text-gray-700">
-                The Office Company was born from a simple observation: businesses deserve
-                workspaces that truly work for them. Since our founding in 2018, we&apos;ve
-                been on a mission to transform how companies approach their office environments.
+                {t.story.paragraph1}
               </p>
               <p className="text-base md:text-lg leading-relaxed text-gray-700">
-                What started as a small consulting firm has grown into Croatia&apos;s most
-                comprehensive office solutions provider. Today, we offer everything - from
-                strategic workspace planning and office and hospitality furniture to existing businesses as well as complete coworking implementation and
-                management services.
+                {t.story.paragraph2}
               </p>
               <p className="text-base md:text-lg leading-relaxed text-gray-700">
-                Our success is built on a foundation of deep industry expertise, unwavering
-                commitment to quality, and genuine partnerships with our clients. Every
-                project we undertake is an opportunity to create something exceptional.
+                {t.story.paragraph3}
               </p>
             </div>
 
@@ -359,14 +299,14 @@ export default function AboutPageContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-4 items-center text-center mb-12 md:mb-16 max-w-3xl mx-auto">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Our Values
+              {t.valuesSection.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-tight">
-              What Drives Us
+              {t.valuesSection.heading}
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
             <p className="text-base md:text-lg leading-relaxed text-gray-700 mt-4">
-              Our core values guide every decision we make and every relationship we build.
+              {t.valuesSection.paragraph}
             </p>
           </div>
 
@@ -399,10 +339,10 @@ export default function AboutPageContent() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col gap-4 items-center text-center mb-12 md:mb-16">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Our Journey
+              {t.timelineSection.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-tight">
-              Milestones That Matter
+              {t.timelineSection.heading}
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
           </div>
@@ -440,15 +380,14 @@ export default function AboutPageContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-4 items-center text-center mb-12 md:mb-16 max-w-3xl mx-auto">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              Our Team
+              {t.teamSection.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-tight">
-              The People Behind Our Success
+              {t.teamSection.heading}
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
             <p className="text-base md:text-lg leading-relaxed text-gray-700 mt-4">
-              Our diverse team of experts brings together decades of experience and a
-              shared passion for creating exceptional workspaces.
+              {t.teamSection.paragraph}
             </p>
           </div>
 
@@ -475,18 +414,17 @@ export default function AboutPageContent() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col gap-8 items-center text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-              Ready to Transform Your Workspace?
+              {t.cta.heading}
             </h2>
             <p className="text-base md:text-lg lg:text-xl leading-relaxed text-red-50 max-w-2xl">
-              Let&apos;s discuss how we can help you create an office environment that
-              drives success and inspires your team.
+              {t.cta.paragraph}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <Link
                 href="/#contact"
                 className="group px-8 py-4 bg-white text-red-900 font-semibold uppercase tracking-wider hover:bg-red-50 transition-all duration-300 flex items-center justify-center gap-2 rounded-lg"
               >
-                Contact Us
+                {t.cta.contactUs}
                 <svg
                   className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
                   fill="none"
@@ -505,7 +443,7 @@ export default function AboutPageContent() {
                 href="/#services"
                 className="group px-8 py-4 border-2 border-white text-white font-semibold uppercase tracking-wider hover:bg-white hover:text-red-900 transition-all duration-300 rounded-lg text-center"
               >
-                Our Services
+                {t.cta.ourServices}
               </Link>
             </div>
           </div>

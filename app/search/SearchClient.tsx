@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import dict, { productCountWord } from '@/lib/i18n/translations/search'
 import gsap from 'gsap'
 
 interface Product {
@@ -35,6 +37,8 @@ interface SearchClientProps {
 
 export default function SearchClient({ query, products }: SearchClientProps) {
   const router = useRouter()
+  const { lang } = useLang()
+  const t = dict[lang]
   const [searchInput, setSearchInput] = useState(query)
   const heroRef = useRef<HTMLElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
@@ -100,30 +104,30 @@ export default function SearchClient({ query, products }: SearchClientProps) {
           {/* Breadcrumb */}
           <div className="flex items-center justify-center gap-2 text-sm text-white/60 mb-8">
             <Link href="/" className="hover:text-white transition-colors">
-              Home
+              {t.breadcrumbHome}
             </Link>
             <span>/</span>
             <Link href="/furniture" className="hover:text-white transition-colors">
-              Furniture
+              {t.breadcrumbFurniture}
             </Link>
             <span>/</span>
-            <span className="text-white">Search</span>
+            <span className="text-white">{t.breadcrumbSearch}</span>
           </div>
 
           <span className="inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-4">
-            Search Results
+            {t.heroBadge}
           </span>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight mb-6">
             {query ? (
               <>
-                Results for{' '}
+                {t.resultsForPrefix}{' '}
                 <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
                   "{query}"
                 </span>
               </>
             ) : (
-              'Search Our Catalog'
+              t.searchOurCatalog
             )}
           </h1>
 
@@ -135,20 +139,20 @@ export default function SearchClient({ query, products }: SearchClientProps) {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search for furniture..."
+              placeholder={t.searchPlaceholder}
               className="w-full px-6 py-4 pr-32 rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder-white/60 focus:outline-none focus:border-red-500 transition-all duration-300"
             />
             <button
               type="submit"
               className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold rounded-full hover:from-red-800 hover:to-red-600 transition-all duration-300"
             >
-              Search
+              {t.searchButton}
             </button>
           </form>
 
           {query && (
             <p className="mt-6 text-white/70">
-              Found <span className="font-semibold text-white">{products.length}</span> product{products.length !== 1 ? 's' : ''}
+              {t.foundPrefix} <span className="font-semibold text-white">{products.length}</span> {productCountWord(lang, products.length)}
             </p>
           )}
         </div>
@@ -179,15 +183,15 @@ export default function SearchClient({ query, products }: SearchClientProps) {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">No results found</h2>
+            <h2 className="text-2xl font-bold text-gray-700 mb-4">{t.noResultsTitle}</h2>
             <p className="text-gray-500 mb-8 max-w-md mx-auto">
-              We couldn't find any products matching "{query}". Try different keywords or browse our categories.
+              {t.noResultsText(query)}
             </p>
             <Link
               href="/furniture"
               className="inline-block px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
             >
-              Browse All Products
+              {t.browseAllProducts}
             </Link>
           </div>
         ) : (
@@ -205,9 +209,9 @@ export default function SearchClient({ query, products }: SearchClientProps) {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">Start searching</h2>
+            <h2 className="text-2xl font-bold text-gray-700 mb-4">{t.startSearchingTitle}</h2>
             <p className="text-gray-500 mb-8 max-w-md mx-auto">
-              Enter a search term above to find products in our catalog.
+              {t.startSearchingText}
             </p>
           </div>
         )}
@@ -216,15 +220,15 @@ export default function SearchClient({ query, products }: SearchClientProps) {
       {/* CTA Section */}
       <section className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-16 bg-white border-t-2 border-gray-100">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Can't find what you're looking for?</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">{t.ctaTitle}</h2>
           <p className="text-gray-600 mb-8">
-            Our team is here to help you find the perfect furniture for your space.
+            {t.ctaText}
           </p>
           <Link
             href="/contact"
             className="inline-block px-8 py-4 bg-black text-white font-semibold uppercase tracking-wider hover:bg-gray-800 transition-all duration-300"
           >
-            Contact Our Experts
+            {t.ctaButton}
           </Link>
         </div>
       </section>

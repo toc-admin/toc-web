@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import productNotFoundDict from '@/lib/i18n/translations/productNotFound'
 import ProductDetailClient from './ProductDetailClient'
 
 interface ProductPageProps {
@@ -75,10 +77,11 @@ async function getProductData(slug: string) {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
   const data = await getProductData(slug)
+  const lang = await getServerLang()
 
   if (!data?.product) {
     return {
-      title: 'Product Not Found | The Office Company',
+      title: productNotFoundDict[lang].metaTitle,
     }
   }
 

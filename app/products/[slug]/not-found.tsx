@@ -1,6 +1,11 @@
 import Link from 'next/link'
+import { getServerLang } from '@/lib/i18n/server'
+import productNotFoundDict from '@/lib/i18n/translations/productNotFound'
 
-export default function ProductNotFound() {
+export default async function ProductNotFound() {
+  const lang = await getServerLang()
+  const t = productNotFoundDict[lang]
+
   return (
     <div className="min-h-screen bg-white pt-24 px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-32">
       <div className="max-w-2xl mx-auto text-center">
@@ -20,10 +25,10 @@ export default function ProductNotFound() {
           </svg>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-black mb-4">Product Not Found</h1>
+        <h1 className="text-4xl md:text-5xl font-black mb-4">{t.title}</h1>
 
         <p className="text-lg text-gray-600 mb-8">
-          Sorry, we couldn't find the product you're looking for. It may have been removed or the link might be incorrect.
+          {t.description}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -31,7 +36,7 @@ export default function ProductNotFound() {
             href="/furniture"
             className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 inline-flex items-center justify-center gap-2"
           >
-            Browse All Products
+            {t.browseAll}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -46,7 +51,7 @@ export default function ProductNotFound() {
             href="/"
             className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold uppercase tracking-wider hover:border-red-700 hover:text-red-700 transition-all duration-300 inline-flex items-center justify-center"
           >
-            Go Home
+            {t.goHome}
           </Link>
         </div>
       </div>

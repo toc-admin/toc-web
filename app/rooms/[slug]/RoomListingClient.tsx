@@ -6,6 +6,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import ProductCard from "@/components/ProductCard"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName, tRoomName, tRoomDescription, tSubcategory } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/roomListing"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -41,6 +44,11 @@ export default function RoomListingClient({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { lang } = useLang()
+  const t = dict[lang]
+
+  const roomName = tRoomName(lang, room.slug, room.name)
+  const roomDescription = tRoomDescription(lang, room.slug, room.description)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const productsRef = useRef(null)
@@ -270,7 +278,7 @@ export default function RoomListingClient({
         {room.hero_image_url && (
           <Image
             src={room.hero_image_url}
-            alt={room.name}
+            alt={roomName}
             fill
             className="object-cover"
             priority
@@ -284,16 +292,16 @@ export default function RoomListingClient({
         <div className="absolute top-24 left-4 sm:left-6 md:left-12 lg:left-24 xl:left-44 z-10">
           <div className="flex items-center gap-2 text-sm text-white/80">
             <Link href="/" className="hover:text-white transition-colors">
-              Home
+              {t.breadcrumbHome}
             </Link>
             <span>/</span>
             <Link href="/furniture" className="hover:text-white transition-colors">
-              Furniture
+              {t.breadcrumbFurniture}
             </Link>
             <span>/</span>
-            <span className="text-white font-semibold">Shop by Room</span>
+            <span className="text-white font-semibold">{t.breadcrumbShopByRoom}</span>
             <span>/</span>
-            <span className="text-white font-semibold">{room.name}</span>
+            <span className="text-white font-semibold">{roomName}</span>
           </div>
         </div>
 
@@ -307,17 +315,17 @@ export default function RoomListingClient({
           )}
 
           <span className="animate-hero inline-block text-sm font-bold uppercase tracking-widest text-red-400 mb-4">
-            Shop by Room
+            {t.shopByRoom}
           </span>
 
           <h1 className="animate-hero text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4">
-            {room.name}
+            {roomName}
           </h1>
 
           <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 mx-auto mb-6 origin-left" />
 
           <p className="animate-hero text-lg md:text-xl text-white/90 leading-relaxed">
-            {room.description}
+            {roomDescription}
           </p>
         </div>
       </section>
@@ -330,14 +338,14 @@ export default function RoomListingClient({
             <div className="bg-white border-2 border-gray-200 p-6 sticky top-24">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold uppercase tracking-wider">
-                  Filters
+                  {t.filtersHeading}
                 </h3>
                 {hasActiveFilters && (
                   <button
                     onClick={clearAllFilters}
                     className="text-sm text-red-700 hover:text-red-900 font-semibold"
                   >
-                    Clear All
+                    {t.clearAll}
                   </button>
                 )}
               </div>
@@ -347,7 +355,7 @@ export default function RoomListingClient({
                 <>
                   <div className="mb-8">
                     <h4 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                      Subcategory
+                      {t.subcategoryHeading}
                     </h4>
                     <div className="space-y-2">
                       {availableSubcategories.map((subcategory) => (
@@ -362,7 +370,7 @@ export default function RoomListingClient({
                             className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
                           />
                           <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
-                            {subcategory}
+                            {tSubcategory(lang, subcategory)}
                           </span>
                         </label>
                       ))}
@@ -378,7 +386,7 @@ export default function RoomListingClient({
                 <>
                   <div className="mb-8">
                     <h4 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                      Category
+                      {t.categoryHeading}
                     </h4>
                     <div className="space-y-2">
                       {availableCategories.map((category) => (
@@ -393,7 +401,7 @@ export default function RoomListingClient({
                             className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
                           />
                           <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
-                            {category.name}
+                            {tCategoryName(lang, category.slug, category.name)}
                           </span>
                         </label>
                       ))}
@@ -408,7 +416,7 @@ export default function RoomListingClient({
               {availableBrands.length > 0 && (
                 <div className="mb-8">
                   <h4 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                    Brand
+                    {t.brandHeading}
                   </h4>
                   <div className="space-y-2">
                     {availableBrands.map((brand) => (
@@ -437,7 +445,7 @@ export default function RoomListingClient({
                   href="/contact"
                   className="w-full px-6 py-3 bg-black text-white text-sm font-semibold uppercase tracking-wider hover:bg-gray-800 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  Need Help?
+                  {t.needHelp}
                 </Link>
               </div>
             </div>
@@ -450,15 +458,15 @@ export default function RoomListingClient({
               {/* Results Count */}
               <div>
                 <h2 className="text-2xl font-bold mb-2">
-                  Furniture for {room.name}
+                  {t.furnitureFor(roomName)}
                 </h2>
                 <p className="text-sm text-gray-600">
-                  Showing{" "}
+                  {t.showing}{" "}
                   <span className="font-semibold text-gray-900">
                     {currentProducts.length}
                   </span>{" "}
-                  of <span className="font-semibold text-gray-900">{totalFilteredProducts}</span>{" "}
-                  products
+                  {t.of} <span className="font-semibold text-gray-900">{totalFilteredProducts}</span>{" "}
+                  {t.products(totalFilteredProducts)}
                 </p>
               </div>
 
@@ -476,10 +484,10 @@ export default function RoomListingClient({
                   }}
                   className="px-4 py-2 border-2 border-gray-200 rounded text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-700 transition-colors"
                 >
-                  <option value="popular">Most Popular</option>
-                  <option value="newest">Newest First</option>
-                  <option value="name-asc">Name: A-Z</option>
-                  <option value="name-desc">Name: Z-A</option>
+                  <option value="popular">{t.sortPopular}</option>
+                  <option value="newest">{t.sortNewest}</option>
+                  <option value="name-asc">{t.sortNameAsc}</option>
+                  <option value="name-desc">{t.sortNameDesc}</option>
                 </select>
               </div>
             </div>
@@ -511,15 +519,15 @@ export default function RoomListingClient({
                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">No products found</h3>
+                <h3 className="text-xl font-bold text-gray-700 mb-2">{t.emptyTitle}</h3>
                 <p className="text-gray-500 mb-6">
-                  Try adjusting your filters to find what you're looking for.
+                  {t.emptyText}
                 </p>
                 <button
                   onClick={clearAllFilters}
                   className="px-6 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
                 >
-                  Clear All Filters
+                  {t.clearAllFilters}
                 </button>
               </div>
             )}
@@ -531,7 +539,7 @@ export default function RoomListingClient({
                   onClick={loadMore}
                   className="px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
                 >
-                  Load More Products
+                  {t.loadMore}
                 </button>
               </div>
             )}
@@ -543,24 +551,23 @@ export default function RoomListingClient({
       <section className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-16 bg-gradient-to-br from-gray-900 via-red-950 to-black text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Explore Other Room Types
+            {t.ctaHeading}
           </h2>
           <p className="text-lg text-white/80 mb-8">
-            Browse furniture curated for different workspace zones or view our complete
-            catalog to find exactly what you need.
+            {t.ctaText}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/furniture"
               className="px-8 py-4 bg-white text-black font-semibold uppercase tracking-wider hover:bg-gray-100 transition-all duration-300"
             >
-              View All Rooms
+              {t.viewAllRooms}
             </Link>
             <Link
               href="/furniture"
               className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300"
             >
-              Browse All Products
+              {t.browseAllProducts}
             </Link>
           </div>
         </div>

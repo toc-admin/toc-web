@@ -3,56 +3,33 @@
 import { useRef, useEffect } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeProcess"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const steps = [
-  {
-    number: "01",
-    title: "Planning & Strategy",
-    description: "We start by understanding your business objectives, workspace requirements, and budget. Our experts conduct thorough analysis and develop a comprehensive strategy tailored to your needs.",
-    image: "/images/tocPlanning.webp",
-    highlights: [
-      "Needs Assessment",
-      "Space Analysis",
-      "Budget Planning",
-      "Timeline Development",
-    ],
-  },
-  {
-    number: "02",
-    title: "Design & Execution",
-    description: "Our design team brings your vision to life with detailed plans and 3D visualizations. We handle everything from furniture selection to installation, ensuring flawless execution.",
-    image: "/images/tocExecution.webp",
-    highlights: [
-      "3D Visualization",
-      "Furniture Selection",
-      "Project Management",
-      "Quality Installation",
-    ],
-  },
-  {
-    number: "03",
-    title: "Support & Optimization",
-    description: "We don't stop at installation. Our team provides ongoing support, maintenance, and optimization services to ensure your workspace continues to perform at its best.",
-    image: "/images/tocSupport.webp",
-    highlights: [
-      "Ongoing Maintenance",
-      "Performance Monitoring",
-      "Optimization Services",
-      "24/7 Support",
-    ],
-  },
+const stepMeta = [
+  { number: "01", image: "/images/tocPlanning.webp" },
+  { number: "02", image: "/images/tocExecution.webp" },
+  { number: "03", image: "/images/tocSupport.webp" },
 ]
+
+type StepEntry = (typeof dict)['en']['steps'][number] & (typeof stepMeta)[number]
 
 interface HowWeDoItProps {
   id?: string
 }
 
 const HowWeDoIt = ({ id }: HowWeDoItProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const steps: StepEntry[] = t.steps.map((step, index) => ({
+    ...step,
+    ...stepMeta[index],
+  }))
   const headerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -115,18 +92,17 @@ const HowWeDoIt = ({ id }: HowWeDoItProps) => {
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-center text-center mb-20 max-w-3xl">
         <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
-          Our Process
+          {t.label}
         </span>
 
         <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-          How We Do It
+          {t.heading}
         </h2>
 
         <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
         <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
-          Our proven three-step approach ensures seamless delivery from concept
-          to completion, with exceptional results every time.
+          {t.intro}
         </p>
       </div>
 
@@ -140,7 +116,7 @@ const HowWeDoIt = ({ id }: HowWeDoItProps) => {
   )
 }
 
-const StepItem = ({ step, index }: { step: typeof steps[0]; index: number }) => {
+const StepItem = ({ step, index }: { step: StepEntry; index: number }) => {
   const ref = useRef<HTMLDivElement>(null)
   const isEven = index % 2 === 0
 
@@ -277,7 +253,7 @@ const StepItem = ({ step, index }: { step: typeof steps[0]; index: number }) => 
       </div>
 
       {/* Separator Line (not on last item) */}
-      {index < steps.length - 1 && (
+      {index < stepMeta.length - 1 && (
         <div
           className="separator-line w-full h-px bg-gradient-to-r from-transparent via-red-200 to-transparent mt-12 md:mt-20 origin-center"
         />

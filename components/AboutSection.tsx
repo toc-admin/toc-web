@@ -4,16 +4,16 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeAbout"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const highlights = [
+const highlightIcons = [
   {
-    title: "Expert Consultation",
-    description: "Strategic workspace planning tailored to your business needs and growth objectives.",
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -21,8 +21,6 @@ const highlights = [
     ),
   },
   {
-    title: "Premium Quality",
-    description: "World-class furniture and materials from leading global brands.",
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -30,8 +28,6 @@ const highlights = [
     ),
   },
   {
-    title: "Full-Service Support",
-    description: "From concept to completion, we manage every aspect of your workspace transformation.",
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
@@ -39,8 +35,6 @@ const highlights = [
     ),
   },
   {
-    title: "Proven Results",
-    description: "Delivering measurable improvements in productivity and employee satisfaction.",
     icon: (
       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -54,6 +48,12 @@ interface AboutSectionProps {
 }
 
 const AboutSection = ({ id }: AboutSectionProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const highlights = t.highlights.map((highlight, index) => ({
+    ...highlight,
+    icon: highlightIcons[index].icon,
+  }))
   const sectionRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -154,19 +154,17 @@ const AboutSection = ({ id }: AboutSectionProps) => {
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-center text-center mb-16 max-w-3xl">
         <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
-          About Us
+          {t.label}
         </span>
 
         <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-          Who We Are
+          {t.heading}
         </h2>
 
         <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
         <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
-          With over 10 years of experience, we are Croatia&apos;s leading provider
-          of comprehensive office solutions, combining expert consulting,
-          coworking management services, interior design and office furniture.
+          {t.intro}
         </p>
       </div>
 
@@ -191,33 +189,26 @@ const AboutSection = ({ id }: AboutSectionProps) => {
         {/* Right Column - Content */}
         <div className="text-section flex flex-col gap-6 justify-center">
           <h3 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Transforming Places Into Productive Environments
+            {t.contentHeading}
           </h3>
 
           <p className="text-base md:text-lg leading-relaxed text-gray-700">
-            Founded with a vision to revolutionize how businesses approach their
-            workspace, The Office Company has grown to become Croatia&apos;s most
-            trusted partner in office solutions.
+            {t.paragraph1}
           </p>
 
           <p className="text-base md:text-lg leading-relaxed text-gray-700">
-            We combine deep industry expertise with a passion for design,
-            delivering spaces that not only look exceptional but drive real
-            business results. Our team of specialists works closely with each
-            client to understand their unique needs and craft solutions that
-            exceed expectations.
+            {t.paragraph2}
           </p>
 
           <p className="text-base md:text-lg leading-relaxed text-gray-700">
-            We create workspaces that inspire, motivate,
-            and perform, regardless of the size of your organization.
+            {t.paragraph3}
           </p>
 
           <Link
             href="/about"
             className="group mt-4 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2 self-start"
           >
-            Learn More About Us
+            {t.learnMore}
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"

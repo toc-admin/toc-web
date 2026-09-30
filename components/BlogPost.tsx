@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import type { ArticleCategory, Tag } from '@/types/database.types'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import blogCardDict from '@/lib/i18n/translations/blogCard'
 
 interface BlogPostProps {
   image: string
@@ -14,6 +16,9 @@ interface BlogPostProps {
 }
 
 const BlogPost = ({ image, name, shortDescription, slug, category, tags, date }: BlogPostProps) => {
+  const { lang } = useLang()
+  const t = blogCardDict[lang]
+
   return (
     <Link href={`/blog/${slug}`}>
       <div
@@ -42,7 +47,7 @@ const BlogPost = ({ image, name, shortDescription, slug, category, tags, date }:
             className='absolute bottom-6 right-6 bg-white px-4 py-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300'
           >
             <span className='text-sm font-bold uppercase tracking-wider flex items-center gap-2'>
-              Read More
+              {t.readMore}
               <svg
                 className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
                 fill="none"
@@ -94,7 +99,7 @@ const BlogPost = ({ image, name, shortDescription, slug, category, tags, date }:
           {/* Read More Link */}
           <div className='flex items-center gap-2 mt-2'>
             <span className='text-sm font-semibold uppercase tracking-wider text-black group-hover:gap-3 transition-all duration-300'>
-              Continue Reading
+              {t.continueReading}
             </span>
             <svg
               className="w-4 h-4 text-black transform group-hover:translate-x-2 transition-transform duration-300"

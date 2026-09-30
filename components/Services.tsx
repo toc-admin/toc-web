@@ -5,38 +5,33 @@ import Link from "next/link"
 import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeServices"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const services = [
-  {
-    title: "Serviced Office Consulting",
-    description: "Expert guidance to optimize your workspace strategy, from concept to completion. We analyze your needs and deliver tailored solutions.",
-    image: "/images/tocConsulting.webp",
-    features: ["Space Planning", "ROI Analysis", "Market Research"],
-  },
-  {
-    title: "Serviced Office Management",
-    description: "Comprehensive management services that keep your office running smoothly. We handle operations so you can focus on growth.",
-    image: "/images/tocManagement.jpeg",
-    features: ["Operations", "Maintenance", "Client Relations"],
-  },
-  {
-    title: "Office Design & Furniture",
-    description: "Transform your space with innovative design and premium furniture solutions that inspire productivity and reflect your brand.",
-    image: "/images/tocFurniture.webp",
-    features: ["Interior Design", "Custom Furniture", "Brand Integration"],
-  },
+const serviceImages = [
+  "/images/tocConsulting.webp",
+  "/images/tocManagement.jpeg",
+  "/images/tocFurniture.webp",
 ]
+
+type ServiceEntry = (typeof dict)['en']['services'][number] & { image: string }
 
 interface ServicesProps {
   id?: string
 }
 
 const Services = ({ id }: ServicesProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const services: ServiceEntry[] = t.services.map((service, index) => ({
+    ...service,
+    image: serviceImages[index],
+  }))
   const sectionRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
@@ -125,19 +120,17 @@ const Services = ({ id }: ServicesProps) => {
       {/* Header Section */}
       <div ref={headerRef} className="relative z-10 flex flex-col gap-4 items-start justify-start mb-20 max-w-3xl">
         <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
-          Our Services
+          {t.label}
         </span>
 
         <h2 className="animate-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-          What We Do
+          {t.heading}
         </h2>
 
         <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
         <p className="animate-header text-base md:text-lg leading-relaxed text-gray-700 mt-4">
-          Our sole focus is on unlocking better growth for our clients,
-          increasing their long-term sales, value, and profit. We achieve this
-          by optimizing every lever of their commercial strategy.
+          {t.intro}
         </p>
       </div>
 
@@ -157,7 +150,7 @@ const Services = ({ id }: ServicesProps) => {
           href="/services"
           className="group px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2"
         >
-          View All Services
+          {t.viewAll}
           <svg
             className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
             fill="none"
@@ -177,7 +170,7 @@ const Services = ({ id }: ServicesProps) => {
   )
 }
 
-const ServiceItem = ({ service, index }: { service: typeof services[0]; index: number }) => {
+const ServiceItem = ({ service, index }: { service: ServiceEntry; index: number }) => {
   const itemRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

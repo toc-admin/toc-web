@@ -4,28 +4,32 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import Logo from "./Logo"
 import gsap from "gsap"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/layoutFooter"
 
-const footerLinks = {
+const footerLinks: Record<'company' | 'services' | 'legal', { nameKey: keyof (typeof dict)['en']; path: string }[]> = {
   company: [
-    { name: "Home", path: "/" },
-    { name: "About Us", path: "/about" },
-    { name: "Services", path: "/services" },
-    { name: "Blog", path: "/blog" },
-    { name: "Contact", path: "/contact" },
+    { nameKey: "home", path: "/" },
+    { nameKey: "aboutUs", path: "/about" },
+    { nameKey: "services", path: "/services" },
+    { nameKey: "blog", path: "/blog" },
+    { nameKey: "contact", path: "/contact" },
   ],
   services: [
-    { name: "Office Consulting", path: "/services" },
-    { name: "Office Management", path: "/services" },
-    { name: "Design & Furniture", path: "/services" },
+    { nameKey: "officeConsulting", path: "/services" },
+    { nameKey: "officeManagement", path: "/services" },
+    { nameKey: "designFurniture", path: "/services" },
   ],
   legal: [
-    { name: "Privacy Policy", path: "/privacy" },
-    { name: "Cookie Policy", path: "/cookies" },
-    { name: "Terms of Service", path: "/terms" },
+    { nameKey: "privacyPolicy", path: "/privacy" },
+    { nameKey: "cookiePolicy", path: "/cookies" },
+    { nameKey: "termsOfService", path: "/terms" },
   ],
 }
 
 const Footer = () => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const footerRef = useRef<HTMLDivElement>(null)
   const bottomBarRef = useRef<HTMLDivElement>(null)
 
@@ -104,8 +108,7 @@ const Footer = () => {
             <Logo color="white" />
 
             <p className="text-base text-white/70 leading-relaxed max-w-md">
-              Creating inspiring workspaces that drive productivity, foster
-              collaboration, and elevate business success across the region.
+              {t.tagline}
             </p>
 
             {/* Decorative Line */}
@@ -149,7 +152,7 @@ const Footer = () => {
           {/* Company Links */}
           <div className="footer-section lg:col-span-2">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
-              Company
+              {t.companyHeading}
             </h3>
             <ul className="flex flex-col gap-3">
               {footerLinks.company.map((link, index) => (
@@ -158,7 +161,7 @@ const Footer = () => {
                     href={link.path}
                     className="text-white/70 hover:text-red-300 transition-colors duration-300 hover:translate-x-1 inline-block"
                   >
-                    {link.name}
+                    {t[link.nameKey]}
                   </Link>
                 </li>
               ))}
@@ -168,7 +171,7 @@ const Footer = () => {
           {/* Services Links */}
           <div className="footer-section lg:col-span-2">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
-              Services
+              {t.servicesHeading}
             </h3>
             <ul className="flex flex-col gap-3">
               {footerLinks.services.map((link, index) => (
@@ -177,7 +180,7 @@ const Footer = () => {
                     href={link.path}
                     className="text-white/70 hover:text-red-300 transition-colors duration-300 hover:translate-x-1 inline-block"
                   >
-                    {link.name}
+                    {t[link.nameKey]}
                   </Link>
                 </li>
               ))}
@@ -187,22 +190,22 @@ const Footer = () => {
           {/* Contact Info */}
           <div className="footer-section lg:col-span-3">
             <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-red-300">
-              Contact
+              {t.contactHeading}
             </h3>
             <div className="flex flex-col gap-4">
               {/* Address */}
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-red-400/60 uppercase tracking-wider font-semibold">
-                  Address
+                  {t.addressLabel}
                 </p>
                 <p className="text-white/70">Poljačka ul. 56</p>
-                <p className="text-white/70">10000 Zagreb, Croatia</p>
+                <p className="text-white/70">{t.cityCountry}</p>
               </div>
 
               {/* Phone */}
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-red-400/60 uppercase tracking-wider font-semibold">
-                  Phone
+                  {t.phoneLabel}
                 </p>
                 <a
                   href="tel:+385913011552"
@@ -215,7 +218,7 @@ const Footer = () => {
               {/* Email */}
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-red-400/60 uppercase tracking-wider font-semibold">
-                  Email
+                  {t.emailLabel}
                 </p>
                 <a
                   href="mailto:info@theofficecompany.eu"
@@ -237,12 +240,12 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Copyright */}
           <p className="text-sm text-white/50">
-            © {new Date().getFullYear()} The Office Company d.o.o. All rights reserved.
+            © {new Date().getFullYear()} The Office Company d.o.o. {t.rightsReserved}
           </p>
 
           {/* Credit */}
           <p className="text-sm text-white/50">
-            Izrada:{" "}
+            {t.credit}{" "}
             <a
               href="https://www.ninefold.eu"
               target="_blank"
@@ -261,7 +264,7 @@ const Footer = () => {
                 href={link.path}
                 className="text-sm text-white/50 hover:text-red-300 transition-colors duration-300"
               >
-                {link.name}
+                {t[link.nameKey]}
               </Link>
             ))}
           </div>

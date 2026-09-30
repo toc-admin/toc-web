@@ -5,6 +5,9 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 import gsap from "gsap"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/layoutNav"
 
 interface Category {
   id: string
@@ -14,13 +17,13 @@ interface Category {
   image_url: string | null
 }
 
-const navLinks = [
-  { title: "Home", href: "/" },
-  { title: "About Us", href: "/about" },
-  { title: "Services", href: "/services" },
-  { title: "Furniture", href: "/furniture", hasSubmenu: true },
-  { title: "Blog", href: "/blog" },
-  { title: "Contact", href: "/contact" },
+const navLinks: { titleKey: keyof (typeof dict)['en']; href: string; hasSubmenu?: boolean }[] = [
+  { titleKey: "home", href: "/" },
+  { titleKey: "aboutUs", href: "/about" },
+  { titleKey: "services", href: "/services" },
+  { titleKey: "furniture", href: "/furniture", hasSubmenu: true },
+  { titleKey: "blog", href: "/blog" },
+  { titleKey: "contact", href: "/contact" },
 ]
 
 interface MobileMenuProps {
@@ -31,6 +34,8 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ closeMenu, categories, isOpen }: MobileMenuProps) => {
   const pathname = usePathname()
+  const { lang, setLang } = useLang()
+  const t = dict[lang]
   const [furnitureExpanded, setFurnitureExpanded] = useState(false)
 
   const menuRef = useRef<HTMLDivElement>(null)
@@ -168,7 +173,7 @@ const MobileMenu = ({ closeMenu, categories, isOpen }: MobileMenuProps) => {
                         : "text-white hover:text-red-400"
                     }`}
                   >
-                    {link.title}
+                    {t[link.titleKey]}
                     <ChevronDown
                       className={`w-8 h-8 transition-transform duration-300 ${
                         furnitureExpanded ? "rotate-180 text-red-400" : "text-white"
@@ -188,7 +193,7 @@ const MobileMenu = ({ closeMenu, categories, isOpen }: MobileMenuProps) => {
                           onClick={closeMenu}
                           className="text-2xl font-bold text-red-300 hover:text-red-400 transition-colors"
                         >
-                          {cat.name}
+                          {tCategoryName(lang, cat.slug, cat.name)}
                         </Link>
                       </div>
                     ))}
@@ -212,7 +217,7 @@ const MobileMenu = ({ closeMenu, categories, isOpen }: MobileMenuProps) => {
                       : "text-white hover:text-red-400"
                   }`}
                 >
-                  {link.title}
+                  {t[link.titleKey]}
                 </Link>
               </div>
             )
@@ -238,6 +243,35 @@ const MobileMenu = ({ closeMenu, categories, isOpen }: MobileMenuProps) => {
             >
               +385 91 3011 552
             </a>
+
+            {/* Language Switcher */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setLang('hr')}
+                aria-label={t.switchToCroatian}
+                aria-pressed={lang === 'hr'}
+                className={`text-sm font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                  lang === 'hr'
+                    ? "text-red-300"
+                    : "text-white/50 hover:text-red-300"
+                }`}
+              >
+                HR
+              </button>
+              <span aria-hidden="true" className="text-white/30 text-sm">/</span>
+              <button
+                onClick={() => setLang('en')}
+                aria-label={t.switchToEnglish}
+                aria-pressed={lang === 'en'}
+                className={`text-sm font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                  lang === 'en'
+                    ? "text-red-300"
+                    : "text-white/50 hover:text-red-300"
+                }`}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </div>
 

@@ -1,21 +1,28 @@
 import { Metadata } from 'next'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import furnitureDict from '@/lib/i18n/translations/furniture'
 import FurnitureHubClient from './FurnitureHubClient'
 
-export const metadata: Metadata = {
-  title: 'Office Furniture Catalog | 500+ Premium Products | The Office Company',
-  description: 'Browse our comprehensive catalog of premium office furniture. Chairs, desks, storage, acoustic solutions, and more from world-class brands. Find furniture by category or room type.',
-  openGraph: {
-    title: 'Office Furniture Catalog | The Office Company',
-    description: 'Browse 500+ premium office furniture products from world-class brands.',
-    images: [{
-      url: '/og/furniture-catalog.jpg',
-      width: 1200,
-      height: 630,
-      alt: 'The Office Company Furniture Catalog'
-    }],
-    type: 'website',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang()
+  const t = furnitureDict[lang]
+
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+    openGraph: {
+      title: t.ogTitle,
+      description: t.ogDescription,
+      images: [{
+        url: '/og/furniture-catalog.jpg',
+        width: 1200,
+        height: 630,
+        alt: t.ogImageAlt
+      }],
+      type: 'website',
+    },
+  }
 }
 
 interface Category {

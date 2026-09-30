@@ -4,6 +4,8 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeBrands"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -39,6 +41,8 @@ interface BrandsSectionProps {
 }
 
 const BrandsSection = ({ id }: BrandsSectionProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const headerRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
 
@@ -127,22 +131,21 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
         className="relative z-10 flex flex-col gap-4 max-w-4xl"
       >
         <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-800">
-          Our Partners
+          {t.label}
         </span>
 
         <h2 className="animate-header text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight">
-          Partnering with
+          {t.headingLine1}
           <br />
           <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-            Industry Leaders
+            {t.headingLine2}
           </span>
         </h2>
 
         <div className="divider-line h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
         <p className="animate-header text-base md:text-lg text-gray-700 leading-relaxed mt-2">
-          We collaborate with world-renowned furniture and design brands to deliver
-          exceptional quality and innovation in every project.
+          {t.intro}
         </p>
       </div>
 
@@ -173,17 +176,17 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
       >
         <div className="flex flex-col gap-2">
           <h3 className="text-2xl md:text-3xl font-bold">
-            Interested in partnering with us?
+            {t.ctaHeading}
           </h3>
           <p className="text-gray-600">
-            Let&apos;s discuss how we can bring premium design to your project.
+            {t.ctaText}
           </p>
         </div>
         <Link
           href="/contact"
           className="group px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
         >
-          Get In Touch
+          {t.ctaButton}
           <svg
             className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
             fill="none"
@@ -204,6 +207,8 @@ const BrandsSection = ({ id }: BrandsSectionProps) => {
 }
 
 const BrandCard = ({ brand, featured = false, index }: { brand: Brand; featured?: boolean; index: number }) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -318,7 +323,7 @@ const BrandCard = ({ brand, featured = false, index }: { brand: Brand; featured?
         {/* Corner Badge for Featured */}
         {featured && (
           <div className="featured-badge absolute top-6 right-6 bg-gradient-to-r from-red-900 to-red-700 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider z-20">
-            Featured Partner
+            {t.featuredBadge}
           </div>
         )}
       </div>

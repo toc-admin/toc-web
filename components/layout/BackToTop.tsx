@@ -3,8 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowUp } from 'lucide-react'
 import gsap from 'gsap'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import dict from '@/lib/i18n/translations/layoutBackToTop'
 
 export default function BackToTop() {
+  const { lang } = useLang()
+  const t = dict[lang]
   const [isVisible, setIsVisible] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -56,7 +60,7 @@ export default function BackToTop() {
       onClick={scrollToTop}
       style={{ display: 'none', opacity: 0, scale: 0.8 }}
       className="fixed bottom-6 right-6 z-50 w-12 h-12 items-center justify-center rounded-full bg-gradient-to-r from-red-900 to-red-700 text-white shadow-lg hover:from-red-800 hover:to-red-600 transition-colors duration-300 cursor-pointer"
-      aria-label="Back to top"
+      aria-label={t.backToTop}
     >
       <ArrowUp className="w-5 h-5" />
     </button>

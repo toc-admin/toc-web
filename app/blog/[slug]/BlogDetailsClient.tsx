@@ -6,6 +6,8 @@ import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Blog } from '@/lib/blog'
+import { useLang } from '@/lib/i18n/LanguageContext'
+import blogDetailsDict from '@/lib/i18n/translations/blogDetails'
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -18,6 +20,8 @@ interface BlogDetailsClientProps {
 }
 
 export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetailsClientProps) {
+  const { lang } = useLang()
+  const t = blogDetailsDict[lang]
   const heroRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -192,7 +196,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
             />
           </svg>
           <span className="text-sm font-semibold text-gray-700 group-hover:text-red-700 transition-colors duration-300">
-            Back
+            {t.back}
           </span>
         </Link>
       </div>
@@ -206,7 +210,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           {/* Meta Info */}
           <div className="animate-hero flex flex-wrap items-center gap-4 mb-8">
             <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-              {blog.category?.name || 'Article'}
+              {blog.category?.name || t.categoryFallback}
             </span>
             <span className="text-gray-300">|</span>
             <span className="text-sm text-gray-600 font-medium">{blog.date}</span>
@@ -285,11 +289,11 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           {/* Infographic Image */}
           {blog.infographicImageUrl && (
             <div className="mt-12">
-              <h3 className="text-2xl font-bold mb-6">Infographic</h3>
+              <h3 className="text-2xl font-bold mb-6">{t.infographic}</h3>
               <div className="relative w-full">
                 <Image
                   src={blog.infographicImageUrl}
-                  alt={`${blog.name} infographic`}
+                  alt={t.infographicAlt.replace('{name}', blog.name)}
                   width={800}
                   height={1200}
                   className="w-full h-auto"
@@ -301,7 +305,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           {/* FAQ Section */}
           {blog.faqSchema && blog.faqSchema.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+              <h2 className="text-3xl font-bold mb-8">{t.faqTitle}</h2>
               <div className="space-y-6">
                 {blog.faqSchema.map((faq, index) => (
                   <div
@@ -329,7 +333,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
           <div className="max-w-6xl mx-auto">
             <div className="related-header mb-12">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Related Articles
+                {t.relatedArticles}
               </h2>
               <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-24" />
             </div>
@@ -358,7 +362,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
                         {article.shortDescription}
                       </p>
                       <span className="inline-flex items-center gap-2 text-sm font-semibold text-red-700 group-hover:gap-3 transition-all duration-300">
-                        Read More
+                        {t.readMore}
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -385,7 +389,7 @@ export default function BlogDetailsClient({ blog, relatedArticles }: BlogDetails
                 href="/blog"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
               >
-                View All Articles
+                {t.viewAllArticles}
                 <svg
                   className="w-5 h-5"
                   fill="none"

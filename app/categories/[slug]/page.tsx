@@ -1,6 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import { tCategoryName, tCategoryDescription } from '@/lib/i18n/catalog'
+import categoryListingDict from '@/lib/i18n/translations/categoryListing'
 import CategoryListingClient from './CategoryListingClient'
 
 interface CategoryPageProps {
@@ -101,27 +104,31 @@ async function getCategoryData(slug: string) {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
+  const lang = await getServerLang()
+  const t = categoryListingDict[lang]
   const data = await getCategoryData(slug)
 
   if (!data?.category) {
     return {
-      title: 'Category Not Found | The Office Company',
+      title: t.metaNotFoundTitle,
     }
   }
 
   const { category } = data as any
+  const categoryName = tCategoryName(lang, category.slug, category.name)
+  const categoryDescription = tCategoryDescription(lang, category.slug, category.description)
 
   return {
-    title: `${category.name} | Premium Office Furniture | The Office Company`,
-    description: category.description || `Browse our selection of premium ${category.name.toLowerCase()} from world-class brands.`,
+    title: t.metaTitle(categoryName),
+    description: categoryDescription || t.metaDescriptionFallback(categoryName),
     openGraph: {
-      title: `${category.name} | The Office Company`,
-      description: category.description || '',
+      title: `${categoryName} | The Office Company`,
+      description: categoryDescription || '',
       images: category.image_url ? [{
         url: category.image_url,
         width: 1200,
         height: 630,
-        alt: category.name
+        alt: categoryName
       }] : [],
       type: 'website',
     },

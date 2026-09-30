@@ -2,14 +2,37 @@ import type { Metadata } from 'next'
 import './globals.css'
 import ClientLayout from '@/components/layout/ClientLayout'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 
-export const metadata: Metadata = {
+const meta = {
+  en: {
+    title: 'The Office Company - Premium Office Furniture',
+    description:
+      'Discover our catalog of premium office furniture. Quality solutions for modern workspaces.',
+    keywords: ['office furniture', 'workspace solutions', 'premium furniture', 'office design'],
+    ogLocale: 'en_US',
+  },
+  hr: {
+    title: 'The Office Company - Premium uredski namještaj',
+    description:
+      'Otkrijte naš katalog premium uredskog namještaja. Kvalitetna rješenja za moderne radne prostore.',
+    keywords: ['uredski namještaj', 'rješenja za radne prostore', 'premium namještaj', 'dizajn ureda'],
+    ogLocale: 'hr_HR',
+  },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang()
+  const t = meta[lang]
+
+  return {
   title: {
-    default: 'The Office Company - Premium Office Furniture',
+    default: t.title,
     template: '%s | The Office Company',
   },
-  description: 'Discover our catalog of premium office furniture. Quality solutions for modern workspaces.',
-  keywords: ['office furniture', 'workspace solutions', 'premium furniture', 'office design'],
+  description: t.description,
+  keywords: t.keywords,
   authors: [{ name: 'The Office Company' }],
   creator: 'The Office Company',
   publisher: 'The Office Company',
@@ -26,16 +49,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: t.ogLocale,
     url: '/',
     siteName: 'The Office Company',
-    title: 'The Office Company - Premium Office Furniture',
-    description: 'Discover our catalog of premium office furniture. Quality solutions for modern workspaces.',
+    title: t.title,
+    description: t.description,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'The Office Company - Premium Office Furniture',
-    description: 'Discover our catalog of premium office furniture. Quality solutions for modern workspaces.',
+    title: t.title,
+    description: t.description,
   },
   robots: {
     index: true,
@@ -53,6 +76,7 @@ export const metadata: Metadata = {
     // google: 'your-google-verification-code',
     // yandex: 'your-yandex-verification-code',
   },
+  }
 }
 
 interface NavCategory {
@@ -98,10 +122,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const categories = await getNavCategories()
+  const [categories, lang] = await Promise.all([getNavCategories(), getServerLang()])
 
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         {/* Preload critical fonts for performance */}
         <link
@@ -120,7 +144,9 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-main-bg antialiased">
-        <ClientLayout categories={categories}>{children}</ClientLayout>
+        <LanguageProvider initialLang={lang}>
+          <ClientLayout categories={categories}>{children}</ClientLayout>
+        </LanguageProvider>
       </body>
     </html>
   )

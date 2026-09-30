@@ -10,6 +10,9 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, Thumbs, FreeMode } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
 import ProductCard from "@/components/ProductCard"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName, tRoomName } from "@/lib/i18n/catalog"
+import productDetailDict from "@/lib/i18n/translations/productDetail"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
@@ -54,6 +57,8 @@ interface ProductDetailClientProps {
 }
 
 export default function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps) {
+  const { lang } = useLang()
+  const t = productDetailDict[lang]
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [selectedColor, setSelectedColor] = useState(product.product_colors?.[0] || null)
@@ -164,11 +169,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
       <div className="px-4 sm:px-6 md:px-12 lg:px-24 xl:px-44 py-6 border-b border-gray-200">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Link href="/" className="hover:text-red-700 transition-colors">
-            Home
+            {t.breadcrumbHome}
           </Link>
           <span>/</span>
           <Link href="/furniture" className="hover:text-red-700 transition-colors">
-            Furniture
+            {t.breadcrumbFurniture}
           </Link>
           <span>/</span>
           {product.category && (
@@ -177,7 +182,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 href={`/categories/${product.category.slug}`}
                 className="hover:text-red-700 transition-colors"
               >
-                {product.category.name}
+                {tCategoryName(lang, product.category.slug, product.category.name)}
               </Link>
               <span>/</span>
             </>
@@ -198,12 +203,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             <div className="flex items-center gap-2 mb-4">
               {product.is_new && (
                 <span className="px-3 py-1 bg-red-700 text-white text-xs font-bold uppercase tracking-wider">
-                  New
+                  {t.badgeNew}
                 </span>
               )}
               {product.is_featured && (
                 <span className="px-3 py-1 bg-black text-white text-xs font-bold uppercase tracking-wider">
-                  Featured
+                  {t.badgeFeatured}
                 </span>
               )}
             </div>
@@ -223,7 +228,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                       <div className="relative w-full h-full">
                         <Image
                           src={image.medium_url || image.image_url}
-                          alt={`${product.name} - Image ${index + 1}`}
+                          alt={`${product.name} - ${t.imageWord} ${index + 1}`}
                           fill
                           className="object-cover"
                           sizes="(max-width: 1024px) 100vw, 50vw"
@@ -253,7 +258,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         <div className="bg-gray-100 border-2 border-gray-200 hover:border-red-700 transition-all cursor-pointer overflow-hidden">
                           <Image
                             src={image.thumbnail_url || image.image_url}
-                            alt={`Thumbnail ${index + 1}`}
+                            alt={`${t.thumbnailWord} ${index + 1}`}
                             fill
                             className="object-cover"
                             sizes="(max-width: 1024px) 25vw, 12.5vw"
@@ -269,7 +274,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               </>
             ) : (
               <div className="w-full aspect-square bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No images available</span>
+                <span className="text-gray-400">{t.noImages}</span>
               </div>
             )}
           </div>
@@ -306,7 +311,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               </h1>
               {product.sku && (
                 <p className="text-sm text-gray-500 uppercase tracking-wider">
-                  SKU: {product.sku}
+                  {t.skuLabel} {product.sku}
                 </p>
               )}
             </div>
@@ -318,7 +323,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   href={`/categories/${product.category.slug}`}
                   className="text-sm font-semibold text-red-700 hover:text-red-900 transition-colors"
                 >
-                  {product.category.name}
+                  {tCategoryName(lang, product.category.slug, product.category.name)}
                 </Link>
               </div>
             )}
@@ -337,7 +342,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             {product.product_colors && product.product_colors.length > 0 && (
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                  Available Colors
+                  {t.availableColors}
                 </h3>
                 <div className="flex items-center gap-3 flex-wrap">
                   {product.product_colors.map((color: any) => (
@@ -375,7 +380,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 </div>
                 {selectedColor && (
                   <p className="text-sm text-gray-600 mt-2">
-                    Selected: <span className="font-semibold">{selectedColor.color_name}</span>
+                    {t.selected} <span className="font-semibold">{selectedColor.color_name}</span>
                   </p>
                 )}
               </div>
@@ -385,7 +390,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             {product.product_features && product.product_features.length > 0 && (
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                  Key Features
+                  {t.keyFeatures}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {product.product_features.map((feature: any) => (
@@ -422,7 +427,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 onClick={() => setShowQuoteForm(true)}
                 className="w-full px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center justify-center gap-2"
               >
-                Request a Quote
+                {t.requestQuote}
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -459,7 +464,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    Datasheet
+                    {t.datasheet}
                   </a>
                 )}
 
@@ -480,7 +485,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
                   </svg>
-                  Contact
+                  {t.contact}
                 </Link>
               </div>
             </div>
@@ -489,7 +494,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             {productRooms.length > 0 && (
               <div className="pt-6 border-t-2 border-gray-200">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">
-                  Works Great In
+                  {t.worksGreatIn}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {productRooms.map((room: any) => (
@@ -498,7 +503,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                       href={`/rooms/${room.slug}`}
                       className="px-4 py-2 bg-red-50 border border-red-200 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors"
                     >
-                      {room.name}
+                      {tRoomName(lang, room.slug, room.name)}
                     </Link>
                   ))}
                 </div>
@@ -513,7 +518,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Tab Navigation */}
         <div className="border-b-2 border-gray-200 mb-8">
           <div className="flex gap-0 overflow-x-auto">
-            {["overview", "specifications", "certifications"].map((tab) => (
+            {(["overview", "specifications", "certifications"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -523,7 +528,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {tab}
+                {t.tabs[tab]}
               </button>
             ))}
           </div>
@@ -533,7 +538,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         <div className="max-w-4xl">
           {activeTab === "overview" && product.long_description && (
             <div className="prose prose-lg max-w-none">
-              <h2 className="text-2xl font-bold mb-4">Product Overview</h2>
+              <h2 className="text-2xl font-bold mb-4">{t.productOverview}</h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line">
                 {product.long_description}
               </div>
@@ -544,7 +549,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             <div className="space-y-8">
               {Object.entries(groupedSpecs).map(([category, specs]: [string, any]) => (
                 <div key={category}>
-                  <h3 className="text-xl font-bold mb-4 capitalize">{category}</h3>
+                  <h3 className="text-xl font-bold mb-4 capitalize">{t.specGroups[category as keyof typeof t.specGroups] || category}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {specs.map((spec: any) => (
                       <div
@@ -565,7 +570,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
           {activeTab === "certifications" && product.product_certifications && product.product_certifications.length > 0 && (
             <div>
-              <h3 className="text-2xl font-bold mb-6">Certifications & Standards</h3>
+              <h3 className="text-2xl font-bold mb-6">{t.certificationsHeading}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {product.product_certifications.map((cert: any) => (
                   <div
@@ -602,7 +607,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         >
           <div className="related-header mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-2">
-              You Might Also Like
+              {t.relatedHeading}
             </h2>
             <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32" />
           </div>
@@ -639,6 +644,8 @@ interface QuoteFormModalProps {
 }
 
 function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
+  const { lang } = useLang()
+  const t = productDetailDict[lang]
   const [mounted, setMounted] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
@@ -692,7 +699,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
     console.log("Quote request:", { ...formData, productId: product.id, productName: product.name })
 
     // For now, just show alert
-    alert("Quote request sent! We'll contact you soon.")
+    alert(t.quoteSentAlert)
     onClose()
   }
 
@@ -712,9 +719,10 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
       >
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-red-900 to-red-700 text-white p-6 flex items-center justify-between z-10">
-          <h2 className="text-2xl font-bold">Request a Quote</h2>
+          <h2 className="text-2xl font-bold">{t.modalTitle}</h2>
           <button
             onClick={onClose}
+            aria-label={t.close}
             className="text-white hover:text-gray-200 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -746,7 +754,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
               <h3 className="font-bold text-lg">{product.name}</h3>
               <p className="text-sm text-gray-600">{product.brand?.name}</p>
               {product.sku && (
-                <p className="text-xs text-gray-500">SKU: {product.sku}</p>
+                <p className="text-xs text-gray-500">{t.skuLabel} {product.sku}</p>
               )}
             </div>
           </div>
@@ -757,7 +765,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name *
+                {t.fullName} *
               </label>
               <input
                 type="text"
@@ -770,7 +778,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address *
+                {t.emailAddress} *
               </label>
               <input
                 type="email"
@@ -785,7 +793,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number
+                {t.phoneNumber}
               </label>
               <input
                 type="tel"
@@ -797,7 +805,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Company Name
+                {t.companyName}
               </label>
               <input
                 type="text"
@@ -810,7 +818,7 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Quantity *
+              {t.quantity} *
             </label>
             <input
               type="number"
@@ -824,13 +832,13 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Additional Requirements
+              {t.additionalRequirements}
             </label>
             <textarea
               rows={4}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              placeholder="Tell us about your project, preferred delivery date, or any special requirements..."
+              placeholder={t.messagePlaceholder}
               className="w-full px-4 py-3 border-2 border-gray-200 focus:border-red-700 focus:outline-none transition-colors resize-none"
             />
           </div>
@@ -840,14 +848,14 @@ function QuoteFormModal({ product, onClose }: QuoteFormModalProps) {
               type="submit"
               className="flex-1 px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
             >
-              Send Quote Request
+              {t.sendQuoteRequest}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="px-8 py-4 bg-gray-200 text-gray-700 font-semibold uppercase tracking-wider hover:bg-gray-300 transition-all duration-300"
             >
-              Cancel
+              {t.cancel}
             </button>
           </div>
         </form>

@@ -1,6 +1,11 @@
 import Link from 'next/link'
+import { getServerLang } from '@/lib/i18n/server'
+import blogDetailsDict from '@/lib/i18n/translations/blogDetails'
 
-export default function BlogNotFound() {
+export default async function BlogNotFound() {
+  const lang = await getServerLang()
+  const t = blogDetailsDict[lang]
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-32">
       <div className="text-center max-w-md">
@@ -19,9 +24,9 @@ export default function BlogNotFound() {
             />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold mb-4">Article Not Found</h2>
+        <h2 className="text-3xl font-bold mb-4">{t.notFoundTitle}</h2>
         <p className="text-gray-600 mb-8">
-          Sorry, we couldn&apos;t find the article you&apos;re looking for.
+          {t.notFoundText}
         </p>
         <Link
           href="/blog"
@@ -40,7 +45,7 @@ export default function BlogNotFound() {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          Back to Blog
+          {t.backToBlog}
         </Link>
       </div>
     </div>

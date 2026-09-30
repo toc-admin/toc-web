@@ -1,10 +1,17 @@
 import { Metadata } from 'next'
 import { createServerClient } from '@/lib/supabase/server'
+import { getServerLang } from '@/lib/i18n/server'
+import searchDict from '@/lib/i18n/translations/search'
 import SearchClient from './SearchClient'
 
-export const metadata: Metadata = {
-  title: 'Search Results | The Office Company',
-  description: 'Search our catalog of premium office furniture.',
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = await getServerLang()
+  const t = searchDict[lang]
+
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  }
 }
 
 interface SearchPageProps {

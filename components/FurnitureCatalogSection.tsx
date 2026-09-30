@@ -5,6 +5,9 @@ import Link from "next/link"
 import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import { tCategoryName, tCategoryDescription, tRoomName } from "@/lib/i18n/catalog"
+import dict from "@/lib/i18n/translations/homeCatalog"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -75,6 +78,8 @@ const getCategoryIcon = (iconName: string | null) => {
 }
 
 const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSectionProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const sectionRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
@@ -202,33 +207,31 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
         className="relative z-10 flex flex-col gap-4 max-w-4xl"
       >
         <span className="text-sm font-bold uppercase tracking-widest text-red-800">
-          Premium Products
+          {t.label}
         </span>
 
         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-          Explore Our
+          {t.headingLine1}
           <br />
           <span className="bg-gradient-to-r from-red-900 via-red-700 to-red-600 bg-clip-text text-transparent">
-            Furniture Catalog
+            {t.headingLine2}
           </span>
         </h2>
 
         <div className="h-1 bg-gradient-to-r from-red-900 to-red-700 w-32 origin-left" />
 
         <p className="text-base md:text-lg text-gray-700 leading-relaxed mt-2">
-          Browse over 500 premium office furniture products from world-renowned
-          brands. Filter by category, room type, or brand to find exactly what
-          your workspace needs.
+          {t.intro}
         </p>
       </div>
 
       {/* Quick Stats Bar */}
       <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
         {[
-          { number: "500+", label: "Products" },
-          { number: "15+", label: "Brands" },
-          { number: "50+", label: "Categories" },
-          { number: "100%", label: "Quality" },
+          { number: "500+", label: t.statProducts },
+          { number: "15+", label: t.statBrands },
+          { number: "50+", label: t.statCategories },
+          { number: "100%", label: t.statQuality },
         ].map((stat, index) => (
           <div
             key={index}
@@ -265,17 +268,17 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
             <h3 className="text-2xl md:text-3xl font-bold">
-              Shop by Room Type
+              {t.roomsHeading}
             </h3>
             <p className="text-gray-600 mt-2">
-              Find furniture perfectly suited for your specific workspace
+              {t.roomsText}
             </p>
           </div>
           <Link
             href="/furniture"
             className="text-red-700 font-semibold hover:text-red-900 transition-colors duration-300 flex items-center gap-2"
           >
-            View All Rooms
+            {t.viewAllRooms}
             <svg
               className="w-5 h-5"
               fill="none"
@@ -300,10 +303,10 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
                   <span className="text-2xl mb-2 block">{room.emoji}</span>
                 )}
                 <h4 className="font-bold text-base md:text-lg mb-2 group-hover:text-red-700 transition-colors duration-300">
-                  {room.name}
+                  {tRoomName(lang, room.slug, room.name)}
                 </h4>
                 <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-red-700 group-hover:gap-3 transition-all duration-300">
-                  Browse
+                  {t.browse}
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -331,12 +334,10 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
       >
         <div className="flex flex-col gap-3 max-w-2xl">
           <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold">
-            Can&apos;t find what you&apos;re looking for?
+            {t.ctaHeading}
           </h3>
           <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-            Our team is here to help. We can source specific products, provide
-            expert recommendations, and create custom furniture solutions for
-            your unique workspace needs.
+            {t.ctaText}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
@@ -344,7 +345,7 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
             href="/furniture"
             className="group px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            Browse All Products
+            {t.browseAllProducts}
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"
@@ -363,7 +364,7 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
             href="/contact"
             className="px-8 py-4 bg-white border-2 border-red-700 text-red-700 font-semibold uppercase tracking-wider hover:bg-red-700 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            Get Expert Help
+            {t.getExpertHelp}
           </Link>
         </div>
       </div>
@@ -373,6 +374,12 @@ const FurnitureCatalogSection = ({ id, categories, rooms }: FurnitureCatalogSect
 
 // Category Card Component
 const CategoryCard = ({ category, index }: { category: Category; index: number }) => {
+  const { lang } = useLang()
+  const t = dict[lang]
+  const categoryName = tCategoryName(lang, category.slug, category.name)
+  const categoryDescription = category.description
+    ? tCategoryDescription(lang, category.slug, category.description)
+    : null
   return (
     <div className="category-card">
       <Link href={`/categories/${category.slug}`}>
@@ -383,7 +390,7 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
               <div className="absolute inset-0">
                 <Image
                   src={category.image_url}
-                  alt={category.name}
+                  alt={categoryName}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-110"
                 />
@@ -411,17 +418,17 @@ const CategoryCard = ({ category, index }: { category: Category; index: number }
             {/* Bottom - Title, Description */}
             <div className="space-y-4">
               <h3 className="text-3xl font-bold text-white group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">
-                {category.name}
+                {categoryName}
               </h3>
-              {category.description && (
+              {categoryDescription && (
                 <p className="text-base text-gray-200 leading-relaxed line-clamp-2">
-                  {category.description}
+                  {categoryDescription}
                 </p>
               )}
 
               {/* Arrow */}
               <div className="flex items-center gap-2 text-white/80 font-semibold group-hover:text-white group-hover:gap-4 underline-offset-4 group-hover:underline transition-all duration-300 pt-2">
-                <span>Explore Category</span>
+                <span>{t.exploreCategory}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

@@ -4,6 +4,8 @@ import { useRef, useEffect } from "react"
 import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import contactSectionDict from "@/lib/i18n/translations/contactSection"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -17,8 +19,7 @@ const contactMethods = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    title: "Email Us",
-    description: "Drop us a line anytime",
+    key: "email" as const,
     value: "info@theofficecompany.eu",
     link: "mailto:info@theofficecompany.eu",
   },
@@ -28,8 +29,7 @@ const contactMethods = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
       </svg>
     ),
-    title: "Call Us",
-    description: "Mon-Fri from 9am to 6pm",
+    key: "call" as const,
     value: "+385 91 3011 552",
     link: "tel:+385913011552",
   },
@@ -40,8 +40,7 @@ const contactMethods = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    title: "Visit Us",
-    description: "Come say hello",
+    key: "visit" as const,
     value: "Poljačka ul. 56, Zagreb",
     link: "https://maps.google.com/?q=Poljačka+ul.+56+Zagreb",
   },
@@ -52,6 +51,8 @@ interface ContactProps {
 }
 
 const Contact = ({ id }: ContactProps) => {
+  const { lang } = useLang()
+  const t = contactSectionDict[lang]
   const headerRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLDivElement>(null)
@@ -196,22 +197,21 @@ const Contact = ({ id }: ContactProps) => {
           className="flex flex-col gap-6 max-w-4xl mb-20"
         >
           <span className="animate-header text-sm font-bold uppercase tracking-widest text-red-300">
-            Get In Touch
+            {t.eyebrow}
           </span>
 
           <h2 className="animate-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-            Let&apos;s Create Your
+            {t.headingLine1}
             <br />
             <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
-              Perfect Workspace
+              {t.headingHighlight}
             </span>
           </h2>
 
           <div className="divider-line h-1 bg-gradient-to-r from-red-500 to-red-300 w-32 origin-left" />
 
           <p className="animate-header text-base md:text-lg text-white/80 leading-relaxed max-w-3xl">
-            Ready to transform your office space? Get in touch with our team
-            and let&apos;s discuss how we can help you create an inspiring workplace.
+            {t.intro}
           </p>
         </div>
 
@@ -221,7 +221,7 @@ const Contact = ({ id }: ContactProps) => {
           {/* Left Side - Contact Methods */}
           <div ref={cardsRef} className="flex flex-col gap-8">
             <h3 className="cards-title text-2xl md:text-3xl font-bold">
-              Contact Information
+              {t.contactInfoTitle}
             </h3>
 
             {/* Contact Cards */}
@@ -238,8 +238,8 @@ const Contact = ({ id }: ContactProps) => {
                     {method.icon}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <h4 className="text-lg font-bold">{method.title}</h4>
-                    <p className="text-sm text-white/60">{method.description}</p>
+                    <h4 className="text-lg font-bold">{t.methods[method.key].title}</h4>
+                    <p className="text-sm text-white/60">{t.methods[method.key].description}</p>
                     <p className="text-base font-semibold text-white group-hover:text-red-300 transition-colors">
                       {method.value}
                     </p>
@@ -264,7 +264,7 @@ const Contact = ({ id }: ContactProps) => {
             {/* Social Links */}
             <div className="social-section flex items-center gap-4 pt-6 border-t border-red-800/30">
               <span className="text-sm font-semibold uppercase tracking-wider text-white/60">
-                Follow Us
+                {t.followUs}
               </span>
               <div className="flex items-center gap-3">
                 <a
@@ -308,22 +308,16 @@ const Contact = ({ id }: ContactProps) => {
           >
             <div className="flex flex-col gap-4">
               <h3 className="text-3xl md:text-4xl font-bold">
-                Start Your Project Today
+                {t.ctaTitle}
               </h3>
               <p className="text-base text-white/70 leading-relaxed">
-                Whether you&apos;re planning a new office, upgrading your current space,
-                or exploring management solutions, we&apos;re here to help.
+                {t.ctaText}
               </p>
             </div>
 
             {/* Benefits List */}
             <div className="flex flex-col gap-4">
-              {[
-                "Free consultation",
-                "Custom design proposals",
-                "Transparent pricing",
-                "Expert project management"
-              ].map((benefit, index) => (
+              {t.benefits.map((benefit, index) => (
                 <div
                   key={index}
                   className="benefit-item flex items-center gap-3"
@@ -342,7 +336,7 @@ const Contact = ({ id }: ContactProps) => {
                 href="/contact"
                 className="group w-full px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center justify-center gap-2"
               >
-                Schedule a Consultation
+                {t.scheduleConsultation}
                 <svg
                   className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
                   fill="none"
@@ -358,7 +352,7 @@ const Contact = ({ id }: ContactProps) => {
                 </svg>
               </Link>
               <button className="w-full px-8 py-4 bg-transparent border-2 border-red-500 text-white font-semibold uppercase tracking-wider hover:bg-red-500 hover:border-red-500 transition-all duration-300">
-                Download Portfolio
+                {t.downloadPortfolio}
               </button>
             </div>
           </div>

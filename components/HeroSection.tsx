@@ -4,6 +4,8 @@ import { useRef, useEffect, useState } from "react"
 import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useLang } from "@/lib/i18n/LanguageContext"
+import dict from "@/lib/i18n/translations/homeHero"
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -15,6 +17,8 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ id }: HeroSectionProps) => {
+  const { lang } = useLang()
+  const t = dict[lang]
   const [isVisible, setIsVisible] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const backgroundRef = useRef<HTMLDivElement>(null)
@@ -219,7 +223,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
           ref={labelRef}
           className="text-sm font-bold uppercase tracking-widest text-red-400 mb-6 opacity-0"
         >
-          Premium Workspace Solutions
+          {t.label}
         </span>
 
         {/* Main Headline */}
@@ -229,7 +233,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
             className="overflow-hidden opacity-0"
           >
             <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight">
-              We Create
+              {t.headline1}
             </h1>
           </div>
 
@@ -239,9 +243,9 @@ const HeroSection = ({ id }: HeroSectionProps) => {
           >
             <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
               <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
-                Places
+                {t.headline2Accent}
               </span>{" "}
-              <span className="text-white">Where</span>
+              <span className="text-white">{t.headline2Rest}</span>
             </h1>
           </div>
 
@@ -250,7 +254,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
             className="overflow-hidden opacity-0"
           >
             <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight">
-              People Love To Work
+              {t.headline3}
             </h1>
           </div>
         </div>
@@ -267,8 +271,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
           ref={subtextRef}
           className="text-base md:text-lg text-white/90 font-medium max-w-2xl leading-relaxed mb-8 opacity-0"
         >
-          Transforming workspaces into inspiring environments that drive
-          productivity, foster collaboration, and elevate business success.
+          {t.subtext}
         </p>
 
         {/* CTA Buttons */}
@@ -280,7 +283,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
             href="/services"
             className="group px-8 py-4 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300 flex items-center gap-2"
           >
-            Explore Services
+            {t.ctaServices}
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"
@@ -299,7 +302,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
             href="/contact"
             className="group px-8 py-4 bg-transparent border-2 border-white text-white font-semibold uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2"
           >
-            Contact Us
+            {t.ctaContact}
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"
@@ -324,7 +327,7 @@ const HeroSection = ({ id }: HeroSectionProps) => {
       >
         <div className="flex flex-col items-center gap-2">
           <span className="text-white/70 text-xs font-bold uppercase tracking-widest">
-            Scroll Down
+            {t.scrollDown}
           </span>
           <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
             <div className="scroll-dot w-1.5 h-1.5 bg-red-500 rounded-full" />
