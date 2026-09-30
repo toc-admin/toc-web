@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { getServerLang } from '@/lib/i18n/server'
+import { pick } from '@/lib/i18n/catalog'
 import productNotFoundDict from '@/lib/i18n/translations/productNotFound'
 import ProductDetailClient from './ProductDetailClient'
 
@@ -23,14 +24,16 @@ async function getProductData(slug: string) {
       slug,
       sku,
       short_description,
+      short_description_hr,
       long_description,
+      long_description_hr,
       is_new,
       is_featured,
       datasheet_url,
       brand:brands(id, name, slug, logo_url),
       category:categories(id, name, slug),
       product_images(id, image_url, thumbnail_url, medium_url, is_primary, display_order),
-      product_features(id, feature_name),
+      product_features(id, feature_name, feature_name_hr),
       product_colors(id, color_name, hex_code),
       product_specifications(id, spec_key, spec_value),
       product_certifications(id, certification_name),
@@ -89,12 +92,16 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const primaryImage = product.product_images?.find((img: any) => img.is_primary)?.image_url
     || product.product_images?.[0]?.image_url
 
+  // HR description with EN fallback when lang is hr
+  const shortDescription = pick(lang, product.short_description_hr, product.short_description)
+  const longDescription = pick(lang, product.long_description_hr, product.long_description)
+
   return {
     title: `${product.name} | ${product.brand?.name || 'The Office Company'}`,
-    description: product.short_description || product.long_description?.substring(0, 160),
+    description: shortDescription || longDescription?.substring(0, 160),
     openGraph: {
       title: `${product.name} | ${product.brand?.name}`,
-      description: product.short_description || '',
+      description: shortDescription || '',
       images: primaryImage ? [{
         url: primaryImage,
         width: 800,

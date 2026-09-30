@@ -27,9 +27,11 @@ async function getRoomData(slug: string) {
     .select(`
       id,
       name,
+      name_hr,
       slug,
       emoji,
       description,
+      description_hr,
       hero_image_url
     `)
     .eq('slug', slug)
@@ -51,6 +53,7 @@ async function getRoomData(slug: string) {
       slug,
       sku,
       short_description,
+      short_description_hr,
       subcategory,
       is_new,
       is_featured,
@@ -69,7 +72,7 @@ async function getRoomData(slug: string) {
   const productIds = products?.map((p: any) => p.id) || []
   const { data: productCategories }: { data: any[] | null } = await supabase
     .from('products')
-    .select('category:categories(id, name, slug)')
+    .select('category:categories(id, name, name_hr, slug)')
     .in('id', productIds)
     .not('category_id', 'is', null)
 
@@ -125,8 +128,8 @@ export async function generateMetadata({ params }: RoomPageProps): Promise<Metad
   }
 
   const { room } = data as any
-  const roomName = tRoomName(lang, room.slug, room.name)
-  const roomDescription = tRoomDescription(lang, room.slug, room.description)
+  const roomName = tRoomName(lang, room.slug, room.name, room.name_hr)
+  const roomDescription = tRoomDescription(lang, room.slug, room.description, room.description_hr)
 
   return {
     title: t.metaTitle(roomName),

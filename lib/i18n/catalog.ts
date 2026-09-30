@@ -51,20 +51,32 @@ const subcategoryNames: Record<string, string> = {
   'Phone booth': 'Telefonske kabine',
 }
 
-export function tCategoryName(lang: Lang, slug: string, fallback: string): string {
-  return lang === 'hr' ? categoryNames[slug] ?? fallback : fallback
+// Pick the Croatian value when lang is 'hr' and it is non-empty, else the
+// English value. Empty-string _hr values count as missing.
+export function pick(lang: Lang, hr: string | null | undefined, en: string): string {
+  return lang === 'hr' && hr ? hr : en
 }
 
-export function tCategoryDescription(lang: Lang, slug: string, fallback: string): string {
-  return lang === 'hr' ? categoryDescriptions[slug] ?? fallback : fallback
+// Non-empty Croatian DB value ('_hr' column) takes precedence over the
+// hardcoded slug map; falls back to the English value when neither exists.
+export function tCategoryName(lang: Lang, slug: string, fallback: string, dbHr?: string | null): string {
+  if (lang !== 'hr') return fallback
+  return dbHr || categoryNames[slug] || fallback
 }
 
-export function tRoomName(lang: Lang, slug: string, fallback: string): string {
-  return lang === 'hr' ? roomNames[slug] ?? fallback : fallback
+export function tCategoryDescription(lang: Lang, slug: string, fallback: string, dbHr?: string | null): string {
+  if (lang !== 'hr') return fallback
+  return dbHr || categoryDescriptions[slug] || fallback
 }
 
-export function tRoomDescription(lang: Lang, slug: string, fallback: string): string {
-  return lang === 'hr' ? roomDescriptions[slug] ?? fallback : fallback
+export function tRoomName(lang: Lang, slug: string, fallback: string, dbHr?: string | null): string {
+  if (lang !== 'hr') return fallback
+  return dbHr || roomNames[slug] || fallback
+}
+
+export function tRoomDescription(lang: Lang, slug: string, fallback: string, dbHr?: string | null): string {
+  if (lang !== 'hr') return fallback
+  return dbHr || roomDescriptions[slug] || fallback
 }
 
 export function tSubcategory(lang: Lang, value: string): string {

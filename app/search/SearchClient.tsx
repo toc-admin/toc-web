@@ -13,6 +13,7 @@ interface Product {
   name: string
   slug: string
   short_description?: string | null
+  short_description_hr?: string | null
   subcategory: string | null
   is_new: boolean
   is_featured: boolean

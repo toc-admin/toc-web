@@ -27,8 +27,10 @@ async function getCategoryData(slug: string) {
     .select(`
       id,
       name,
+      name_hr,
       slug,
       description,
+      description_hr,
       image_url
     `)
     .eq('slug', slug)
@@ -53,6 +55,7 @@ async function getCategoryData(slug: string) {
       slug,
       sku,
       short_description,
+      short_description_hr,
       subcategory,
       is_new,
       is_featured,
@@ -70,7 +73,7 @@ async function getCategoryData(slug: string) {
   // Get all available rooms for filtering
   const { data: availableRooms } = await supabase
     .from('rooms')
-    .select('id, name, slug')
+    .select('id, name, name_hr, slug')
     .order('name')
 
   // Get unique subcategories from products in this category for filtering
@@ -115,8 +118,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   const { category } = data as any
-  const categoryName = tCategoryName(lang, category.slug, category.name)
-  const categoryDescription = tCategoryDescription(lang, category.slug, category.description)
+  const categoryName = tCategoryName(lang, category.slug, category.name, category.name_hr)
+  const categoryDescription = tCategoryDescription(lang, category.slug, category.description, category.description_hr)
 
   return {
     title: t.metaTitle(categoryName),

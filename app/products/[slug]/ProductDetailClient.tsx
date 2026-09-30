@@ -11,7 +11,7 @@ import { Navigation, Pagination, Thumbs, FreeMode } from "swiper/modules"
 import type { Swiper as SwiperType } from 'swiper'
 import ProductCard from "@/components/ProductCard"
 import { useLang } from "@/lib/i18n/LanguageContext"
-import { tCategoryName, tRoomName } from "@/lib/i18n/catalog"
+import { tCategoryName, tRoomName, pick } from "@/lib/i18n/catalog"
 import productDetailDict from "@/lib/i18n/translations/productDetail"
 import "swiper/css"
 import "swiper/css/navigation"
@@ -70,6 +70,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
   // Sort images by display_order
   const sortedImages = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || []
+
+  // Croatian descriptions with English fallback
+  const shortDescription = pick(lang, product.short_description_hr, product.short_description)
+  const longDescription = pick(lang, product.long_description_hr, product.long_description)
 
   // Debug logging
   if (process.env.NODE_ENV === 'development') {
@@ -329,9 +333,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             )}
 
             {/* Short Description */}
-            {product.short_description && (
+            {shortDescription && (
               <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                {product.short_description}
+                {shortDescription}
               </p>
             )}
 
@@ -411,7 +415,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span>{feature.feature_name}</span>
+                      <span>{pick(lang, feature.feature_name_hr, feature.feature_name)}</span>
                     </div>
                   ))}
                 </div>
@@ -536,11 +540,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
         {/* Tab Content */}
         <div className="max-w-4xl">
-          {activeTab === "overview" && product.long_description && (
+          {activeTab === "overview" && longDescription && (
             <div className="prose prose-lg max-w-none">
               <h2 className="text-2xl font-bold mb-4">{t.productOverview}</h2>
               <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {product.long_description}
+                {longDescription}
               </div>
             </div>
           )}

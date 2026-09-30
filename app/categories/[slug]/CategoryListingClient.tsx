@@ -49,8 +49,8 @@ export default function CategoryListingClient({
   const { lang } = useLang()
   const t = dict[lang]
 
-  const categoryName = tCategoryName(lang, category.slug, category.name)
-  const categoryDescription = tCategoryDescription(lang, category.slug, category.description)
+  const categoryName = tCategoryName(lang, category.slug, category.name, category.name_hr)
+  const categoryDescription = tCategoryDescription(lang, category.slug, category.description, category.description_hr)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const productsRef = useRef(null)
@@ -430,7 +430,7 @@ export default function CategoryListingClient({
                             className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
                           />
                           <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
-                            {tRoomName(lang, room.slug, room.name)}
+                            {tRoomName(lang, room.slug, room.name, room.name_hr)}
                           </span>
                         </label>
                       ))}

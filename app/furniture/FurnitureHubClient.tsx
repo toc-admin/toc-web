@@ -25,8 +25,10 @@ if (typeof window !== 'undefined') {
 interface Category {
   id: string
   name: string
+  name_hr?: string | null
   slug: string
   description: string | null
+  description_hr?: string | null
   icon_name: string | null
   image_url: string | null
   product_count: number
@@ -35,9 +37,11 @@ interface Category {
 interface Room {
   id: string
   name: string
+  name_hr?: string | null
   slug: string
   emoji: string | null
   description: string | null
+  description_hr?: string | null
   hero_image_url: string | null
 }
 
@@ -46,6 +50,7 @@ interface Product {
   name: string
   slug: string
   short_description?: string | null
+  short_description_hr?: string | null
   subcategory: string | null
   is_new: boolean
   is_featured: boolean
@@ -723,9 +728,9 @@ const CategoryCard = ({
 }) => {
   const { lang } = useLang()
   const t = dict[lang]
-  const categoryName = tCategoryName(lang, category.slug, category.name)
+  const categoryName = tCategoryName(lang, category.slug, category.name, category.name_hr)
   const categoryDescription = category.description
-    ? tCategoryDescription(lang, category.slug, category.description)
+    ? tCategoryDescription(lang, category.slug, category.description, category.description_hr)
     : null
   const ref = useRef<HTMLDivElement>(null)
 
@@ -826,9 +831,9 @@ const RoomCard = ({
 }) => {
   const { lang } = useLang()
   const t = dict[lang]
-  const roomName = tRoomName(lang, room.slug, room.name)
+  const roomName = tRoomName(lang, room.slug, room.name, room.name_hr)
   const roomDescription = room.description
-    ? tRoomDescription(lang, room.slug, room.description)
+    ? tRoomDescription(lang, room.slug, room.description, room.description_hr)
     : null
   const ref = useRef<HTMLDivElement>(null)
 

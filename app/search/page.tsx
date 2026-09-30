@@ -30,6 +30,7 @@ async function searchProducts(query: string) {
       name,
       slug,
       short_description,
+      short_description_hr,
       subcategory,
       is_new,
       is_featured,

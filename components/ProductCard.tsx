@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLang } from "@/lib/i18n/LanguageContext"
-import { tCategoryName } from "@/lib/i18n/catalog"
+import { tCategoryName, pick } from "@/lib/i18n/catalog"
 import dict from "@/lib/i18n/translations/productCard"
 import gsap from "gsap"
 
@@ -14,6 +14,7 @@ interface ProductCardProps {
     name: string
     slug: string
     short_description?: string | null
+    short_description_hr?: string | null
     brand?: {
       name: string
     } | null
@@ -56,6 +57,9 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
 
   // Use a placeholder if no image is available
   const hasImage = imageUrl && imageUrl.trim() !== ''
+
+  // Croatian short description with English fallback
+  const shortDescription = pick(lang, product.short_description_hr, product.short_description || '')
 
   // GSAP animation with Intersection Observer
   useEffect(() => {
@@ -189,9 +193,9 @@ const ProductCard = ({ product, index = 0, isInView = true }: ProductCardProps) 
             )}
 
             {/* Short Description */}
-            {product.short_description && (
+            {shortDescription && (
               <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
-                {product.short_description}
+                {shortDescription}
               </p>
             )}
 

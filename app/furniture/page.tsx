@@ -28,8 +28,10 @@ export async function generateMetadata(): Promise<Metadata> {
 interface Category {
   id: string
   name: string
+  name_hr?: string | null
   slug: string
   description: string | null
+  description_hr?: string | null
   icon_name: string | null
   image_url: string | null
   product_count: number
@@ -41,7 +43,7 @@ async function getFurnitureData() {
   // Fetch categories with product counts
   const { data: categoriesRaw, error: categoriesError } = await supabase
     .from('categories')
-    .select('id, name, slug, description, icon_name, image_url, product_count')
+    .select('id, name, name_hr, slug, description, description_hr, icon_name, image_url, product_count')
 
   // Custom sort order for categories
   const categoryOrder = [
@@ -64,7 +66,7 @@ async function getFurnitureData() {
   // Fetch rooms
   const { data: rooms, error: roomsError } = await supabase
     .from('rooms')
-    .select('id, name, slug, emoji, description, hero_image_url')
+    .select('id, name, name_hr, slug, emoji, description, description_hr, hero_image_url')
     .order('name')
 
   // Fetch featured products with related data
@@ -75,6 +77,7 @@ async function getFurnitureData() {
       name,
       slug,
       short_description,
+      short_description_hr,
       subcategory,
       is_new,
       is_featured,

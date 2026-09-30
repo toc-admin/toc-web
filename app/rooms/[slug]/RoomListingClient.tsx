@@ -47,8 +47,8 @@ export default function RoomListingClient({
   const { lang } = useLang()
   const t = dict[lang]
 
-  const roomName = tRoomName(lang, room.slug, room.name)
-  const roomDescription = tRoomDescription(lang, room.slug, room.description)
+  const roomName = tRoomName(lang, room.slug, room.name, room.name_hr)
+  const roomDescription = tRoomDescription(lang, room.slug, room.description, room.description_hr)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const productsRef = useRef(null)
@@ -401,7 +401,7 @@ export default function RoomListingClient({
                             className="w-4 h-4 text-red-700 border-gray-300 rounded focus:ring-red-500"
                           />
                           <span className="text-sm text-gray-700 group-hover:text-red-700 transition-colors">
-                            {tCategoryName(lang, category.slug, category.name)}
+                            {tCategoryName(lang, category.slug, category.name, category.name_hr)}
                           </span>
                         </label>
                       ))}

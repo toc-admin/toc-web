@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { BlogPost, Database } from '@/types/database.types'
 import hardcodedBlogs, { Blog as HardcodedBlog } from '@/config/blogData'
 import type { Lang } from '@/lib/i18n'
+import { pick } from '@/lib/i18n/catalog'
 
 // Type for blog_posts table rows
 type BlogPostRow = Database['public']['Tables']['blog_posts']['Row']
@@ -27,6 +28,7 @@ export interface Blog {
   longDescription: string
   image: string
   // Extended fields from database
+  metaTitle?: string
   metaDescription?: string
   metaKeywords?: string
   keywords?: string[]
@@ -64,17 +66,25 @@ function dbPostToBlog(post: BlogPost, lang: Lang = 'en'): Blog {
 function articleToBlog(article: ArticleWithRelations, lang: Lang = 'en'): Blog {
   const tags = article.tags?.map((at) => at.tag).filter(Boolean) as TagRow[] || []
 
+  // Croatian columns with English fallback (empty _hr values count as missing)
+  const title = pick(lang, article.title_hr, article.title)
+  const excerpt = pick(lang, article.excerpt_hr, article.excerpt || '')
+  const content = pick(lang, article.content_hr, article.content || '')
+  const metaTitle = pick(lang, article.meta_title_hr, article.meta_title || '')
+  const metaDescription = pick(lang, article.meta_description_hr, article.meta_description || '')
+
   return {
     id: article.id,
     date: formatDate(article.published_at || article.created_at, lang),
     slug: article.slug,
-    name: article.title,
-    shortDescription: article.excerpt || '',
-    longDescription: article.content || '',
+    name: title,
+    shortDescription: excerpt,
+    longDescription: content,
     image: article.cover_image_url || '/images/future-of-office.webp',
     coverImageThumbnail: article.cover_image_thumbnail_url || article.cover_image_url || '/images/future-of-office.webp',
-    metaDescription: article.meta_description || article.excerpt || undefined,
-    heroImageAlt: article.title,
+    metaTitle: metaTitle || undefined,
+    metaDescription: metaDescription || excerpt || undefined,
+    heroImageAlt: title,
     category: article.category || null,
     tags,
   }
