@@ -429,6 +429,53 @@ export interface Database {
           updated_at?: string
         }
       }
+      downloads: {
+        Row: {
+          id: string
+          title: string
+          title_hr: string | null
+          description: string | null
+          description_hr: string | null
+          file_url: string | null
+          file_name: string | null
+          file_type: string | null
+          file_size_bytes: number | null
+          sort_order: number
+          status: 'draft' | 'published'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          title_hr?: string | null
+          description?: string | null
+          description_hr?: string | null
+          file_url?: string | null
+          file_name?: string | null
+          file_type?: string | null
+          file_size_bytes?: number | null
+          sort_order?: number
+          status?: 'draft' | 'published'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          title_hr?: string | null
+          description?: string | null
+          description_hr?: string | null
+          file_url?: string | null
+          file_name?: string | null
+          file_type?: string | null
+          file_size_bytes?: number | null
+          sort_order?: number
+          status?: 'draft' | 'published'
+          created_at?: string
+          updated_at?: string
+        }
+      }
       articles: {
         Row: {
           id: string

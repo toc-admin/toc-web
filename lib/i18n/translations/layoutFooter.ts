@@ -9,6 +9,7 @@ interface LayoutFooterDict {
   aboutUs: string
   services: string
   blog: string
+  freeDownloads: string
   contact: string
   officeConsulting: string
   officeManagement: string
@@ -35,6 +36,7 @@ const dict = {
     aboutUs: 'About Us',
     services: 'Services',
     blog: 'Blog',
+    freeDownloads: 'Free Downloads',
     contact: 'Contact',
     officeConsulting: 'Office Consulting',
     officeManagement: 'Office Management',
@@ -59,6 +61,7 @@ const dict = {
     aboutUs: 'O nama',
     services: 'Usluge',
     blog: 'Blog',
+    freeDownloads: 'Besplatna preuzimanja',
     contact: 'Kontakt',
     officeConsulting: 'Uredsko savjetovanje',
     officeManagement: 'Upravljanje uredom',

@@ -13,6 +13,7 @@ const footerLinks: Record<'company' | 'services' | 'legal', { nameKey: keyof (ty
     { nameKey: "aboutUs", path: "/about" },
     { nameKey: "services", path: "/services" },
     { nameKey: "blog", path: "/blog" },
+    { nameKey: "freeDownloads", path: "/downloads" },
     { nameKey: "contact", path: "/contact" },
   ],
   services: [
