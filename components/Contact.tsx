@@ -269,6 +269,7 @@ const Contact = ({ id }: ContactProps) => {
               <div className="flex items-center gap-3">
                 <a
                   href="https://linkedin.com"
+                  aria-label="LinkedIn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center border border-red-800/30 hover:border-red-500 hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 transition-all duration-300"
@@ -279,6 +280,7 @@ const Contact = ({ id }: ContactProps) => {
                 </a>
                 <a
                   href="https://facebook.com"
+                  aria-label="Facebook"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center border border-red-800/30 hover:border-red-500 hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 transition-all duration-300"
@@ -289,6 +291,7 @@ const Contact = ({ id }: ContactProps) => {
                 </a>
                 <a
                   href="https://instagram.com"
+                  aria-label="Instagram"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center border border-red-800/30 hover:border-red-500 hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 transition-all duration-300"
