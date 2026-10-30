@@ -19,19 +19,19 @@ export async function generateMetadata(): Promise<Metadata> {
       title: t.title,
       description: t.description,
       images: [{
-        url: 'https://www.theofficecompany.eu/og/toc-11.jpeg',
+        url: '/og/toc-11.jpeg',
         width: 1200,
         height: 630,
         alt: t.ogImageAlt
       }],
-      url: 'https://www.theofficecompany.eu/downloads',
+      url: '/downloads',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: t.title,
       description: t.description,
-      images: ['https://www.theofficecompany.eu/og/toc-toc-compress.webp'],
+      images: ['/og/toc-11.jpeg'],
     },
   }
 }

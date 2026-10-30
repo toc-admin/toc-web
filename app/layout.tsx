@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientLayout from '@/components/layout/ClientLayout'
+import JsonLd from '@/components/seo/JsonLd'
 import { createServerClient } from '@/lib/supabase/server'
-import { getServerLang } from '@/lib/i18n/server'
+import { getServerLang, getServerPathname } from '@/lib/i18n/server'
+import { localizePath } from '@/lib/i18n'
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theofficecompany.eu'
 
 const meta = {
   en: {
@@ -23,8 +27,9 @@ const meta = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = await getServerLang()
+  const [lang, pathname] = await Promise.all([getServerLang(), getServerPathname()])
   const t = meta[lang]
+  const googleVerification = process.env.GOOGLE_SITE_VERIFICATION
 
   return {
   title: {
@@ -47,18 +52,28 @@ export async function generateMetadata(): Promise<Metadata> {
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
+  alternates: {
+    canonical: localizePath(pathname, lang),
+    languages: {
+      hr: localizePath(pathname, 'hr'),
+      en: localizePath(pathname, 'en'),
+      'x-default': localizePath(pathname, 'hr'),
+    },
+  },
   openGraph: {
     type: 'website',
     locale: t.ogLocale,
-    url: '/',
+    url: localizePath(pathname, lang),
     siteName: 'The Office Company',
     title: t.title,
     description: t.description,
+    images: [{ url: '/og/toc-hero.jpeg', width: 1200, height: 630, alt: 'The Office Company' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: t.title,
     description: t.description,
+    images: ['/og/toc-hero.jpeg'],
   },
   robots: {
     index: true,
@@ -71,11 +86,7 @@ export async function generateMetadata(): Promise<Metadata> {
       'max-snippet': -1,
     },
   },
-  verification: {
-    // Add your verification codes here when ready
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
-  },
+  ...(googleVerification ? { verification: { google: googleVerification } } : {}),
   }
 }
 
@@ -144,6 +155,15 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-main-bg antialiased">
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'The Office Company',
+            url: SITE_URL,
+            logo: `${SITE_URL}/og/toc-hero.jpeg`,
+          }}
+        />
         <LanguageProvider initialLang={lang}>
           <ClientLayout categories={categories}>{children}</ClientLayout>
         </LanguageProvider>

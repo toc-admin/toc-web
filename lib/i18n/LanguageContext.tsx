@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { DEFAULT_LANG, LANG_COOKIE, type Lang } from './index'
+import { DEFAULT_LANG, LANG_COOKIE, localizePath, type Lang } from './index'
 
 interface LanguageContextValue {
   lang: Lang
@@ -27,8 +27,13 @@ export function LanguageProvider({
   const setLang = useCallback(
     (next: Lang) => {
       setLangState(next)
+      // Set the cookie before navigating so the middleware doesn't bounce
+      // the unprefixed URL back to /en
       document.cookie = `${LANG_COOKIE}=${next};path=/;max-age=31536000;samesite=lax`
-      // Re-render server components (metadata, <html lang>) with the new cookie
+      // Each language lives on its own URL (/en prefix for English), so
+      // switching means navigating to the localized variant of this page
+      const { pathname, search, hash } = window.location
+      router.push(localizePath(pathname, next) + search + hash)
       router.refresh()
     },
     [router]

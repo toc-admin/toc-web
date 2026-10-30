@@ -22,6 +22,8 @@ type ArticleWithRelations = ArticleRow & {
 export interface Blog {
   id: number | string
   date: string
+  // ISO publish date for structured data (schema.org Article)
+  publishedAt?: string
   slug: string
   name: string
   shortDescription: string
@@ -47,6 +49,7 @@ function dbPostToBlog(post: BlogPost, lang: Lang = 'en'): Blog {
   return {
     id: post.autoseo_id || post.id,
     date: formatDate(post.published_at, lang),
+    publishedAt: post.published_at,
     slug: post.slug,
     name: post.title,
     shortDescription: post.short_description || post.meta_description || '',
@@ -76,6 +79,7 @@ function articleToBlog(article: ArticleWithRelations, lang: Lang = 'en'): Blog {
   return {
     id: article.id,
     date: formatDate(article.published_at || article.created_at, lang),
+    publishedAt: article.published_at || article.created_at,
     slug: article.slug,
     name: title,
     shortDescription: excerpt,
@@ -96,6 +100,7 @@ function hardcodedToBlog(blog: HardcodedBlog, lang: Lang = 'en'): Blog {
     id: blog.id,
     // Hardcoded dates are stored in English display format; re-render for Croatian
     date: lang === 'hr' ? formatDisplayDate(parseDisplayDate(blog.date), 'hr') : blog.date,
+    publishedAt: parseDisplayDate(blog.date).toISOString(),
     slug: blog.slug,
     name: lang === 'hr' ? blog.nameHr : blog.name,
     shortDescription: lang === 'hr' ? blog.shortDescriptionHr : blog.shortDescription,

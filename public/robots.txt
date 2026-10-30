@@ -1,3 +1,4 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
-Sitemap: https://theofficecompany.eu/sitemap.xml
+
+Sitemap: https://www.theofficecompany.eu/sitemap.xml

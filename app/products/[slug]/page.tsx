@@ -2,9 +2,13 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { getServerLang } from '@/lib/i18n/server'
+import { localizePath } from '@/lib/i18n'
 import { pick } from '@/lib/i18n/catalog'
 import productNotFoundDict from '@/lib/i18n/translations/productNotFound'
+import JsonLd from '@/components/seo/JsonLd'
 import ProductDetailClient from './ProductDetailClient'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theofficecompany.eu'
 
 interface ProductPageProps {
   params: Promise<{
@@ -31,7 +35,7 @@ async function getProductData(slug: string) {
       is_featured,
       datasheet_url,
       brand:brands(id, name, slug, logo_url),
-      category:categories(id, name, slug),
+      category:categories(id, name, name_hr, slug),
       product_images(id, image_url, thumbnail_url, medium_url, is_primary, display_order),
       product_features(id, feature_name, feature_name_hr),
       product_colors(id, color_name, hex_code),
@@ -115,11 +119,60 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const data = await getProductData(slug)
+  const [data, lang] = await Promise.all([getProductData(slug), getServerLang()])
 
   if (!data?.product) {
     notFound()
   }
 
-  return <ProductDetailClient product={data.product} relatedProducts={data.relatedProducts} />
+  const product = data.product as any
+  const images = (product.product_images || [])
+    .map((img: any) => img.image_url)
+    .filter(Boolean)
+  const description = pick(lang, product.short_description_hr, product.short_description)
+    || pick(lang, product.long_description_hr, product.long_description)
+  const productUrl = `${SITE_URL}${localizePath(`/products/${product.slug}`, lang)}`
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    url: productUrl,
+    ...(images.length ? { image: images } : {}),
+    ...(description ? { description } : {}),
+    ...(product.sku ? { sku: product.sku } : {}),
+    ...(product.brand?.name
+      ? { brand: { '@type': 'Brand', name: product.brand.name } }
+      : {}),
+  }
+
+  const homeLabel = lang === 'hr' ? 'Početna' : 'Home'
+  const breadcrumbItems = [
+    { name: homeLabel, path: '/' },
+    ...(product.category
+      ? [{
+          name: pick(lang, product.category.name_hr, product.category.name) || product.category.name,
+          path: `/categories/${product.category.slug}`,
+        }]
+      : []),
+    { name: product.name, path: `/products/${product.slug}` },
+  ]
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: `${SITE_URL}${localizePath(item.path, lang)}`,
+    })),
+  }
+
+  return (
+    <>
+      <JsonLd data={productSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      <ProductDetailClient product={data.product} relatedProducts={data.relatedProducts} />
+    </>
+  )
 }
