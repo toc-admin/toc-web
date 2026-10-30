@@ -24,6 +24,7 @@ const footerLinks: Record<'company' | 'services' | 'legal', { nameKey: keyof (ty
   legal: [
     { nameKey: "privacyPolicy", path: "/privacy" },
     { nameKey: "cookiePolicy", path: "/cookies" },
+    { nameKey: "termsOfService", path: "/terms" },
   ],
 }
 
