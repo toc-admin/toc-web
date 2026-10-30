@@ -27,10 +27,10 @@ const dict: Record<Lang, HomeHeroDict> = {
   },
   hr: {
     label: 'Premium rješenja za radne prostore',
-    headline1: 'Stvaramo',
-    headline2Accent: 'prostore',
-    headline2Rest: 'u kojima',
-    headline3: 'ljudi vole raditi',
+    headline1: 'We Create',
+    headline2Accent: 'Places',
+    headline2Rest: 'Where',
+    headline3: 'People Love To Work',
     subtext:
       'Pretvaramo radne prostore u inspirativna okruženja koja potiču produktivnost, njeguju suradnju i podižu poslovni uspjeh.',
     ctaServices: 'Istražite usluge',
