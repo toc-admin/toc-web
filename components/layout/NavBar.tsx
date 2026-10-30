@@ -465,7 +465,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
             ref={logoRef}
             className="flex-shrink-0"
           >
-            <Link href="/">
+            <Link href="/" aria-label={lang === 'hr' ? 'The Office Company – naslovnica' : 'The Office Company – home'}>
               <Logo color={shouldBeLight ? "black" : "white"} />
             </Link>
           </div>
@@ -663,7 +663,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
       {/* Mobile: Logo + Hamburger */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-12 py-6">
         <div ref={mobileLogoRef} style={{ opacity: 0 }}>
-          <Link href="/">
+          <Link href="/" aria-label={lang === 'hr' ? 'The Office Company – naslovnica' : 'The Office Company – home'}>
             <Logo color={shouldBeLight ? "black" : "white"} />
           </Link>
         </div>
@@ -671,6 +671,7 @@ const NavBar = ({ isOpen, setOpen, categories }: NavBarProps) => {
         <button
           ref={mobileButtonRef}
           onClick={() => setOpen(!isOpen)}
+          aria-expanded={isOpen}
           className="w-12 h-12 flex items-center justify-center rounded-full backdrop-blur-2xl border transition-all duration-500"
           style={{
             opacity: 0,

@@ -1,0 +1,45 @@
+# The Office Company
+
+> The Office Company (TOC) is a Croatian provider of premium office furniture and flexible workspace solutions, based in Zagreb. We design, furnish and manage inspiring work environments for businesses and real estate owners across Croatia and the EU. The website is bilingual: Croatian on https://www.theofficecompany.eu and English under https://www.theofficecompany.eu/en.
+
+## Services
+
+- [Our Services](https://www.theofficecompany.eu/en/services): Overview of what we do
+  - Serviced Office Consulting — strategic workspace solutions for real estate owners
+  - Serviced Office Management — operational management of serviced offices
+  - Office Design & Furniture — workspace design and premium furniture supply
+
+## Furniture Catalog
+
+- [Furniture Hub](https://www.theofficecompany.eu/en/furniture): Full catalog of premium office furniture
+- [Chairs](https://www.theofficecompany.eu/en/categories/chairs): Ergonomic task chairs, conference and visitor seating
+- [Desks & Tables](https://www.theofficecompany.eu/en/categories/desks-tables): Height-adjustable desks, meeting and conference tables
+- [Storage Solutions](https://www.theofficecompany.eu/en/categories/storage-solutions): Cabinets, lockers and shelving
+- [Acoustic Solutions](https://www.theofficecompany.eu/en/categories/acoustic-solutions): Acoustic booths, panels and phone booths
+- [Accessories & Lighting](https://www.theofficecompany.eu/en/categories/accessories-lighting): Office accessories and lighting
+- [Lounge](https://www.theofficecompany.eu/en/categories/lounge): Soft seating and lounge furniture
+
+We represent premium brands including Haworth, BuzziSpace, Brunner, Cassina, Cappellini, BoConcept, GAN, Pablo Designs, Hushoffice and Infiniti.
+
+## Shop by Room
+
+- [Private Office](https://www.theofficecompany.eu/en/rooms/private-office)
+- [Meeting Room](https://www.theofficecompany.eu/en/rooms/meeting-room)
+- [Reception Area](https://www.theofficecompany.eu/en/rooms/reception-area)
+- [Lounge Area](https://www.theofficecompany.eu/en/rooms/lounge-area)
+- [Home Office](https://www.theofficecompany.eu/en/rooms/home-office)
+- [Outdoor](https://www.theofficecompany.eu/en/rooms/outdoor)
+
+## Resources
+
+- [Blog](https://www.theofficecompany.eu/en/blog): Articles on workspace trends, office design and the flexible office market
+- [Free Downloads](https://www.theofficecompany.eu/en/downloads): Guides and resources for workspace planning
+- [About Us](https://www.theofficecompany.eu/en/about): Who we are and how we work
+- [Sitemap](https://www.theofficecompany.eu/sitemap.xml): All pages in Croatian and English
+
+## Contact
+
+- [Contact page](https://www.theofficecompany.eu/en/contact)
+- Email: info@theofficecompany.eu
+- Phone: +385 91 3011 552 (Mon-Fri 9:00-18:00 CET)
+- Address: Poljačka ul. 56, 10000 Zagreb, Croatia

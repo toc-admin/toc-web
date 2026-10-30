@@ -556,6 +556,7 @@ export default function FurnitureHubClient({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => swiperRef?.slidePrev()}
+                    aria-label={lang === 'hr' ? 'Prethodni proizvodi' : 'Previous products'}
                     className="w-12 h-12 flex items-center justify-center bg-white border-2 border-red-100 hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white hover:border-red-700 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
                     disabled={activeIndex === 0}
                   >
@@ -575,6 +576,7 @@ export default function FurnitureHubClient({
                   </button>
                   <button
                     onClick={() => swiperRef?.slideNext()}
+                    aria-label={lang === 'hr' ? 'Sljedeći proizvodi' : 'Next products'}
                     className="w-12 h-12 flex items-center justify-center bg-white border-2 border-red-100 hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white hover:border-red-700 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
                     disabled={activeIndex >= featuredProducts.length - 3}
                   >
