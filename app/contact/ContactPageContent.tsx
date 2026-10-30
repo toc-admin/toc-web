@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { toast, ToastContainer } from 'react-toastify'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -45,6 +46,9 @@ export default function ContactPageContent() {
   const { lang } = useLang()
   const t = contactPageDict[lang]
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // Google Maps embed is loaded only after an explicit click (GDPR: no
+  // third-party cookies without user action)
+  const [mapLoaded, setMapLoaded] = useState(false)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
@@ -374,21 +378,50 @@ export default function ContactPageContent() {
                     </>
                   )}
                 </button>
+
+                <p className="text-xs text-gray-500 text-center">
+                  {t.formPrivacyNotePre}
+                  <Link href="/privacy" className="underline hover:text-red-700 transition-colors">
+                    {t.formPrivacyNoteLink}
+                  </Link>
+                  .
+                </p>
               </form>
             </div>
 
-            {/* Google Map Embed */}
+            {/* Google Map Embed — loaded only on explicit user action (GDPR) */}
             <div className="map-section relative h-[500px] lg:h-full min-h-[500px] bg-gray-200 overflow-hidden">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2781.057870306277!2d15.912123492218598!3d45.81009939651834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d1309bbba9e3%3A0xd45dda7df121b3!2sPolja%C4%8Dka%20ul.%2056%2C%2010000%2C%20Zagreb!5e0!3m2!1sen!2shr!4v1761831955860!5m2!1sen!2shr"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={t.mapIframeTitle}
-              />
+              {mapLoaded ? (
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2781.057870306277!2d15.912123492218598!3d45.81009939651834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d1309bbba9e3%3A0xd45dda7df121b3!2sPolja%C4%8Dka%20ul.%2056%2C%2010000%2C%20Zagreb!5e0!3m2!1sen!2shr!4v1761831955860!5m2!1sen!2shr"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={t.mapIframeTitle}
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-gradient-to-br from-gray-100 via-red-50/30 to-gray-200 px-8 text-center">
+                  <svg className="w-12 h-12 text-red-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-bold text-gray-900">{t.mapAddressLine1}</p>
+                    <p className="text-gray-600">{t.mapAddressLine2}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMapLoaded(true)}
+                    className="px-8 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold uppercase tracking-wider hover:from-red-800 hover:to-red-600 transition-all duration-300"
+                  >
+                    {t.mapLoadButton}
+                  </button>
+                  <p className="text-xs text-gray-500 max-w-xs">{t.mapConsentNote}</p>
+                </div>
+              )}
 
               {/* Map Overlay Info */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-8 pointer-events-none">

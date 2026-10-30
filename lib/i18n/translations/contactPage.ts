@@ -37,6 +37,10 @@ interface ContactPageDict {
   mapOfficeTitle: string
   mapAddressLine1: string
   mapAddressLine2: string
+  mapLoadButton: string
+  mapConsentNote: string
+  formPrivacyNotePre: string
+  formPrivacyNoteLink: string
 }
 
 const dict: Record<Lang, ContactPageDict> = {
@@ -81,6 +85,10 @@ const dict: Record<Lang, ContactPageDict> = {
     mapOfficeTitle: 'Our Office',
     mapAddressLine1: 'Poljačka ul. 56',
     mapAddressLine2: '10000 Zagreb, Croatia',
+    mapLoadButton: 'Load map',
+    mapConsentNote: 'Loading the map connects you to Google Maps, which may set cookies. See our Privacy Policy.',
+    formPrivacyNotePre: 'By sending this form you agree that we process your data as described in our ',
+    formPrivacyNoteLink: 'Privacy Policy',
   },
   hr: {
     metaTitle: 'Kontaktirajte nas',
@@ -123,6 +131,10 @@ const dict: Record<Lang, ContactPageDict> = {
     mapOfficeTitle: 'Naš ured',
     mapAddressLine1: 'Poljačka ul. 56',
     mapAddressLine2: '10000 Zagreb, Hrvatska',
+    mapLoadButton: 'Učitaj kartu',
+    mapConsentNote: 'Učitavanjem karte povezujete se s uslugom Google Maps koja može postaviti kolačiće. Pogledajte naša Pravila privatnosti.',
+    formPrivacyNotePre: 'Slanjem obrasca pristajete na obradu podataka opisanu u našim ',
+    formPrivacyNoteLink: 'Pravilima privatnosti',
   },
 }
 
