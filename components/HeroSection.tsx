@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLang } from "@/lib/i18n/LanguageContext"
@@ -189,13 +190,19 @@ const HeroSection = ({ id }: HeroSectionProps) => {
         ref={backgroundRef}
         className="absolute inset-0 w-full h-[120%]"
       >
+        <Image
+          src="/images/toc-hero.jpeg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
         <div
+          className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.1) 100%), url(/images/toc-hero.jpeg)`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.1) 100%)`,
           }}
-          className="w-full h-full"
         />
       </div>
 

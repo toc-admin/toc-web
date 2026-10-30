@@ -5,8 +5,6 @@ const nextConfig = {
 
   // Image optimization configuration
   images: {
-    // Disable Vercel image optimization (to avoid billing limits)
-    unoptimized: true,
     // Configure remote image sources
     remotePatterns: [
       // Supabase Storage

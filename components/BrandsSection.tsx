@@ -31,7 +31,7 @@ const brands: Brand[] = [
   { logo: "/logos/GAN.png", bg: "/images/ganBg.webp", alt: "GAN", link: "https://www.gan-rugs.com/" },
   { logo: "/logos/hushoffice_logo_white.png", bg: "/images/hushofficeBg.webp", alt: "Hush Office", isLarge: true, link: "https://www.hushoffice.com" },
   { logo: "/logos/PabloDesigns.png", bg: "/images/pabloBg.webp", alt: "Pablo Designs", link: "https://www.pablodesign.com" },
-  { logo: "/logos/cassina.svg", bg: "/images/cassinaBg.png", alt: "Cassina", link: "https://www.cassina.com/ww/en.html" },
+  { logo: "/logos/cassina.svg", bg: "/images/cassinaBg.webp", alt: "Cassina", link: "https://www.cassina.com/ww/en.html" },
   { logo: "/logos/vkLight.png", bg: "/images/vkLightBg.jpg", alt: "VK Light", isLarge: true, link: "https://vkled.gr/en/" },
   { logo: "/logos/infiniti.webp", bg: "/images/infinitiBg.jpg", alt: "Infiniti Design", isLarge: true, link: "https://www.infinitidesign.it/en/" },
 ]
