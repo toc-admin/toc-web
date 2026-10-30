@@ -55,7 +55,7 @@ const content: Record<Lang, LegalPageContent> = {
         ],
         list: [
           'Vercel Inc. — hosting web stranice (poslužiteljski zapisi).',
-          'Supabase — baza podataka na kojoj se temelji sadržaj stranice (katalog, blog).',
+          'Supabase — baza podataka na kojoj se temelji sadržaj stranice (katalog, blog); podaci se pohranjuju na poslužiteljima unutar EU (regija Irska).',
           'Web3Forms — usluga dostave poruka s kontaktnog obrasca na našu e-mail adresu.',
           'Google LLC — Google Maps karta na kontakt stranici, koja se učitava isključivo nakon vašeg klika na "Učitaj kartu".',
         ],
@@ -65,7 +65,7 @@ const content: Record<Lang, LegalPageContent> = {
       {
         heading: '4. Prijenos podataka izvan EU/EEA',
         paragraphs: [
-          'Neki od navedenih pružatelja mogu obrađivati podatke na poslužiteljima izvan Europskog gospodarskog prostora (npr. u SAD-u). U tim se slučajevima prijenos temelji na odgovarajućim zaštitnim mjerama poput standardnih ugovornih klauzula Europske komisije ili EU-U.S. okvira za zaštitu privatnosti podataka.',
+          'Naša baza podataka nalazi se unutar EU. Neki drugi navedeni pružatelji (npr. hosting i dostava poruka s obrasca) mogu obrađivati podatke na poslužiteljima izvan Europskog gospodarskog prostora (npr. u SAD-u). U tim se slučajevima prijenos temelji na odgovarajućim zaštitnim mjerama poput standardnih ugovornih klauzula Europske komisije ili EU-U.S. okvira za zaštitu privatnosti podataka.',
         ],
       },
       {
@@ -132,7 +132,7 @@ const content: Record<Lang, LegalPageContent> = {
         ],
         list: [
           'Vercel Inc. — website hosting (server logs).',
-          'Supabase — the database powering the site content (catalog, blog).',
+          'Supabase — the database powering the site content (catalog, blog); data is stored on servers within the EU (Ireland region).',
           'Web3Forms — delivery of contact form messages to our e-mail address.',
           'Google LLC — the Google Maps embed on the contact page, which loads only after you click "Load map".',
         ],
@@ -140,7 +140,7 @@ const content: Record<Lang, LegalPageContent> = {
       {
         heading: '4. Transfers outside the EU/EEA',
         paragraphs: [
-          'Some of the listed providers may process data on servers outside the European Economic Area (e.g. in the USA). In such cases the transfer is based on appropriate safeguards such as the European Commission’s Standard Contractual Clauses or the EU-U.S. Data Privacy Framework.',
+          'Our database is located within the EU. Some other listed providers (e.g. hosting and contact form delivery) may process data on servers outside the European Economic Area (e.g. in the USA). In such cases the transfer is based on appropriate safeguards such as the European Commission’s Standard Contractual Clauses or the EU-U.S. Data Privacy Framework.',
         ],
       },
       {
